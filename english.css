@@ -89,6 +89,13 @@
 }
 
 /* ============================================================
+   HUD 抬头显示区：移除溢出截断限制
+   ============================================================ */
+.arcade-hud {
+  overflow: visible !important;
+}
+
+/* ============================================================
    题卡内容与中文单词突出展示
    ============================================================ */
 .question-card {
@@ -421,6 +428,26 @@ body[data-question-type="sentence"] .choice {
 
 #example {
   overflow-wrap: anywhere;
+}
+
+/* ============================================================
+   实用小提示 (Hint UI) 视觉优化
+   ============================================================ */
+.hint {
+  font-size: 13.5px !important;
+  line-height: 1.6 !important;
+  color: #5c3f52 !important;
+  padding: 8px 14px !important;
+  border-left: 3.5px solid #ff7ab6 !important;
+  background: #fff4f8 !important;
+  border-radius: 0 12px 12px 0 !important;
+  margin: 6px 0 10px !important;
+  font-weight: 750 !important;
+  box-shadow: 0 2px 0 rgba(48, 34, 56, 0.05);
+}
+
+body[data-question-type="spelling"] .hint-row {
+  margin-top: 4px;
 }
 
 @media (max-width: 400px) {

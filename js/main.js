@@ -726,6 +726,7 @@ function setupQuestion() {
   $('#feedback').textContent = copy.ready;
   $('#stamp').replaceChildren();
   $('#answer-area').hidden = false; $('#explanation').hidden = true; $('#hint').hidden = true;
+  $('#show-hint').hidden = mode.id === 'spelling';
   $('#show-hint').disabled = S.demo; $('#skip-question').hidden = S.kind !== 'placement';
   $$('.pip').forEach((p, i) => {
     p.classList.toggle('now', i === S.qi); p.classList.toggle('done', i < S.qi);
@@ -819,8 +820,14 @@ async function choose(button, automated = false) {
 function hint() {
   if (!S.ready || S.phase !== 'answer') return;
   S.firstTry = false;
-  $('#hint').textContent = `想一想：${activeQuestion().meaning}`; $('#hint').hidden = false;
-  $('#feedback').textContent = '用了提示也没关系，读懂意思最重要。';
+  if (mode.id !== 'spelling') {
+    const q = activeQuestion();
+    if (q?.word) {
+      $('#hint').textContent = `💡 首字母是「${q.word[0].toUpperCase()}」，共有 ${q.word.length} 个字母`;
+      $('#hint').hidden = false;
+      $('#feedback').textContent = '用了提示也没关系，读懂意思最重要。';
+    }
+  }
   if (S.stepMisses >= 3) $$('.choice').find((b) => b.dataset.char === answerAt(activeQuestion(), S.step))?.classList.add('hint-choice');
 }
 function completeQuestion(skipped = false, timedOut = false) {
