@@ -123,7 +123,16 @@
   line-height: 1.5;
 }
 
-/* 核心中文单词卡片：大号字、醒目居中、糖果质感徽章 */
+/* 核心中文单词卡片与朗读按钮行：大号字、醒目居中、糖果质感徽章 */
+.target-word-row {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
 .target-word {
   display: inline-flex;
   align-items: center;
@@ -225,29 +234,6 @@
   box-shadow: 0 1px 0 var(--ink);
 }
 
-.speech-button {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  border: 0;
-  /* background: transparent; */
-  color: inherit;
-  font: inherit;
-  font-size: 13px;
-  cursor: pointer;
-  padding: 8px 6px;
-  border-radius: 12px;
-}
-
-.speech-button:hover {
-  background: #ffffff80;
-}
-
-.speech-button:focus-visible {
-  outline: 3px solid #5278ff;
-  outline-offset: 2px;
-}
 
 .toggle-btn .sound-icon {
   display: inline-flex;
@@ -268,6 +254,19 @@
 /* ============================================================
    单词发音行与精美小喇叭按钮 (Speaker Icon Button)
    ============================================================ */
+.explain-heading {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.explain-top-row {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+
 .word-pronounce-row {
   display: inline-flex !important;
   align-items: center;
@@ -275,7 +274,21 @@
   vertical-align: middle;
 }
 
-#read-explanation.speaker-btn.icon-only {
+#meaning.explain-meaning {
+  font-size: clamp(17px, 4.5vw, 22px) !important;
+  font-weight: 850 !important;
+  color: var(--ink) !important;
+  letter-spacing: 1.5px !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+.speaker-btn.icon-only,
+#read-explanation.speaker-btn.icon-only,
+#read-question.speaker-btn.icon-only {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
@@ -284,6 +297,7 @@
   min-height: 34px;
   min-width: 34px;
   padding: 0;
+  margin: 0;
   border-radius: 50%;
   background: #fffdf5;
   border: 2px solid var(--ink);
@@ -295,14 +309,18 @@
   flex-shrink: 0;
 }
 
-#read-explanation.speaker-btn.icon-only:hover {
+.speaker-btn.icon-only:hover,
+#read-explanation.speaker-btn.icon-only:hover,
+#read-question.speaker-btn.icon-only:hover {
   background: #f4ecfb;
   color: #ff6e8e;
   transform: translateY(-1px) scale(1.06);
   box-shadow: 0 4px 0 var(--ink);
 }
 
-#read-explanation.speaker-btn.icon-only:hover .speaker-wave {
+.speaker-btn.icon-only:hover .speaker-wave,
+#read-explanation.speaker-btn.icon-only:hover .speaker-wave,
+#read-question.speaker-btn.icon-only:hover .speaker-wave {
   animation: speaker-wave-pulse 0.6s infinite alternate;
 }
 
@@ -311,21 +329,40 @@
   100% { opacity: 1; }
 }
 
-#read-explanation.speaker-btn.icon-only:active {
+.speaker-btn.icon-only:active,
+#read-explanation.speaker-btn.icon-only:active,
+#read-question.speaker-btn.icon-only:active {
   transform: translateY(2px) scale(0.96) !important;
   box-shadow: 0 1px 0 var(--ink) !important;
   background: #eadcf8;
 }
 
-#read-explanation.speaker-btn.icon-only:focus-visible {
+.speaker-btn.icon-only:focus-visible,
+#read-explanation.speaker-btn.icon-only:focus-visible,
+#read-question.speaker-btn.icon-only:focus-visible {
   outline: 3px solid #ff6e8e;
   outline-offset: 2px;
 }
 
-#read-explanation.speaker-btn.icon-only .speaker-icon {
+.speaker-btn.icon-only .speaker-icon,
+#read-explanation.speaker-btn.icon-only .speaker-icon,
+#read-question.speaker-btn.icon-only .speaker-icon {
   width: 17px;
   height: 17px;
   display: block;
+}
+
+/* ============================================================
+   主操作按钮文案居中展示 (下一题、再来一轮等)
+   ============================================================ */
+#next-question,
+.explanation .primary,
+.result-screen .primary {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  gap: 8px;
 }
 
 /* ============================================================
@@ -397,7 +434,15 @@ body[data-question-type="sentence"] .choice {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
-  margin: 8px 0;
+  margin: 6px 0 10px;
+  justify-items: center;
+  align-items: center;
+}
+
+.choices.busy ~ #candidate-speech .speaker-btn {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
 }
 
 .speech-status {
@@ -457,7 +502,7 @@ body[data-question-type="spelling"] .hint-row {
   }
 
   .candidate-speech {
-    gap: 6px;
+    gap: 10px;
   }
 
   .target-word {

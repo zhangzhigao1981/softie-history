@@ -704,8 +704,11 @@ function setupQuestion() {
   Object.assign(S, { step: 0, firstTry: true, stepMisses: 0, questionMisses: S.misses, phase: 'answer', ready: true });
   S.timeLeft = questionSeconds(mode, q.level) * 1000; S.clockAt = performance.now(); S.lastTick = null;
   $('#next-question').disabled = false;
+  $('#read-question').className = 'speaker-btn icon-only';
   $('#read-question').hidden = false;
-  $('#read-question').innerHTML = `${speakerIconSVG}<span>${mode.id === 'spelling' ? '听单词' : '听题目'}</span>`;
+  $('#read-question').innerHTML = speakerIconSVG;
+  $('#read-question').setAttribute('aria-label', mode.id === 'spelling' ? '朗读单词' : '朗读题目');
+  $('#read-question').title = mode.id === 'spelling' ? '朗读单词' : '朗读题目';
   updateTimer();
   S.E = energyAt(S.qi, S.questions.length);
   const music = musicAt(S.E);
@@ -729,7 +732,11 @@ function setupQuestion() {
       className: 'target-guide',
       textContent: '读句子 · 选出空格里的单词',
     });
-    $('#context').replaceChildren(targetWord, sentenceEn, targetGuide);
+    const targetRow = Object.assign(document.createElement('div'), {
+      className: 'target-word-row',
+    });
+    targetRow.append(targetWord, $('#read-question'));
+    $('#context').replaceChildren(targetRow, sentenceEn, targetGuide);
   } else {
     const targetWord = Object.assign(document.createElement('span'), {
       className: 'target-word',
@@ -739,7 +746,11 @@ function setupQuestion() {
       className: 'target-guide',
       textContent: mode.id === 'meaning' ? '选出对应的英文单词' : '听发音 · 补齐单词',
     });
-    $('#context').replaceChildren(targetWord, targetGuide);
+    const targetRow = Object.assign(document.createElement('div'), {
+      className: 'target-word-row',
+    });
+    targetRow.append(targetWord, $('#read-question'));
+    $('#context').replaceChildren(targetRow, targetGuide);
   }
   $('#word-slots').innerHTML = partsFor(q).map((part, i) => `<div class="word-cell${q.blanks.includes(i) ? ' blank' : ''}" data-index="${i}" aria-label="${q.blanks.includes(i) ? `第 ${i + 1} 格待填` : part}">${q.blanks.includes(i) ? '?' : part}</div>`).join('');
   $('.choice-note').innerHTML = '点一个答案，发射气泡 <span>键盘 1—4 也可以</span>';
@@ -775,7 +786,7 @@ function renderChoices() {
   $('#choices').style.setProperty('--option-font', `${Math.min(25, 110 / longest)}px`);
   $('#choices').innerHTML = options.map((char, i) => `<button class="choice" data-char="${char}" aria-label="选 ${char}，快捷键 ${i + 1}"><small aria-hidden="true">${i + 1}</small>${char}</button>`).join('');
   $('#choices').classList.remove('busy');
-  $('#candidate-speech').innerHTML = $$('.choice').map(b => `<button type="button" class="speech-button" data-speech="${b.dataset.char}" aria-label="朗读 ${b.dataset.char}">${speakerIconSVG}<span>听一听</span></button>`).join('');
+  $('#candidate-speech').innerHTML = $$('.choice').map(b => `<button type="button" class="speaker-btn icon-only" data-speech="${b.dataset.char}" aria-label="朗读 ${b.dataset.char}" title="朗读 ${b.dataset.char}">${speakerIconSVG}</button>`).join('');
   const team = actors.filter((a) => !a.hidden);
   actors.forEach((a) => a.classList.toggle('active-actor', a === team[(S.qi + S.step) % team.length]));
   $('#actor-caption').textContent = q.blanks.length > 1 ? `第 ${S.step + 1} 个空格 · 气泡接力中` : copy.stageReady;
