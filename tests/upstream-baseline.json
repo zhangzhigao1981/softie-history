@@ -1,0 +1,26 @@
+{
+  "repository": "yuanyang749/softie-idioms-app",
+  "commit": "005706b600d2fd0a2c6e108e0066d20f7f993c34",
+  "files": {
+    "js/audio.js": "1cd073282923b1ebd941cff8054a7c23d5c826b303094e0044394a6b0f64d7b7",
+    "js/bg.js": "7e1490889b1c737eeb50d40d9c41d1bcedadac321094ae8f8f5574df96186aaa",
+    "js/core.js": "ac2fc5b73f70507979544565c12f31d3e1f8207eb442cee0d7a20ac178eff5bf",
+    "js/fx.js": "9c9f595d3e8c52320db598020ca8468064d424d44b47909f99f08d3e4746f963",
+    "js/choreography.js": "0b3f18bdeb982774b74a15f25d33206b5a19be4411ab58baab463e976fa80c9a",
+    "js/softie.js": "b010b0277809495816556866d85a29d181228e41c23896c1d324e2c4940045b0",
+    "style.css": "1d6d345b7d97d8d4bc5277edb602021872d14d4f532fac75776e366fad0b28ef",
+    "show.css": "9a5d84181e599f7859518bc5c078c421e5fb061b77296c10cd980a6196ef6988",
+    "icon.svg": "0aea4472af1eeeae41fa540ab19e8b4351dbd360d82dd640e6a1e461e386c2e4",
+    "LICENSE-SOFTIE": "2e5c25f8344c8e7075f6daa03822d3a5aa456717e23558a502de2ee38009b987"
+  },
+  "functions": {
+    "setShowLevel": "7b8cb0bbd8b930612daf503741e20bf1ea9a4c29548f102c03e6b5f53e7edb51",
+    "cutin": "3a98658d34479644cf7f82ee2af7c03a95c3df727b9e58ed0751ef2cdf81cef7",
+    "celebrate": "e0e4aa57465fea92fb78960291181559afc961d49a68a3754d933f4b28190d16",
+    "parade": "6d96c0bf3a139b0ed3666c02ea06688656bae576d34f490f6deace3c096e3743",
+    "drawStamp": "18b84baa3b2506bcbc9f120d7576cdd6027cd7d0b2fd24c77c1ed99144afc448",
+    "unitSlam": "549fce0d95b7fc8e5b3fc8cc9a4a6581389a6721a9bec69bdad2461c77427b48",
+    "playFinale": "579aab836bdc14e26d775107e17fea2dd0ff41ec08db8701bf70e4582a3be184",
+    "initLogoBurst": "04681d12be3548327bd3ecb92c720eccfa35c69da73e7b574becf21730adda18"
+  }
+}

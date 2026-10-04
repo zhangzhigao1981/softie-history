@@ -1,0 +1,14 @@
+{
+  "name": "softie-learn-english-app",
+  "version": "0.1.0",
+  "description": "保留成语泡泡演出的儿童英语启蒙小游戏",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 8016 --bind 127.0.0.1",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
