@@ -66,6 +66,7 @@ export class SpeechReader {
           const utterance = new this.Utterance(item.text);
           utterance.voice = voice;
           utterance.lang = voice.lang;
+          utterance.volume = 1;
           utterance.rate = Math.max(0.65, Math.min(1.1, Number(rate) || 0.85));
           const turn = index;
           utterance.onend = () => { if (active() && index === turn) play(); };

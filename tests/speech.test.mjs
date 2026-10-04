@@ -102,7 +102,7 @@ test('app pauses thinking during speech, ducks only music, and restores it after
   const budget = f.app.scene.timeLeft;
   assert.equal(f.app.speech.busy, true);
   await f.advance(4000); assert.equal(f.app.scene.timeLeft, budget); assert.equal(f.app.scene.playMs, 0);
-  assert.equal(synth.spoken[0].lang, 'zh-CN'); assert.equal(f.musicGains.at(-1), 0.2);
+  assert.equal(synth.spoken[0].lang, 'zh-CN'); assert.equal(f.musicGains.at(-1), 0.1);
   synth.spoken[0].onend(); assert.equal(f.musicGains.at(-1), 0.8);
   await f.advance(1000); assert.equal(f.app.scene.timeLeft, budget - 1000);
 });

@@ -34,13 +34,33 @@ const resultActors = mountSofties($('#result-softies'));
 const S = { screen: 'home', run: 0, questions: [], qi: 0, step: 0, ready: false, phase: 'answer', demo: false, kind: 'level', level: mode.levels[0].id, firstTry: true, misses: 0, combo: 0, peak: 0, energy: 0, E: .02, flash: 0, shake: 0, results: [], stepMisses: 0, earnedTrophies: [], bonusOpen: false, pendingLoginBonus: null };
 Object.assign(S, { visualE: .02, shownEnergy: 0, energyUnit: 0, idleAt: 0 });
 let musicBaseGain = null;
-function duckBackground(busy) {
+let duckRestoreTimer = null;
+function duckBackground(busy, { immediate = false } = {}) {
   const gain = audio.g?.music?.gain;
   if (!gain || !audio.ctx) return;
   // Keep a stable baseline: AudioParam.value can still be mid-ramp when a
   // cancelled utterance is immediately replaced by the next one.
   if (musicBaseGain === null) musicBaseGain = gain.value;
-  try { gain.setTargetAtTime(musicBaseGain * (busy ? 0.25 : 1), audio.ctx.currentTime, 0.04); } catch { /* Audio context may be closing. */ }
+  if (duckRestoreTimer) {
+    clearTimeout(duckRestoreTimer);
+    duckRestoreTimer = null;
+  }
+  try { gain.cancelScheduledValues?.(audio.ctx.currentTime); } catch { /* Audio context may be closing. */ }
+
+  if (busy) {
+    // 朗读时更大幅度降低背景音乐（降至原音量的 12.5%），让朗读语音更突出、听得更清脆响亮
+    try { gain.setTargetAtTime(musicBaseGain * 0.125, audio.ctx.currentTime, 0.04); } catch { /* Audio context may be closing. */ }
+  } else {
+    // 朗读结束后不立刻切回背景音乐，留出 1.0 秒沉浸思考时间，随后平滑淡入（timeConstant 0.6s）
+    const delay = immediate ? 0 : 1.0;
+    const fade = immediate ? 0.04 : 0.6;
+    try { gain.setTargetAtTime(musicBaseGain * 1, audio.ctx.currentTime + delay, fade); } catch { /* Audio context may be closing. */ }
+    if (!immediate && typeof setTimeout === 'function') {
+      duckRestoreTimer = setTimeout(() => {
+        try { gain.setTargetAtTime(musicBaseGain * 1, audio.ctx.currentTime, 0.5); } catch {}
+      }, 1000);
+    }
+  }
 }
 const speech = new SpeechReader({
   onBusy: busy => { S.clockAt = performance.now(); duckBackground(busy); },
