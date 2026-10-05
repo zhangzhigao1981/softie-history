@@ -2,6 +2,10 @@
 
 基于 [成语泡泡](https://github.com/yuanyang749/softie-idioms-app) 的独立儿童英语启蒙版。保留原版 UI、Softie 角色、音效、音乐、泡泡运输、多巴胺连击和终场演出。中文操作界面，零 npm 依赖，无构建步骤、无后端。
 
+## 在线试玩
+
+体验地址：[https://yuanyang749.github.io/softie-learn-english-app/](https://yuanyang749.github.io/softie-learn-english-app/)
+
 ## 快速运行
 
 需要 Node.js 20+ 和 Python 3。解压源码后进入项目目录：
@@ -51,7 +55,7 @@ npm run dev
 - `js/speech.js`：可独立测试的朗读服务。
 - `js/main.js`：沿用原版主流程与演出。
 
-原项目参考提交：`005706b600d2fd0a2c6e108e0066d20f7f993c34`。新项目的目标仓库为 `yuanyang749/softie-learn-english-app`。当前源码在独立本地 Git 项目中，远端创建与上传尚待完成；原仓库未修改。
+原项目参考提交：`005706b600d2fd0a2c6e108e0066d20f7f993c34`。本项目仓库为 `yuanyang749/softie-learn-english-app`，已配置 GitHub Pages 在线访问。原仓库未修改。
 
 ## 许可证
 
