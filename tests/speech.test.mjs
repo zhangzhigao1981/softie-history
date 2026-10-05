@@ -169,3 +169,14 @@ test('default timers are properly bound and do not throw illegal invocation', as
   assert.equal(await pending, true);
   assert.equal(reader.busy, false);
 });
+
+test('demo mode automatically reads question cues with TTS when autoSpeak is enabled', async () => {
+  const synth = browser(); const f = createApp({ mode: 'spelling', speechOptions: { synth, Utterance } });
+  f.app.start('demo');
+  const q = f.app.scene.questions[0];
+  assert.equal(synth.spoken.length, 1);
+  assert.equal(synth.spoken[0].text, q.word);
+  assert.equal(synth.spoken[0].lang, 'en-US');
+  f.app.home();
+});
+

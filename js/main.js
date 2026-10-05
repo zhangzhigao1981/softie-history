@@ -68,7 +68,7 @@ const speech = new SpeechReader({
 });
 const speakerIconSVG = '<svg class="speaker-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M9 3.5 L4.5 7 H1.5 C1 7 .5 7.5 .5 8 V12 C.5 12.5 1 13 1.5 13 H4.5 L9 16.5 C9.7 17 10.5 16.5 10.5 15.7 V4.3 C10.5 3.5 9.7 3 9 3.5 Z" fill="currentColor"/><path class="speaker-wave" d="M13.5 6.5 C14.8 7.8 14.8 12.2 13.5 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="speaker-wave" d="M16 4 C18.5 6.5 18.5 13.5 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
 function read(items) {
-  if (document.hidden || S.demo || paused()) return;
+  if (document.hidden || paused()) return;
   audio.unlock();
   return speech.speak(items, { localOnly: saved.settings.localOnly, rate: saved.settings.speechRate });
 }
@@ -772,8 +772,8 @@ function setupQuestion() {
     if (S.E > .35) { const c = centerOf(card); fx.puff(c.x - c.w / 2, c.y + c.h / 2, 5); fx.puff(c.x + c.w / 2, c.y + c.h / 2, 5); audio.land(); }
     if (S.E > .22) cutin(S.qi === S.questions.length - 1 ? '最后一题！' : `第 ${S.qi + 1} 题`);
   }
+  if (saved.settings.autoSpeak) readQuestion();
   if (S.demo) scheduleDemo();
-  else if (saved.settings.autoSpeak) readQuestion();
 }
 function renderChoices() {
   const q = activeQuestion();
@@ -1198,6 +1198,7 @@ function demoReturn() { later(() => { if (paused()) demoReturn(); else home(); }
 function scheduleDemo() {
   later(() => {
     if (paused()) { scheduleDemo(); return; }
+    if (speech.busy) { later(scheduleDemo, 350); return; }
     if (!S.demo || !S.ready) return;
     const q = activeQuestion(); const correct = answerAt(q, S.step);
     const buttons = $$('.choice').filter((b) => !b.disabled);
