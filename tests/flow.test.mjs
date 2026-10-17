@@ -135,7 +135,7 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   for (const id of ['b7a', 'b7b', 'b8a', 'b8b']) assert.ok(tabs.includes(`data-book="${id}"`), `缺少 ${id} 的册标签`);
   assert.equal((tabs.match(/is-empty/g) || []).length, 3, '七上、七下、八下都还没有题目');
   assert.match(tabs, /class="book-tab active"/);
-  assert.match(tabs, /171 题/);
+  assert.match(tabs, /550 题/);
 
   // 切到还没题目的七年级上册：册、单元、课都跟着换，开始按钮转为提示态。
   f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b7a' } }) } });
@@ -167,7 +167,7 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   assert.equal(f.app.scene.questions.length, ROUND_SIZE);
 });
 
-test('八上第一单元三课都开局，第二单元起的待补课挂徽章、按钮禁用', async () => {
+test('八上前四单元十二课都开局，第五单元起的待补课挂徽章、按钮禁用', async () => {
   const f = createApp();
   // 第一单元三课都有题，课卡不再挂待补徽章。
   const list = f.$('#lesson-list').innerHTML;
@@ -187,16 +187,51 @@ test('八上第一单元三课都开局，第二单元起的待补课挂徽章�
     }
   }
 
-  // 切到第二单元，第 4 课仍是待补：按钮禁用、文案落在「这一课」。
+  // 第二单元四课也都能开局。
   f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: 'u2' } }) } });
   assert.equal(f.app.course.unitId, 'u2');
-  f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: 'b8a-u2-l1' } }) } });
-  assert.equal(f.app.course.lessonId, 'b8a-u2-l1');
+  assert.equal((f.$('#lesson-list').innerHTML.match(/lesson-todo/g) || []).length, 0, '第二单元不该再有待补徽章');
+  for (const lessonId of ['b8a-u2-l1', 'b8a-u2-l2', 'b8a-u2-l3', 'b8a-u2-l4']) {
+    f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: lessonId } }) } });
+    assert.equal(f.app.course.lessonId, lessonId);
+    for (const type of TYPES) {
+      f.app.setType(type.id, false);
+      assert.equal(f.$('#start-round').disabled, false, `${lessonId} 的 ${type.label} 应当可以开局`);
+    }
+  }
+
+  // 第三单元三课也都能开局。
+  f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: 'u3' } }) } });
+  assert.equal(f.app.course.unitId, 'u3');
+  assert.equal((f.$('#lesson-list').innerHTML.match(/lesson-todo/g) || []).length, 0, '第三单元不该再有待补徽章');
+  for (const lessonId of ['b8a-u3-l1', 'b8a-u3-l2', 'b8a-u3-l3']) {
+    f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: lessonId } }) } });
+    assert.equal(f.app.course.lessonId, lessonId);
+  }
+
+  // 第四单元两课已补齐，也都能开局。
+  f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: 'u4' } }) } });
+  assert.equal(f.app.course.unitId, 'u4');
+  assert.equal((f.$('#lesson-list').innerHTML.match(/lesson-todo/g) || []).length, 0, '第四单元不该再有待补徽章');
+  for (const lessonId of ['b8a-u4-l1', 'b8a-u4-l2']) {
+    f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: lessonId } }) } });
+    assert.equal(f.app.course.lessonId, lessonId);
+    for (const type of TYPES) {
+      f.app.setType(type.id, false);
+      assert.equal(f.$('#start-round').disabled, false, `${lessonId} 的 ${type.label} 应当可以开局`);
+    }
+  }
+
+  // 切到第五单元，第 13 课仍是待补：按钮禁用、文案落在「这一课」。
+  f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: 'u5' } }) } });
+  assert.equal(f.app.course.unitId, 'u5');
+  f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: 'b8a-u5-l1' } }) } });
+  assert.equal(f.app.course.lessonId, 'b8a-u5-l1');
   assert.equal(f.$('#start-round').disabled, true, '待补课开不了局');
   assert.equal(f.$('#start-label').textContent, '这一课还在补题');
-  assert.match(f.$('#start-note').textContent, /第4课 洋务运动和边疆危机 还没有出题/);
+  assert.match(f.$('#start-note').textContent, /第13课 国共合作与北伐战争 还没有出题/);
   assert.equal(f.app.saved.rounds, 0);
-  assert.equal((f.$('#lesson-list').innerHTML.match(/lesson-todo/g) || []).length, 4, '第二单元四课都该挂待补徽章');
+  assert.equal((f.$('#lesson-list').innerHTML.match(/lesson-todo/g) || []).length, 3, '第五单元三课都该挂待补徽章');
 });
 
 test('答错进错题本，「再练一练」重做后移出错题本', async () => {
@@ -423,7 +458,7 @@ test('首页进度与奖杯数量会跟着学习记录更新', async () => {
   f.app.start('lesson');
   await f.round({});
   f.app.home();
-  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 171 道题 · 完成 1 轮/);
+  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 550 道题 · 完成 1 轮/);
   assert.match(f.$('#trophy-badge').textContent, /^\d+ \/ \d+$/);
   // 课程卡显示「本课该题型练过几道 / 共几道」。分母直接取题库实际题量，
   // 以后往第 1 课加题不用再回来改这个断言。
