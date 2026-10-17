@@ -63,6 +63,8 @@ const copy = {
   typeHeading: '再选一种题型',
   startLabel: '开始闯关',
   pendingLabel: '这本还在补题',
+  pendingLessonLabel: '这一课还在补题',
+  pendingTypeLabel: '这类题还在补题',
   ready: '选一个答案，让软乎乎送过去吧。',
   wrong: '差一点点，再读一遍题干吧。',
   correct: '气泡命中！选对啦。',
@@ -726,10 +728,19 @@ function refreshHome() {
   const playable = pool.length > 0;
   $('#start-round').disabled = !playable;
   $('#start-round').classList.toggle('is-empty', !playable);
-  $('#start-label').textContent = playable ? `${copy.startLabel} · ${type.label}` : copy.pendingLabel;
+  // 待补分三层：整册没题 / 这一课没题 / 这一课有题但没有这种题型。
+  const bookEmpty = bookQuestionCount(bk) === 0;
+  const lessonEmpty = les.questions.length === 0;
+  $('#start-label').textContent = playable
+    ? `${copy.startLabel} · ${type.label}`
+    : bookEmpty ? copy.pendingLabel : lessonEmpty ? copy.pendingLessonLabel : copy.pendingTypeLabel;
   $('#start-note').textContent = playable
     ? `${les.label} ${les.title} · 一轮 ${ROUND_SIZE} 题 · 每题 ${type.seconds} 秒`
-    : `${bk.title} · ${les.label} ${les.title} 还没有${type.label}，换一册或换一种题型看看`;
+    : bookEmpty
+      ? `${bk.title} · ${les.label} ${les.title} 还没有${type.label}，换一册或换一种题型看看`
+      : lessonEmpty
+        ? `${bk.title} · ${les.label} ${les.title} 还没有出题，换一课看看`
+        : `${bk.title} · ${les.label} ${les.title} 还没有${type.label}，换一种题型看看`;
   $('#review-count').textContent = saved.review.length;
   $('#start-review').disabled = !saved.review.length;
   const done = ALL_QUESTIONS.filter((q) => saved.learned.includes(q.id)).length;

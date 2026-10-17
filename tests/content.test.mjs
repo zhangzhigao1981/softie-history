@@ -48,56 +48,71 @@ test('课程结构：四册按年级排列，每册「单元 → 课」逐级可
   assert.equal(findLesson(book('b8a').units[0], 'nope').id, book('b8a').units[0].lessons[0].id);
 });
 
-test('题库：只有八年级上册完整，三类主题型每课不少于 5 题，共 453 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 453);
+test('题库：八上目前只有第 1 课有题，共 78 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 78);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
-  // 时间轴题目前只在第 1 课试点（5 道），其余课还在铺，暂不要求每课都有；
-  // 选择、填空、材料三类仍按「每课不少于 5 题」的底线守住。
-  const CORE_TYPES = ['choice', 'blank', 'material'];
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
   const problems = [];
+  const withQuestions = [];
   for (const unit of book('b8a').units) {
     for (const lesson of unit.lessons) {
+      if (lesson.questions.length) withQuestions.push(lesson.id);
       for (const typeId of TYPE_IDS) {
         const list = questionsOf(lesson, typeId);
-        if (CORE_TYPES.includes(typeId)) {
-          assert.ok(list.length >= 5, `${lesson.label} ${lesson.title} 的 ${typeId} 题量不应少于 5，实际 ${list.length}`);
-        }
         assert.equal(countByType(lesson, typeId), list.length);
         counts[typeId] += list.length;
         for (const q of list) problems.push(...validateQuestion(q).map((p) => `${q.id}: ${p}`));
       }
-      assert.ok(lesson.questions.length >= 15, `${lesson.label} ${lesson.title} 题量不应少于 15`);
       assert.equal(lessonQuestionCount(lesson), lesson.questions.length);
     }
   }
-  assert.deepEqual(counts, { choice: 141, blank: 173, material: 134, timeline: 5 });
+  // 其余 25 课已清空待补，全册只剩第 1 课有题。
+  assert.deepEqual(withQuestions, ['b8a-u1-l1']);
+  assert.deepEqual(counts, { choice: 16, blank: 48, material: 9, timeline: 5 });
   assert.deepEqual(problems, []);
+
+  // 有题的课，四类题型都够凑满一轮。
+  const l1 = book('b8a').units[0].lessons[0];
+  for (const typeId of TYPE_IDS) {
+    assert.ok(questionsOf(l1, typeId).length >= ROUND_SIZE, `第 1 课的 ${typeId} 不足一轮`);
+  }
 });
 
-test('待补题的册：骨架在、题目为空，界面能识别出「没有题」', () => {
+test('待补的册与课：骨架在、题目为空，界面能识别出「没有题」', () => {
   for (const id of PENDING_BOOK_IDS) {
     const bk = book(id);
     assert.ok(bk.units.length > 0, `${bk.title} 要有单元`);
     assert.equal(bookQuestionCount(bk), 0, `${bk.title} 现在不该有题目`);
-    for (const unit of bk.units) {
-      assert.ok(unit.lessons.length > 0, `${bk.title} ${unit.name} 要有课`);
-      for (const lesson of unit.lessons) {
-        assert.deepEqual(lesson.questions, [], `${lesson.label} ${lesson.title} 还没有题目`);
-        for (const typeId of TYPE_IDS) assert.equal(questionsOf(lesson, typeId).length, 0);
-      }
+  }
+
+  // 八上除第 1 课外也全部退成待补，逐课确认为空。
+  let pending = 0;
+  for (const unit of book('b8a').units) {
+    assert.ok(unit.lessons.length > 0, `八上 ${unit.name} 要有课`);
+    for (const lesson of unit.lessons) {
+      if (lesson.id === 'b8a-u1-l1') continue;
+      assert.deepEqual(lesson.questions, [], `${lesson.label} ${lesson.title} 还没有题目`);
+      for (const typeId of TYPE_IDS) assert.equal(questionsOf(lesson, typeId).length, 0);
+      pending += 1;
     }
   }
+  assert.equal(pending, 25, '八上 26 课里应有 25 课待补');
+  // 清题不动骨架：课目录仍然是 104 课。
+  assert.equal(TOTAL_LESSONS, 104);
 
   assert.deepEqual(PLAYABLE_BOOKS.map((b) => b.id), ['b8a']);
   assert.equal(DEFAULT_BOOK.id, 'b8a', '默认落在第一本有题的册');
   assert.equal(bookQuestionCount(DEFAULT_BOOK), TOTAL_QUESTIONS);
 
-  // 打开任意一册都定位到「第一道有题的课」；空册回落到首单元首课，不致抛错。
+  // 打开有题的册落到第 1 课；空册回落到首单元首课，不致抛错。
   const opened = firstPlayableLesson(book('b8a'));
   assert.equal(opened.lesson.id, 'b8a-u1-l1');
-  assert.equal(bookQuestionCount(book('b8a')), 453);
+  assert.equal(bookQuestionCount(book('b8a')), 78);
+  const l1 = book('b8a').units[0].lessons[0];
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
+  assert.deepEqual(byType, { choice: 16, blank: 48, material: 9, timeline: 5 });
   for (const id of PENDING_BOOK_IDS) {
     const fallback = firstPlayableLesson(book(id));
     assert.equal(fallback.unit.id, book(id).units[0].id);

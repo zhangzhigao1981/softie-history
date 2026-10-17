@@ -56,7 +56,8 @@ test('trophies: evaluation awards new trophies accurately without duplication', 
 
 test('奖杯门槛与留存目标一致，每条连击都够得到', () => {
   assert.equal(TROPHIES.length, 32);
-  for (const [series, expected] of Object.entries({ combo: [3, 4, 5], perfect: [1, 3, 10], problems: [50, 150, 300, 500], review: [1, 5, 15] })) {
+  // learned 的门槛不能超过题库总量（八上目前 78 题），否则「学富五车」永远拿不到。
+  for (const [series, expected] of Object.entries({ combo: [3, 4, 5], perfect: [1, 3, 10], problems: [50, 150, 300, 500], review: [1, 5, 15], learned: [10, 30, 50, 70] })) {
     assert.deepEqual(TROPHIES.filter(t => t.series === series).map(t => t.need), expected);
   }
   // 一轮 5 题、错题重练一轮 10 题：最高连击要够得到最高的连击奖杯。

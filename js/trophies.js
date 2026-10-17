@@ -52,8 +52,8 @@ const SERIES_DEFS = [
     steps: [
       { need: 10, rank: 'bronze', name: '初识史海', desc: '完成练习： 10 道题' },
       { need: 30, rank: 'silver', name: '触类旁通', desc: '完成练习： 30 道题' },
-      { need: 60, rank: 'gold', name: '博古通今', desc: '完成练习： 60 道题' },
-      { need: 120, rank: 'rainbow', name: '学富五车', desc: '完成练习： 120 道题' },
+      { need: 50, rank: 'gold', name: '博古通今', desc: '完成练习： 50 道题' },
+      { need: 70, rank: 'rainbow', name: '学富五车', desc: '完成练习： 70 道题' },
     ],
   },
   {
