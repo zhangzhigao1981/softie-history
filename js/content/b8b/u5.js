@@ -1,5 +1,5 @@
 // 八年级下册 · 第五单元（统编版 2025 版）
-// 题库待补：在每课的 choice / judge / blank / material 下标各写 5 题即可。
+// 题库待补：在每课的 choice / blank / material / timeline 下标各写 5 题即可。
 export default {
   id: 'u5',
   no: 5,

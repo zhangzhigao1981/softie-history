@@ -17,14 +17,6 @@ export const TYPES = [
     seconds: 40,
   },
   {
-    id: 'judge',
-    label: '判断题',
-    icon: '⚖️',
-    note: '判断对错',
-    guide: '判断这句话对不对',
-    seconds: 35,
-  },
-  {
     id: 'blank',
     label: '填空题',
     icon: '✍️',

@@ -60,14 +60,6 @@
   font-weight: 900 !important;
 }
 
-/* 判断题：清爽多巴胺天蓝 */
-.mode-pill[data-mode="judge"].active {
-  background: #52c2ff !important;
-  color: #fff !important;
-  text-shadow: 0 1.5px 0 rgba(48, 34, 56, 0.45) !important;
-  transform: translateY(-2px) rotate(1.2deg) !important;
-}
-
 /* 选择题：明媚多巴胺糖果明黄 */
 .mode-pill[data-mode="choice"].active {
   background: #ffd86b !important;
@@ -605,9 +597,8 @@ body[data-question-type="timeline"] .word-cell {
   width: 100%;
 }
 
-/* 选择题 / 判断题 / 材料题：单个大答案格居中承载所选项 */
+/* 选择题 / 材料题：单个大答案格居中承载所选项 */
 body[data-question-type="choice"] .word-cell,
-body[data-question-type="judge"] .word-cell,
 body[data-question-type="material"] .word-cell {
   aspect-ratio: auto;
   flex: 0 1 auto;

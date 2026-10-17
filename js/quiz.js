@@ -2,7 +2,6 @@
 import { DEFAULT_TYPE_ID, ROUND_SIZE, TYPE_MAP } from './course.js';
 
 export const LETTERS = ['A', 'B', 'C', 'D'];
-export const JUDGE_KEYS = ['对', '错'];
 
 export function shuffle(items, rng = Math.random) {
   const out = [...items];
@@ -13,19 +12,15 @@ export function shuffle(items, rng = Math.random) {
   return out;
 }
 
-// 气泡与作答格里显示的短标签：选择题是 A-D，判断题是对/错，填空题就是那个词。
+// 气泡与作答格里显示的短标签：选择题是 A-D，填空题就是那个词。
 export function keyFor(q, index, text) {
   if (q.type === 'blank') return text ?? q.options[index];
-  if (q.type === 'judge') return JUDGE_KEYS[index];
   return LETTERS[index];
 }
 
 // 返回按展示顺序排好的候选项，标签跟着位置走，不会出现「第一个选项叫 B」。
 export function optionsFor(q, rng = Math.random, typeId = q.type || DEFAULT_TYPE_ID) {
   const options = q.options || [];
-  if (typeId === 'judge') {
-    return options.map((text, i) => ({ key: JUDGE_KEYS[i], text, correct: i === q.answer }));
-  }
   const correct = { text: options[q.answer], correct: true };
   const others = shuffle(options.map((text) => ({ text, correct: false })).filter((o) => o.text !== correct.text), rng)
     .slice(0, Math.max(1, Math.min(3, options.length - 1)));
@@ -62,7 +57,6 @@ export function validateQuestion(q) {
   if (!Number.isInteger(q.answer) || q.answer < 0 || q.answer >= (q.options?.length || 0)) problems.push('答案下标越界');
   if (q.type === 'blank' && !q.stem?.includes('____')) problems.push('填空题缺少空格');
   if (q.type === 'material' && !q.material) problems.push('材料题缺少材料');
-  if (q.type === 'judge' && q.options?.length !== 2) problems.push('判断题应有两个选项');
   if (q.type === 'timeline') {
     if (!Array.isArray(q.axis) || q.axis.length < 3) problems.push('时间轴至少要有三个节点');
     else {

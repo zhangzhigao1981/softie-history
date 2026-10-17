@@ -18,8 +18,8 @@ import { validateQuestion } from '../js/quiz.js';
 const MAX_STEM = 60;
 const MAX_OPTION = 24;
 const MIN_EXPLAIN = 12;
-const TYPE_ORDER = ['choice', 'judge', 'blank', 'material', 'timeline'];
-const TYPE_LABEL = { choice: '选择', judge: '判断', blank: '填空', material: '材料', timeline: '时间轴' };
+const TYPE_ORDER = ['choice', 'blank', 'material', 'timeline'];
+const TYPE_LABEL = { choice: '选择', blank: '填空', material: '材料', timeline: '时间轴' };
 
 const only = process.argv[2];
 const books = only ? BOOKS.filter((b) => b.id === only) : BOOKS;

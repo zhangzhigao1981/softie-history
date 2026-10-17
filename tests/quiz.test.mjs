@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { LETTERS, JUDGE_KEYS, shuffle, keyFor, optionsFor, correctKey, makeRound, recordAnswer, validateQuestion } from '../js/quiz.js';
+import { LETTERS, shuffle, keyFor, optionsFor, correctKey, makeRound, recordAnswer, validateQuestion } from '../js/quiz.js';
 import { ROUND_SIZE } from '../js/course.js';
 import { QUESTIONS } from './helpers/app-harness.mjs';
 
@@ -34,16 +34,13 @@ test('optionsFor：选择题与材料题给出四个互不相同的候选，正�
   }
 });
 
-test('optionsFor：判断题固定「对 / 错」两个候选，正确项跟随 answer', () => {
-  for (const answer of [0, 1]) {
-    const q = { type: 'judge', options: ['对', '错'], answer };
-    const options = optionsFor(q, seeded(5), 'judge');
-    assert.equal(options.length, 2);
-    assert.deepEqual(options.map((o) => o.key), JUDGE_KEYS);
-    assert.deepEqual(options.map((o) => o.text), ['对', '错']);
-    assert.equal(options[answer].correct, true);
-    assert.equal(options[1 - answer].correct, false);
-  }
+test('optionsFor：时间轴题也是四选一，正确项跟着 answer 走', () => {
+  const q = QUESTIONS.find((item) => item.type === 'timeline');
+  const options = optionsFor(q, seeded(5), 'timeline');
+  assert.equal(options.length, 4);
+  assert.deepEqual(options.map((o) => o.key), LETTERS);
+  assert.equal(options.filter((o) => o.correct).length, 1);
+  assert.equal(options.find((o) => o.correct).text, q.options[q.answer]);
 });
 
 test('optionsFor：填空题的气泡标签就是那个词本身', () => {
@@ -54,15 +51,15 @@ test('optionsFor：填空题的气泡标签就是那个词本身', () => {
   assert.equal(options.find((o) => o.correct).key, q.options[q.answer]);
 });
 
-test('keyFor：三种短标签规则一致，且不受题目类型缺省影响', () => {
+test('keyFor：选择题按位置给 A-D，填空题直接给那个词', () => {
   assert.equal(keyFor({ type: 'choice' }, 2), 'C');
-  assert.equal(keyFor({ type: 'judge' }, 1), '错');
+  assert.equal(keyFor({ type: 'timeline' }, 1), 'B');
   assert.equal(keyFor({ type: 'blank' }, 0, '虎门'), '虎门');
   assert.equal(keyFor({ type: 'blank', options: ['虎门'] }, 0), '虎门');
 });
 
 test('correctKey 与 optionsFor 选出的正确项始终一致', () => {
-  for (const type of ['choice', 'judge', 'blank', 'material']) {
+  for (const type of ['choice', 'blank', 'material', 'timeline']) {
     const q = sample(type);
     const rng = seeded(13);
     assert.equal(correctKey(q, rng, q.type), optionsFor(q, seeded(13), q.type).find((o) => o.correct).key);
@@ -81,7 +78,7 @@ test('makeRound：一轮取满 5 题、不重复，没见过的题排在前面',
 });
 
 test('makeRound：题量少于一轮时只返回现有的题', () => {
-  const pool = QUESTIONS.filter((q) => q.type === 'judge').slice(0, 3);
+  const pool = QUESTIONS.filter((q) => q.type === 'timeline').slice(0, 3);
   const round = makeRound(pool, { count: ROUND_SIZE, seen: [], rng: seeded(2) });
   assert.equal(round.length, 3);
   assert.deepEqual([...round.map((q) => q.id)].sort(), [...pool.map((q) => q.id)].sort());
@@ -122,6 +119,10 @@ test('validateQuestion：题干、选项、答案下标、空格与材料缺失�
   assert.ok(validateQuestion({ ...ok, material: '' }).includes('材料题缺少材料'));
   assert.ok(validateQuestion({ ...ok, explain: '' }).includes('缺少解析'));
   assert.ok(validateQuestion({ ...sample('blank'), stem: '没有空格的题干' }).includes('填空题缺少空格'));
-  assert.ok(validateQuestion({ ...sample('judge'), options: ['对', '错', '看情况'] }).includes('判断题应有两个选项'));
+  const axis = sample('timeline');
+  assert.deepEqual(validateQuestion(axis), []);
+  assert.ok(validateQuestion({ ...axis, axis: axis.axis.slice(0, 2) }).includes('时间轴至少要有三个节点'));
+  assert.ok(validateQuestion({ ...axis, axis: axis.axis.map((n) => ({ ...n, text: n.text || '补上' })) }).includes('时间轴要恰好留一个空节点'));
+  assert.ok(validateQuestion({ ...axis, axis: [...axis.axis, ...['1900', '1901', '1902', '1903'].map((y) => ({ year: `${y} 年`, text: '补上' }))] }).includes('时间轴最多六个节点，否则手机上一格放不下'));
   assert.ok(validateQuestion({ ...ok, type: 'essay' }).includes('未知题型'));
 });

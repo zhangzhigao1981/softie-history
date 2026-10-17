@@ -63,8 +63,10 @@ test('奖杯门槛与留存目标一致，每条连击都够得到', () => {
   const maxCombo = Math.max(ROUND_SIZE, REVIEW_SIZE);
   const comboNeeds = TROPHIES.filter(t => t.series === 'combo').map(t => t.need);
   assert.ok(comboNeeds.every(t => t <= ROUND_SIZE), `连击门槛 ${comboNeeds} 超出单轮题量 ${ROUND_SIZE}`);
-  // 其余门槛不能超过题库总量，否则永远拿不到。
-  assert.ok(TROPHIES.every(t => t.need <= ALL_QUESTIONS.length), '奖杯门槛不能超过题目总数');
+  // 「练过多少道不同的题」这类门槛不能超过题库总量，否则永远拿不到；
+  // 累计答对的次数不受题库总量限制（同一道题可以反复练）。
+  const distinctNeeds = TROPHIES.filter(t => t.metric === 'learnedCount').map(t => t.need);
+  assert.ok(distinctNeeds.every(n => n <= ALL_QUESTIONS.length), `练题量门槛 ${distinctNeeds} 超出题库总量 ${ALL_QUESTIONS.length}`);
   // 三种全对/连击类门槛靠一轮就能推进，学习量类门槛要玩很多轮。
   assert.ok(ROUND_SIZE === 5);
 });

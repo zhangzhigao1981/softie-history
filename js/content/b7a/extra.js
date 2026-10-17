@@ -1,5 +1,5 @@
 // 七年级上册 · 导言课、活动课与三则学史方法（统编版 2025 版）
-// 题库待补：在每课的 choice / judge / blank / material 下标各写 5 题即可。
+// 题库待补：在每课的 choice / blank / material / timeline 下标各写 5 题即可。
 export default {
   id: 'u0',
   no: 0,

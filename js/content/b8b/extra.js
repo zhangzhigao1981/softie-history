@@ -1,5 +1,5 @@
 // 八年级下册 · 导言课与学史方法（统编版 2025 版）
-// 题目待补：需要时给课对象加 choice / judge / blank / material 四个数组即可，
+// 题目待补：需要时给课对象加 choice / blank / material / timeline 四个数组即可，
 // 课程结构、首页导航、组卷与判题都不用改。
 export default {
   id: 'u0',

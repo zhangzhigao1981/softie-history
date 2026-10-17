@@ -45,7 +45,7 @@ test('show and music grow with round progress, independently of question difficu
 
 test('每题时限由题型决定：材料题留足读材料的时间，缺省回落到 40 秒', () => {
   assert.deepEqual(TYPES.map((type) => questionSeconds(type)), TYPES.map((type) => type.seconds));
-  assert.deepEqual(TYPES.map((type) => questionSeconds(type)), [40, 35, 45, 70, 50]);
+  assert.deepEqual(TYPES.map((type) => questionSeconds(type)), [40, 45, 70, 50]);
   assert.equal(questionSeconds({ seconds: 15 }), 15, '题型可以自带时限');
   assert.equal(questionSeconds(undefined), 40);
   assert.equal(questionSeconds({}), 40);

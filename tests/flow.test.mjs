@@ -42,13 +42,12 @@ test('首页默认落在第一单元第一课，从首页可以直接开始一�
   assert.ok(f.app.scene.questions.every((q) => q.lessonId === LESSON1.id));
 });
 
-test('五种题型都能完整走完一轮，题面、候选与解析各就各位', async () => {
+test('四种题型都能完整走完一轮，题面、候选与解析各就各位', async () => {
   for (const type of TYPES) {
     const f = createApp({ type: type.id });
     f.app.start('lesson');
-    // 时间轴题目前只在第 1 课放了 1 道，题池不足 5 时一轮按池子大小走。
-    assert.ok(f.app.scene.questions.length >= 1 && f.app.scene.questions.length <= ROUND_SIZE, '一轮不超过 5 题');
-    if (type.id !== 'timeline') assert.equal(f.app.scene.questions.length, ROUND_SIZE);
+    // 第 1 课四类题型的池子都够一轮 5 题。
+    assert.equal(f.app.scene.questions.length, ROUND_SIZE, '一轮 5 题');
     assert.ok(f.app.scene.questions.every((q) => q.type === type.id), `${type.label} 一轮里只出本題型`);
 
     const q = f.app.scene.questions[0];
@@ -72,7 +71,7 @@ test('五种题型都能完整走完一轮，题面、候选与解析各就各�
 
     // 候选数量与标签
     const buttons = f.$('#choices').children;
-    assert.equal(buttons.length, type.id === 'judge' ? 2 : 4);
+    assert.equal(buttons.length, 4);
     assert.equal(buttons.filter((b) => b.dataset.char === f.app.scene.correctKey).length, 1);
     const density = f.$('#choices').dataset.density;
     assert.ok(['stack', 'pair', 'trio'].includes(density), `未知排布：${density}`);
@@ -131,7 +130,7 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   for (const id of ['b7a', 'b7b', 'b8a', 'b8b']) assert.ok(tabs.includes(`data-book="${id}"`), `缺少 ${id} 的册标签`);
   assert.equal((tabs.match(/is-empty/g) || []).length, 3, '七上、七下、八下都还没有题目');
   assert.match(tabs, /class="book-tab active"/);
-  assert.match(tabs, /577 题/);
+  assert.match(tabs, /451 题/);
 
   // 切到还没题目的七年级上册：册、单元、课都跟着换，开始按钮转为提示态。
   f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b7a' } }) } });
@@ -337,11 +336,11 @@ test('「更上一层」在把同一课已有的题型都练过之后解锁', as
     await f.round({});
   }
   assert.ok(f.app.saved.trophies.got['secret-advanced']);
-  // 第 1 课：前四类各 5 道、时间轴 1 道，一轮正好全部练完。
-  assert.equal(f.app.saved.learned.length, 21, '第 1 课 21 道题全部练过');
+  // 第 1 课四类题型都能凑满一轮 5 道，一轮正好全部练完。
+  assert.equal(f.app.saved.learned.length, ROUND_SIZE * TYPES.length, '第 1 课 20 道题全部练过');
 
   const partial = createApp();
-  for (const type of ['choice', 'judge']) {
+  for (const type of ['choice', 'blank']) {
     partial.app.setType(type, false);
     partial.app.start('lesson');
     await partial.round({});
@@ -387,7 +386,7 @@ test('首页进度与奖杯数量会跟着学习记录更新', async () => {
   f.app.start('lesson');
   await f.round({});
   f.app.home();
-  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 577 道题 · 完成 1 轮/);
+  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 451 道题 · 完成 1 轮/);
   assert.match(f.$('#trophy-badge').textContent, /^\d+ \/ \d+$/);
   // 第 1 课的选择题池已扩到 15 题，练过 5 题就显示 5/15
   assert.match(f.$('#lesson-list').innerHTML, /<b>5<\/b>\/15/, '课程卡显示本课该题型的进度');

@@ -844,11 +844,6 @@ function updateOptionFont(q) {
   const options = q.options || [''];
   const longest = Math.max(1, ...options.map((o) => o.length));
   const box = $('#choices');
-  if (q.type === 'judge') {
-    box.dataset.density = 'pair';
-    box.style.setProperty('--option-font', '26px');
-    return;
-  }
   if (q.type === 'blank') {
     // 填空题的候选都是一两个词，固定两列，词短就放大字。
     box.dataset.density = 'pair';
@@ -885,9 +880,7 @@ function setupQuestion() {
   $('#level-tag').textContent = `${q.lessonLabel} · ${type.label}`;
   $('#blank-count').textContent = type.note;
   renderContext(q, type);
-  $('.choice-note').innerHTML = q.type === 'judge'
-    ? '点一个判断，发射气泡 <span>键盘 1—2 也可以</span>'
-    : '点一个答案，发射气泡 <span>键盘 1—4 也可以</span>';
+  $('.choice-note').innerHTML = '点一个答案，发射气泡 <span>键盘 1—4 也可以</span>';
   $('#feedback').textContent = copy.ready;
   $('#stamp').replaceChildren();
   $('#answer-area').hidden = false; $('#explanation').hidden = true; $('#hint').hidden = true;
@@ -991,9 +984,7 @@ function hint() {
   }
   $('#hint').textContent = q.type === 'blank'
     ? `💡 正确答案是 ${q.options[q.answer].length} 个字。`
-    : q.type === 'judge'
-      ? '💡 想一想，这句话有没有偷换时间、地点或人物。'
-      : '💡 已经帮你排除一个错误选项，再读一遍题干。';
+    : '💡 已经帮你排除一个错误选项，再读一遍题干。';
   $('#hint').hidden = false;
   $('#feedback').textContent = '用了提示也没关系，读懂题干最重要。';
   if (S.stepMisses >= 3) $$('.choice').find((b) => b.dataset.char === S.correctKey)?.classList.add('hint-choice');
