@@ -48,8 +48,8 @@ test('课程结构：四册按年级排列，每册「单元 → 课」逐级可
   assert.equal(findLesson(book('b8a').units[0], 'nope').id, book('b8a').units[0].lessons[0].id);
 });
 
-test('题库：只有八年级上册完整，三类主题型每课不少于 5 题，共 456 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 456);
+test('题库：只有八年级上册完整，三类主题型每课不少于 5 题，共 453 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 453);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   // 时间轴题目前只在第 1 课试点（5 道），其余课还在铺，暂不要求每课都有；
@@ -72,7 +72,7 @@ test('题库：只有八年级上册完整，三类主题型每课不少于 5 �
       assert.equal(lessonQuestionCount(lesson), lesson.questions.length);
     }
   }
-  assert.deepEqual(counts, { choice: 140, blank: 178, material: 133, timeline: 5 });
+  assert.deepEqual(counts, { choice: 141, blank: 173, material: 134, timeline: 5 });
   assert.deepEqual(problems, []);
 });
 
@@ -97,7 +97,7 @@ test('待补题的册：骨架在、题目为空，界面能识别出「没有�
   // 打开任意一册都定位到「第一道有题的课」；空册回落到首单元首课，不致抛错。
   const opened = firstPlayableLesson(book('b8a'));
   assert.equal(opened.lesson.id, 'b8a-u1-l1');
-  assert.equal(bookQuestionCount(book('b8a')), 456);
+  assert.equal(bookQuestionCount(book('b8a')), 453);
   for (const id of PENDING_BOOK_IDS) {
     const fallback = firstPlayableLesson(book(id));
     assert.equal(fallback.unit.id, book(id).units[0].id);
