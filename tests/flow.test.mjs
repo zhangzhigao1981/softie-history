@@ -135,7 +135,7 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   for (const id of ['b7a', 'b7b', 'b8a', 'b8b']) assert.ok(tabs.includes(`data-book="${id}"`), `缺少 ${id} 的册标签`);
   assert.equal((tabs.match(/is-empty/g) || []).length, 3, '七上、七下、八下都还没有题目');
   assert.match(tabs, /class="book-tab active"/);
-  assert.match(tabs, /696 题/);
+  assert.match(tabs, /899 题/);
 
   // 切到还没题目的七年级上册：册、单元、课都跟着换，开始按钮转为提示态。
   f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b7a' } }) } });
@@ -167,7 +167,7 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   assert.equal(f.app.scene.questions.length, ROUND_SIZE);
 });
 
-test('八上前五单元十五课都开局，第六单元起的待补课挂徽章、按钮禁用', async () => {
+test('八上前六单元十九课都开局，第七单元起的待补课挂徽章、按钮禁用', async () => {
   const f = createApp();
   // 第一单元三课都有题，课卡不再挂待补徽章。
   const list = f.$('#lesson-list').innerHTML;
@@ -235,16 +235,29 @@ test('八上前五单元十五课都开局，第六单元起的待补课挂徽�
     }
   }
 
-  // 切到第六单元，第 16 课仍是待补：按钮禁用、文案落在「这一课」。
+  // 第六单元四课已补齐，也都能开局。
   f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: 'u6' } }) } });
   assert.equal(f.app.course.unitId, 'u6');
-  f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: 'b8a-u6-l1' } }) } });
-  assert.equal(f.app.course.lessonId, 'b8a-u6-l1');
+  assert.equal((f.$('#lesson-list').innerHTML.match(/lesson-todo/g) || []).length, 0, '第六单元不该再有待补徽章');
+  for (const lessonId of ['b8a-u6-l1', 'b8a-u6-l2', 'b8a-u6-l3', 'b8a-u6-l4']) {
+    f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: lessonId } }) } });
+    assert.equal(f.app.course.lessonId, lessonId);
+    for (const type of TYPES) {
+      f.app.setType(type.id, false);
+      assert.equal(f.$('#start-round').disabled, false, `${lessonId} 的 ${type.label} 应当可以开局`);
+    }
+  }
+
+  // 切到第七单元，第 20 课仍是待补：按钮禁用、文案落在「这一课」。
+  f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: 'u7' } }) } });
+  assert.equal(f.app.course.unitId, 'u7');
+  f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: 'b8a-u7-l1' } }) } });
+  assert.equal(f.app.course.lessonId, 'b8a-u7-l1');
   assert.equal(f.$('#start-round').disabled, true, '待补课开不了局');
   assert.equal(f.$('#start-label').textContent, '这一课还在补题');
-  assert.match(f.$('#start-note').textContent, /第16课 从九一八事变到西安事变 还没有出题/);
+  assert.match(f.$('#start-note').textContent, /第20课 国民党挑起内战 还没有出题/);
   assert.equal(f.app.saved.rounds, 0);
-  assert.equal((f.$('#lesson-list').innerHTML.match(/lesson-todo/g) || []).length, 4, '第六单元四课都该挂待补徽章');
+  assert.equal((f.$('#lesson-list').innerHTML.match(/lesson-todo/g) || []).length, 3, '第七单元三课都该挂待补徽章');
 });
 
 test('答错进错题本，「再练一练」重做后移出错题本', async () => {
@@ -471,7 +484,7 @@ test('首页进度与奖杯数量会跟着学习记录更新', async () => {
   f.app.start('lesson');
   await f.round({});
   f.app.home();
-  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 696 道题 · 完成 1 轮/);
+  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 899 道题 · 完成 1 轮/);
   assert.match(f.$('#trophy-badge').textContent, /^\d+ \/ \d+$/);
   // 课程卡显示「本课该题型练过几道 / 共几道」。分母直接取题库实际题量，
   // 以后往第 1 课加题不用再回来改这个断言。
