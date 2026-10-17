@@ -76,7 +76,7 @@ test('每个奇遇彩蛋都挂在一个真实存在的标记上', () => {
     'flag:night', 'flag:speedy', 'flag:weekend',
   ]);
   for (const t of secrets) assert.ok(t.desc.length > 6, `${t.id} 缺少说明`);
-  assert.equal(TYPES.length, 4, '「更上一层」依赖四种题型');
+  assert.ok(TYPES.length >= 4, '「更上一层」要跨题型，至少四种才能体现');
 });
 
 test('old award records are preserved but never inflate the current trophy count', () => {

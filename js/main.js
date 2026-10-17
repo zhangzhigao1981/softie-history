@@ -749,6 +749,7 @@ function refreshHome() {
   renderCalendar();
   checkHammer();
   checkLoginBonus();
+  syncTypePills();
 }
 function home() {
   cancelRun(); S.demo = false; S.E = .02;
@@ -811,6 +812,19 @@ function renderContext(q, type) {
   $('#stem-guide').textContent = type.guide;
   const mat = $('#material-text');
   if (q.material) { mat.textContent = q.material; mat.hidden = false; } else { mat.textContent = ''; mat.hidden = true; }
+  // 时间轴题：把整条轴画出来，留空的那个节点显示问号，答案从候选里点。
+  const board = $('#axis-board');
+  if (q.type === 'timeline' && Array.isArray(q.axis) && q.axis.length) {
+    board.innerHTML = `<div class="axis-rail">${q.axis.map((n) => {
+      const blank = !n.text;
+      return `<div class="axis-node${blank ? ' is-blank' : ''}"><span class="axis-year">${escapeHtml(n.year)}</span><span class="axis-dot" aria-hidden="true"></span><span class="axis-event">${blank ? '？' : escapeHtml(n.text)}</span></div>`;
+    }).join('')}</div>`;
+    board.setAttribute('aria-label', `时间轴：${q.axis.map((n) => `${n.year}${n.text ? ` ${n.text}` : ' 待填'}`).join('，')}`);
+    board.hidden = false;
+  } else {
+    board.innerHTML = '';
+    board.hidden = true;
+  }
   const stem = $('#stem-text');
   const slots = $('#word-slots');
   slots.className = q.type === 'blank' ? 'word-slots inline' : 'word-slots';
@@ -1270,12 +1284,13 @@ function finish() {
     if (dayOfWeek === 0 || dayOfWeek === 6) saved.stats.flags.weekend = true;
     const hour = new Date().getHours();
     if (hour >= 22 || hour < 6) saved.stats.flags.night = true;
-    // 「更上一层」：当前这一课的四种题型都至少练过一轮。
+    // 「更上一层」：当前这一课已有的题型都至少练过一轮。
+    // 注意不能拿全局题型数来比——某课若没有时间轴题，只会永远凑不齐。
     const covered = new Map();
     for (const q of currentLesson()?.questions || []) {
       covered.set(q.type, Boolean(covered.get(q.type)) || saved.learned.includes(q.id));
     }
-    if (covered.size === TYPES.length && [...covered.values()].every(Boolean)) saved.stats.flags.advanced = true;
+    if (covered.size >= 2 && [...covered.values()].every(Boolean)) saved.stats.flags.advanced = true;
 
     checkTrophies();
     persist();
@@ -1384,10 +1399,15 @@ if (modeSelect) {
 }
 
 function syncTypePills() {
+  const lesson = currentLesson();
   $$('.mode-pill').forEach((btn) => {
     const active = btn.dataset.mode === course.typeId;
     btn.classList.toggle('active', active);
     btn.setAttribute('aria-checked', active ? 'true' : 'false');
+    // 本课这一题型还没录题时把按钮压暗，别让人点进去才发现是空的。
+    const empty = lesson ? questionsOf(lesson, btn.dataset.mode).length === 0 : false;
+    btn.classList.toggle('is-empty', empty);
+    btn.title = empty ? `本课还没有${TYPE_MAP[btn.dataset.mode]?.label || '这类题'}` : '';
   });
   if ($('#logo-bit-1')) $('#logo-bit-1').textContent = copy.logoBits[0];
   if ($('#logo-bit-2')) $('#logo-bit-2').textContent = copy.logoBits[1];

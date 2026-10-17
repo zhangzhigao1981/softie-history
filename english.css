@@ -92,6 +92,23 @@
   transform: translateY(-2px) rotate(1.2deg) !important;
 }
 
+/* 时间轴题：时空青 */
+.mode-pill[data-mode="timeline"].active {
+  background: #2ec4b6 !important;
+  color: #fff !important;
+  text-shadow: 0 1.5px 0 rgba(48, 34, 56, 0.45) !important;
+  transform: translateY(-2px) rotate(-1.2deg) !important;
+}
+
+/* 本课还没录这一题型：压暗但保留可点，点进去会看到「待补」提示 */
+.mode-pill.is-empty {
+  opacity: 0.42;
+}
+
+.mode-pill.is-empty.active {
+  opacity: 0.75;
+}
+
 .mode-pill.active .mode-emoji {
   opacity: 1 !important;
   filter: none !important;
@@ -441,6 +458,104 @@
   overflow-wrap: anywhere;
   max-height: 34vh;
   overflow-y: auto;
+}
+
+/* ============================================================
+   时间轴题 (timeline)：一条横轴，年份在上、事件在下，空位显示问号
+   ============================================================ */
+.axis-board {
+  width: 100%;
+  margin: 0 0 4px;
+  padding: 10px 2px 6px;
+  background: #fffdf5;
+  border: 2px dashed #cbb8d8;
+  border-radius: 14px;
+}
+
+.axis-rail {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 2px;
+}
+
+.axis-node {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* 连接线：从上一个节点圆心连到本节点圆心，被圆点压住两端 */
+.axis-node:not(:first-child)::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: -50%;
+  width: 100%;
+  height: 3px;
+  background: #d8c4e4;
+  border-radius: 2px;
+}
+
+.axis-year {
+  height: 14px;
+  line-height: 14px;
+  font-size: 11px;
+  font-weight: 900;
+  color: #8a6aa0;
+  white-space: nowrap;
+}
+
+.axis-dot {
+  position: relative;
+  z-index: 1;
+  width: 10px;
+  height: 10px;
+  margin: 3px 0 5px;
+  border-radius: 50%;
+  background: #a77bff;
+  box-shadow: 0 0 0 2.5px #fffdf5;
+}
+
+.axis-event {
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.35;
+  color: #4a3a52;
+  overflow-wrap: anywhere;
+}
+
+/* 留空的节点：虚线圆 + 问号，和已经填好的节点一眼分开 */
+.axis-node.is-blank .axis-dot {
+  background: #fff;
+  border: 2px dashed #a77bff;
+  box-shadow: 0 0 0 2.5px #fffdf5;
+}
+
+.axis-node.is-blank .axis-event {
+  font-size: 15px;
+  font-weight: 900;
+  color: #a77bff;
+}
+
+/* 时间轴题的答案格要装得下一整个事件名，字号比选择题小一档并允许折行 */
+body[data-question-type="timeline"] .word-cell {
+  aspect-ratio: auto;
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 96px;
+  max-width: 92%;
+  height: auto;
+  min-height: 50px;
+  padding: 8px 18px;
+  font-size: clamp(15px, 4vw, 18px);
+  line-height: 1.35;
+  border-radius: 16px;
+  white-space: normal;
 }
 
 /* 题干：题卡视觉重心 */

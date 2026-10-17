@@ -107,7 +107,7 @@ const SERIES_DEFS = [
     title: '奇遇彩蛋',
     steps: [
       { id: 'secret-first', metric: 'flag:firstPlay', need: 1, rank: 'secret', name: '启程之印', desc: '完成任意一课的首轮挑战' },
-      { id: 'secret-advanced', metric: 'flag:advanced', need: 1, rank: 'secret', name: '更上一层', desc: '把同一课的选择、判断、填空、材料四种题型都练过' },
+      { id: 'secret-advanced', metric: 'flag:advanced', need: 1, rank: 'secret', name: '更上一层', desc: '把同一课已有的各种题型都练过' },
       { id: 'secret-night', metric: 'flag:night', need: 1, rank: 'secret', name: '秉烛夜读', desc: '在 22:00 至次日 06:00 之间完成一轮研习' },
       { id: 'secret-weekend', metric: 'flag:weekend', need: 1, rank: 'secret', name: '偷得浮生', desc: '在周六或周日研习历史' },
       { id: 'secret-speed', metric: 'flag:speedy', need: 1, rank: 'secret', name: '对答如流', desc: '在 5 秒内迅速独立答对一道题' },

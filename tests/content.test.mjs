@@ -48,17 +48,22 @@ test('课程结构：四册按年级排列，每册「单元 → 课」逐级可
   assert.equal(findLesson(book('b8a').units[0], 'nope').id, book('b8a').units[0].lessons[0].id);
 });
 
-test('题库：只有八年级上册完整，每课四题型不少于 5 题，共 576 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 576);
-  assert.deepEqual(TYPE_IDS, ['choice', 'judge', 'blank', 'material']);
+test('题库：只有八年级上册完整，前四类题型每课不少于 5 题，共 577 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 577);
+  assert.deepEqual(TYPE_IDS, ['choice', 'judge', 'blank', 'material', 'timeline']);
 
-  const counts = { choice: 0, judge: 0, blank: 0, material: 0 };
+  // 时间轴题是后加的第 5 类，目前只在第 1 课试点，不要求每课都有；
+  // 其余四类仍按「每课不少于 5 题」的底线守住。
+  const CORE_TYPES = ['choice', 'judge', 'blank', 'material'];
+  const counts = { choice: 0, judge: 0, blank: 0, material: 0, timeline: 0 };
   const problems = [];
   for (const unit of book('b8a').units) {
     for (const lesson of unit.lessons) {
       for (const typeId of TYPE_IDS) {
         const list = questionsOf(lesson, typeId);
-        assert.ok(list.length >= 5, `${lesson.label} ${lesson.title} 的 ${typeId} 题量不应少于 5，实际 ${list.length}`);
+        if (CORE_TYPES.includes(typeId)) {
+          assert.ok(list.length >= 5, `${lesson.label} ${lesson.title} 的 ${typeId} 题量不应少于 5，实际 ${list.length}`);
+        }
         assert.equal(countByType(lesson, typeId), list.length);
         counts[typeId] += list.length;
         for (const q of list) problems.push(...validateQuestion(q).map((p) => `${q.id}: ${p}`));
@@ -67,7 +72,7 @@ test('题库：只有八年级上册完整，每课四题型不少于 5 题，�
       assert.equal(lessonQuestionCount(lesson), lesson.questions.length);
     }
   }
-  assert.deepEqual(counts, { choice: 140, judge: 130, blank: 176, material: 130 });
+  assert.deepEqual(counts, { choice: 140, judge: 130, blank: 176, material: 130, timeline: 1 });
   assert.deepEqual(problems, []);
 });
 
@@ -92,7 +97,7 @@ test('待补题的册：骨架在、题目为空，界面能识别出「没有�
   // 打开任意一册都定位到「第一道有题的课」；空册回落到首单元首课，不致抛错。
   const opened = firstPlayableLesson(book('b8a'));
   assert.equal(opened.lesson.id, 'b8a-u1-l1');
-  assert.equal(bookQuestionCount(book('b8a')), 576);
+  assert.equal(bookQuestionCount(book('b8a')), 577);
   for (const id of PENDING_BOOK_IDS) {
     const fallback = firstPlayableLesson(book(id));
     assert.equal(fallback.unit.id, book(id).units[0].id);
@@ -123,15 +128,15 @@ test('题库：题号唯一、答案落在候选项内、题型与选项格式�
   assert.equal(ids.size, ALL_QUESTIONS.length);
 });
 
-test('题型配置：四种题型各有标签、图标、作答说明与独立时限', () => {
-  assert.equal(TYPES.length, 4);
+test('题型配置：五种题型各有标签、图标、作答说明与独立时限', () => {
+  assert.equal(TYPES.length, 5);
   assert.deepEqual(TYPES.map((t) => t.id), TYPE_IDS);
   for (const type of TYPES) {
     assert.ok(type.label && type.icon && type.note && type.guide);
     assert.ok(Number.isFinite(type.seconds) && type.seconds > 0);
     assert.equal(secondsFor(type.id), type.seconds);
   }
-  assert.deepEqual(TYPES.map((t) => t.seconds), [40, 35, 45, 70], '材料题要给足读材料的时间');
+  assert.deepEqual(TYPES.map((t) => t.seconds), [40, 35, 45, 70, 50], '材料题要给足读材料的时间');
   assert.equal(secondsFor('nope'), TYPES[0].seconds);
   assert.equal(ROUND_SIZE, 5, '一轮正好走完一课的一种题型');
   assert.equal(REVIEW_SIZE, 10);

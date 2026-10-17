@@ -74,6 +74,7 @@ function buildQuestion(raw, ids, index) {
     type: raw.type,
     stem: raw.stem,
     material: raw.material || '',
+    axis: raw.axis || null,
     options: raw.options,
     answer: raw.answer,
     explain: raw.explain,

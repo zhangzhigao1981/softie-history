@@ -40,6 +40,14 @@ export const TYPES = [
     guide: '先读材料，再回答小问',
     seconds: 70,
   },
+  {
+    id: 'timeline',
+    label: '时间轴题',
+    icon: '🕰️',
+    note: '时序定位',
+    guide: '看时间轴，把空着的节点补上',
+    seconds: 50,
+  },
 ];
 
 export const TYPE_MAP = Object.fromEntries(TYPES.map((t) => [t.id, t]));

@@ -63,6 +63,14 @@ export function validateQuestion(q) {
   if (q.type === 'blank' && !q.stem?.includes('____')) problems.push('填空题缺少空格');
   if (q.type === 'material' && !q.material) problems.push('材料题缺少材料');
   if (q.type === 'judge' && q.options?.length !== 2) problems.push('判断题应有两个选项');
+  if (q.type === 'timeline') {
+    if (!Array.isArray(q.axis) || q.axis.length < 3) problems.push('时间轴至少要有三个节点');
+    else {
+      if (q.axis.length > 6) problems.push('时间轴最多六个节点，否则手机上一格放不下');
+      if (!q.axis.every((n) => n && n.year)) problems.push('时间轴节点缺少年份');
+      if (q.axis.filter((n) => !n.text).length !== 1) problems.push('时间轴要恰好留一个空节点');
+    }
+  }
   if (!q.explain) problems.push('缺少解析');
   return problems;
 }

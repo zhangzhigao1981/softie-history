@@ -42,11 +42,13 @@ test('首页默认落在第一单元第一课，从首页可以直接开始一�
   assert.ok(f.app.scene.questions.every((q) => q.lessonId === LESSON1.id));
 });
 
-test('四种题型都能完整走完一轮，题面、候选与解析各就各位', async () => {
+test('五种题型都能完整走完一轮，题面、候选与解析各就各位', async () => {
   for (const type of TYPES) {
     const f = createApp({ type: type.id });
     f.app.start('lesson');
-    assert.equal(f.app.scene.questions.length, ROUND_SIZE);
+    // 时间轴题目前只在第 1 课放了 1 道，题池不足 5 时一轮按池子大小走。
+    assert.ok(f.app.scene.questions.length >= 1 && f.app.scene.questions.length <= ROUND_SIZE, '一轮不超过 5 题');
+    if (type.id !== 'timeline') assert.equal(f.app.scene.questions.length, ROUND_SIZE);
     assert.ok(f.app.scene.questions.every((q) => q.type === type.id), `${type.label} 一轮里只出本題型`);
 
     const q = f.app.scene.questions[0];
@@ -57,9 +59,16 @@ test('四种题型都能完整走完一轮，题面、候选与解析各就各�
     assert.equal(f.$('#level-tag').textContent.includes(q.lessonLabel), true);
     assert.equal(f.app.scene.timeLeft, questionSeconds(type) * 1000, '每题用自己的时限');
 
-    // 材料题才显示材料框
+    // 材料题才显示材料框，时间轴题才显示时间轴
     assert.equal(f.$('#material-text').hidden, type.id !== 'material');
     if (type.id === 'material') assert.equal(f.$('#material-text').textContent, q.material);
+    assert.equal(f.$('#axis-board').hidden, type.id !== 'timeline');
+    if (type.id === 'timeline') {
+      const axisHtml = f.$('#axis-board').innerHTML;
+      assert.equal((axisHtml.match(/class="axis-node/g) || []).length, q.axis.length, '时间轴节点数要对上');
+      assert.equal((axisHtml.match(/is-blank/g) || []).length, 1, '时间轴恰好留一个空位');
+      assert.match(axisHtml, /class="axis-year">\d/, '节点要显示年份');
+    }
 
     // 候选数量与标签
     const buttons = f.$('#choices').children;
@@ -82,12 +91,13 @@ test('四种题型都能完整走完一轮，题面、候选与解析各就各�
     assert.equal(f.$('#answer-area').hidden, true);
     assert.equal(f.$('#explanation').hidden, false);
 
+    const roundSize = f.app.scene.questions.length;
     await f.round({});
     assert.equal(f.app.scene.screen, 'result');
-    assert.equal(f.app.saved.learned.length, ROUND_SIZE);
+    assert.equal(f.app.saved.learned.length, roundSize);
     assert.equal(f.app.saved.history.length, 1);
     assert.equal(f.app.saved.history[0].type, type.label);
-    assert.equal(f.app.saved.history[0].total, ROUND_SIZE);
+    assert.equal(f.app.saved.history[0].total, roundSize);
     assert.ok(f.app.saved.history[0].lesson.includes(LESSON1.title));
   }
 });
@@ -121,7 +131,7 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   for (const id of ['b7a', 'b7b', 'b8a', 'b8b']) assert.ok(tabs.includes(`data-book="${id}"`), `缺少 ${id} 的册标签`);
   assert.equal((tabs.match(/is-empty/g) || []).length, 3, '七上、七下、八下都还没有题目');
   assert.match(tabs, /class="book-tab active"/);
-  assert.match(tabs, /576 题/);
+  assert.match(tabs, /577 题/);
 
   // 切到还没题目的七年级上册：册、单元、课都跟着换，开始按钮转为提示态。
   f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b7a' } }) } });
@@ -319,7 +329,7 @@ test('连击奖杯按一轮内的最高连击发放', async () => {
   assert.equal(broken.app.saved.trophies.got['combo-3'], undefined, '答错就断连');
 });
 
-test('「更上一层」在把同一课的四种题型都练过之后解锁', async () => {
+test('「更上一层」在把同一课已有的题型都练过之后解锁', async () => {
   const f = createApp();
   for (const type of TYPES) {
     f.app.setType(type.id, false);
@@ -327,7 +337,8 @@ test('「更上一层」在把同一课的四种题型都练过之后解锁', as
     await f.round({});
   }
   assert.ok(f.app.saved.trophies.got['secret-advanced']);
-  assert.equal(f.app.saved.learned.length, ROUND_SIZE * TYPES.length, '同一课 20 道题全部练过');
+  // 第 1 课：前四类各 5 道、时间轴 1 道，一轮正好全部练完。
+  assert.equal(f.app.saved.learned.length, 21, '第 1 课 21 道题全部练过');
 
   const partial = createApp();
   for (const type of ['choice', 'judge']) {
@@ -376,7 +387,7 @@ test('首页进度与奖杯数量会跟着学习记录更新', async () => {
   f.app.start('lesson');
   await f.round({});
   f.app.home();
-  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 576 道题 · 完成 1 轮/);
+  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 577 道题 · 完成 1 轮/);
   assert.match(f.$('#trophy-badge').textContent, /^\d+ \/ \d+$/);
   // 第 1 课的选择题池已扩到 15 题，练过 5 题就显示 5/15
   assert.match(f.$('#lesson-list').innerHTML, /<b>5<\/b>\/15/, '课程卡显示本课该题型的进度');

@@ -18,8 +18,8 @@ import { validateQuestion } from '../js/quiz.js';
 const MAX_STEM = 60;
 const MAX_OPTION = 24;
 const MIN_EXPLAIN = 12;
-const TYPE_ORDER = ['choice', 'judge', 'blank', 'material'];
-const TYPE_LABEL = { choice: '选择', judge: '判断', blank: '填空', material: '材料' };
+const TYPE_ORDER = ['choice', 'judge', 'blank', 'material', 'timeline'];
+const TYPE_LABEL = { choice: '选择', judge: '判断', blank: '填空', material: '材料', timeline: '时间轴' };
 
 const only = process.argv[2];
 const books = only ? BOOKS.filter((b) => b.id === only) : BOOKS;
@@ -61,13 +61,13 @@ for (const book of books) {
         });
       }
       const n = lesson.questions.length;
-      if (n === 0) rows.push([unit.no >= 1 ? `第${unit.no}单元` : '导言与学法', `${lesson.label} ${lesson.title}`, '—', '—', '—', '—', 0]);
+      if (n === 0) rows.push([unit.no >= 1 ? `第${unit.no}单元` : '导言与学法', `${lesson.label} ${lesson.title}`, ...TYPE_ORDER.map(() => '—'), 0]);
       else rows.push([unit.no >= 1 ? `第${unit.no}单元` : '导言与学法', `${lesson.label} ${lesson.title}`, ...TYPE_ORDER.map((t) => counts[t] || 0), n]);
     }
   }
   total += bookTotal;
   lines.push(`\n${book.title}（${book.edition}）　${bookTotal} 题`);
-  lines.push(['单元', '课', '选择', '判断', '填空', '材料', '合计'].join('\t'));
+  lines.push(['单元', '课', ...TYPE_ORDER.map((t) => TYPE_LABEL[t]), '合计'].join('\t'));
   for (const r of rows) lines.push(r.join('\t'));
 }
 
