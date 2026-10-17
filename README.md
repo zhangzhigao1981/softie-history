@@ -2,6 +2,8 @@
 
 基于 [成语泡泡](https://github.com/yuanyang749/softie-idioms-app) 改造的初中历史研习小游戏。软乎乎角色、泡泡运输、连击特效、奖杯馆、签到日历等原版演出完整保留，按**统编版 2025 版**教材组织成「册 → 单元 → 课」三级目录。纯静态前端，零 npm 依赖，无构建步骤、无后端。
 
+**在线地址**：<https://zhangzhigao1981.github.io/softie-history/> （GitHub Pages，`main` 分支根目录发布，push 后自动重建）
+
 ## 快速运行
 
 需要 Node.js 20+ 和 Python 3。进入项目目录：
