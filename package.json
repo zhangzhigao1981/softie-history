@@ -1,7 +1,7 @@
 {
-  "name": "softie-learn-english-app",
+  "name": "softie-history-app",
   "version": "0.1.0",
-  "description": "保留成语泡泡演出的儿童英语启蒙小游戏",
+  "description": "保留软乎乎泡泡演出的初中历史研习小游戏（七上／七下／八上／八下·统编版 2025 版；八上已录题，其余三册题目待补）",
   "private": true,
   "type": "module",
   "scripts": {

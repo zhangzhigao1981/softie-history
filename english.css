@@ -1,11 +1,15 @@
-/* English content adaptations; the original UI and show styles remain intact. */
+/* 历史内容适配层：原版 UI / 演出样式（style.css、show.css）保持不动，这里只做内容与题型布局的适配。 */
+
+/* ============================================================
+   区块标题：允许换行，兼容四种题型胶囊
+   ============================================================ */
 .section-label {
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
 }
 
 /* ============================================================
-   玩法切换器 (Mode Toggle) 与胶囊激活状态 (Active State)
+   题型切换器 (Type Toggle) 与胶囊激活状态
    ============================================================ */
 .mode-toggle {
   display: inline-flex !important;
@@ -15,7 +19,7 @@
   border: 2.6px solid var(--ink);
   border-radius: 999px;
   box-shadow: 0 4px 0 var(--ink);
-  gap: 3px;
+  gap: 2px;
   position: relative;
   user-select: none;
 }
@@ -24,14 +28,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 5px 12px;
+  gap: 3px;
+  padding: 5px 9px;
   min-height: 32px;
   border-radius: 999px;
   border: 2px solid transparent;
   background: transparent;
   color: #8c7689;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 850;
   cursor: pointer;
   touch-action: manipulation;
@@ -49,7 +53,6 @@
   transform: translateY(2px) !important;
 }
 
-/* 激活状态通用属性：墨水描边、实体阴影、微上浮 */
 .mode-pill.active {
   border-color: var(--ink) !important;
   box-shadow: 0 3px 0 var(--ink) !important;
@@ -57,35 +60,297 @@
   font-weight: 900 !important;
 }
 
-/* 单词拼写高亮：与原版一致的高饱和多巴胺活力粉红、立体字阴影 */
-.mode-pill[data-mode="spelling"].active {
-  background: #ff6e8e !important;
+/* 判断题：清爽多巴胺天蓝 */
+.mode-pill[data-mode="judge"].active {
+  background: #52c2ff !important;
   color: #fff !important;
   text-shadow: 0 1.5px 0 rgba(48, 34, 56, 0.45) !important;
   transform: translateY(-2px) rotate(1.2deg) !important;
 }
 
-/* 单词识义高亮：明媚多巴胺糖果明黄、深色文字 */
-.mode-pill[data-mode="meaning"].active {
+/* 选择题：明媚多巴胺糖果明黄 */
+.mode-pill[data-mode="choice"].active {
   background: #ffd86b !important;
   color: var(--ink) !important;
   text-shadow: none !important;
   transform: translateY(-2px) rotate(-1.2deg) !important;
 }
 
-/* 情境填词高亮：清爽多巴胺天蓝、立体字阴影 */
-.mode-pill[data-mode="sentence"].active {
-  background: #52c2ff !important;
+/* 填空题：活力粉红 */
+.mode-pill[data-mode="blank"].active {
+  background: #ff6e8e !important;
   color: #fff !important;
   text-shadow: 0 1.5px 0 rgba(48, 34, 56, 0.45) !important;
   transform: translateY(-2px) !important;
 }
 
-.mode-pill.active .mode-svg,
+/* 材料题：史料紫 */
+.mode-pill[data-mode="material"].active {
+  background: #a77bff !important;
+  color: #fff !important;
+  text-shadow: 0 1.5px 0 rgba(48, 34, 56, 0.45) !important;
+  transform: translateY(-2px) rotate(1.2deg) !important;
+}
+
 .mode-pill.active .mode-emoji {
   opacity: 1 !important;
   filter: none !important;
-  transform: scale(1.15) !important;
+  transform: scale(1.12) !important;
+}
+
+/* ============================================================
+   册次标签栏 (Book Tabs)：四册一屏排开
+   没有题目的册灰着显示「待补题」，但仍可点进去看目录。
+   ============================================================ */
+.book-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+  margin: 0 0 6px;
+}
+
+.book-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-height: 48px;
+  padding: 5px 3px;
+  border: 2.4px solid var(--ink);
+  border-radius: 13px;
+  background: #eef4ff;
+  box-shadow: 0 3px 0 var(--ink);
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.book-tab strong {
+  font-size: 12px;
+  font-weight: 850;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.book-tab small {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: #8b7f99;
+  font-variant-numeric: tabular-nums;
+}
+
+.book-tab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--ink);
+}
+
+.book-tab:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+.book-tab.active {
+  background: #ffe9a8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--ink), 0 0 0 3px #ffe0e9;
+}
+
+.book-tab.active small {
+  color: #8a6a1e;
+}
+
+.book-tab.is-empty {
+  background: #f4f2f0;
+  border-color: #a99da5;
+  box-shadow: 0 3px 0 #a99da5;
+}
+
+.book-tab.is-empty strong {
+  color: #7d7178;
+}
+
+.book-tab.is-empty small {
+  color: #a2949c;
+}
+
+.book-tab.is-empty.active {
+  background: #ffe9a8;
+  border-color: var(--ink);
+  box-shadow: 0 5px 0 var(--ink), 0 0 0 3px #ffe0e9;
+}
+
+.book-tab.is-empty.active strong {
+  color: var(--ink);
+}
+
+/* ============================================================
+   单元标签栏 (Unit Tabs) 与课时列表 (Lesson Cards)
+   ============================================================ */
+.unit-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 2px 12px;
+  margin: 0 -2px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.unit-tab {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2px;
+  width: 126px;
+  max-width: 126px;
+  min-height: 54px;
+  padding: 7px 11px;
+  border: 2.4px solid var(--ink);
+  border-radius: 14px;
+  background: #fffef9;
+  box-shadow: 0 4px 0 var(--ink);
+  text-align: left;
+  scroll-snap-align: start;
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.unit-tab small {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #9a8b90;
+}
+
+.unit-tab strong {
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.3;
+  color: var(--ink);
+  /* 统编版单元名较长，最多两行，超出省略，保证一屏能看到更多单元 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.unit-tab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--ink);
+}
+
+.unit-tab:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+.unit-tab.active {
+  background: #ffe9a8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--ink), 0 0 0 3px #ffe0e9;
+}
+
+.unit-tab.active small {
+  color: #8a6a1e;
+}
+
+.lesson-list {
+  display: grid;
+  gap: 9px;
+}
+
+.lesson-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 60px;
+  padding: 11px 14px;
+  border: 2.6px solid var(--ink);
+  border-radius: 16px;
+  background: #fffef9;
+  box-shadow: 0 5px 0 var(--ink);
+  text-align: left;
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.lesson-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 var(--ink);
+}
+
+.lesson-card:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--ink);
+}
+
+.lesson-card .lesson-no {
+  font-size: 11px;
+  font-weight: 850;
+  color: #fff;
+  background: #f17fa9;
+  border: 1.6px solid var(--ink);
+  border-radius: 999px;
+  padding: 2px 9px;
+  white-space: nowrap;
+}
+
+.lesson-card .lesson-title {
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.lesson-card .lesson-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: #867583;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.lesson-card .lesson-count b {
+  font-size: 15px;
+  color: #53465b;
+}
+
+/* 还没题目的课：右侧换成「待补」文字徽章，不显示 0/0 */
+.lesson-card .lesson-todo {
+  font-size: 10px;
+  font-weight: 850;
+  color: #a2949c;
+  border: 1.4px dashed #bdb0b7;
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+/* 没题的课被选中时，开始按钮转成不可点的提示态 */
+.big-btn.start-button:disabled {
+  background: #d8cdd5;
+  color: #5f5362;
+  border-color: #8f8490;
+  box-shadow: 0 7px 0 #8f8490;
+  opacity: 1;
+  cursor: default;
+  text-shadow: none;
+}
+
+.big-btn.start-button:disabled small {
+  color: #6f6270;
+}
+
+.lesson-card.active {
+  background: #eaf1ff;
+  box-shadow: 0 5px 0 var(--ink), 0 0 0 3px #bcd4ff;
+}
+
+.lesson-card.active .lesson-no {
+  background: #3b6bff;
 }
 
 /* ============================================================
@@ -96,7 +361,7 @@
 }
 
 /* ============================================================
-   题卡内容与中文单词突出展示
+   题卡：题型徽章、史料材料、题干、答案格
    ============================================================ */
 .question-card {
   display: flex;
@@ -109,7 +374,23 @@
   width: 100%;
 }
 
-.context {
+/* 原版印章压在题卡右上角，题干一长就会被圆圈盖住句尾的问号；改挂到卡片右下角外沿 */
+#stamp {
+  top: auto !important;
+  bottom: 0 !important;
+  right: 2px !important;
+  width: 52px !important;
+  height: 52px !important;
+  rotate: -12deg !important;
+  opacity: 0.92;
+}
+
+/* 还没盖章时不显示这个空圆环，免得看成多余的装饰 */
+#stamp:empty {
+  display: none !important;
+}
+
+#context {
   display: flex !important;
   flex-direction: column;
   align-items: center;
@@ -117,13 +398,12 @@
   text-align: center;
   width: 100%;
   margin: 10px 0 12px;
-  min-height: 80px;
-  gap: 8px;
+  min-height: 0;
+  gap: 10px;
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
-/* 核心中文单词卡片与朗读按钮行：大号字、醒目居中、糖果质感徽章 */
 .target-word-row {
   display: inline-flex !important;
   align-items: center;
@@ -133,46 +413,58 @@
   vertical-align: middle;
 }
 
-.target-word {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(28px, 7.5vw, 36px);
-  font-weight: 900;
+/* 题型徽章沿用原版糖果卡片质感，尺寸收小以突出题干 */
+.target-word.type-badge {
+  font-size: clamp(15px, 4.4vw, 19px);
+  letter-spacing: 3px;
+  padding: 5px 16px;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
+/* 史料材料框：可滚动，左侧加重以区分「材料」与「设问」 */
+.material-text {
+  width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  background: #fffaf0;
+  border: 2px solid var(--ink);
+  border-left-width: 9px;
+  border-left-color: #d9b98a;
+  border-radius: 12px;
+  font-size: clamp(13px, 3.7vw, 15px);
+  font-weight: 600;
+  line-height: 1.85;
+  color: #5c4a3f;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 34vh;
+  overflow-y: auto;
+}
+
+/* 题干：题卡视觉重心 */
+.stem-text {
+  margin: 0;
+  font-size: clamp(15px, 4.4vw, 19px);
+  font-weight: 850;
+  line-height: 1.75;
   color: var(--ink);
-  letter-spacing: 2px;
-  padding: 6px 24px;
-  background: #fff5dc;
-  background: linear-gradient(135deg, #fff7e4 0%, #ffebf4 100%);
-  border: 2.5px solid var(--ink);
-  border-radius: 20px;
-  box-shadow: 0 4px 0 var(--ink);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
-  line-height: 1.25;
-  margin: 2px 0;
-  max-width: 90%;
-  box-sizing: border-box;
-  animation: target-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-wrap: pretty;
 }
 
-@keyframes target-pop {
-  0% {
-    transform: scale(0.92);
-    opacity: 0.8;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+.stem-text em {
+  font-style: normal;
+  border-bottom: 2px dashed #c17d99;
+  color: #ab5b7e;
+  padding: 0 4px;
 }
 
-.target-word.sentence-zh {
-  font-size: clamp(17px, 4.6vw, 22px);
-  letter-spacing: 0.5px;
-  padding: 6px 18px;
-  border-radius: 16px;
-  line-height: 1.4;
+/* 非填空题的答案格容器 */
+.slot-home {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .target-guide {
@@ -185,104 +477,163 @@
   letter-spacing: 0.5px;
 }
 
-.sentence-en {
-  display: block;
-  font-size: clamp(19px, 5.2vw, 25px);
-  font-weight: 850;
-  color: var(--ink);
-  letter-spacing: 0.5px;
-  margin: 2px 0;
+/* ============================================================
+   答案格 (word-slots / word-cell) 四种题型布局
+   ============================================================ */
+.word-slots {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: clamp(5px, 1.6vw, 10px);
+  margin: 8px 0 10px;
+  width: 100%;
+}
+
+/* 选择题 / 判断题 / 材料题：单个大答案格居中承载所选项 */
+body[data-question-type="choice"] .word-cell,
+body[data-question-type="judge"] .word-cell,
+body[data-question-type="material"] .word-cell {
+  aspect-ratio: auto;
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 96px;
+  max-width: 90%;
+  height: clamp(56px, 14vw, 70px);
+  padding: 0 26px;
+  font-size: clamp(26px, 7vw, 36px);
+  border-radius: 18px;
+}
+
+/* 填空题：答案格直接嵌在题干里的空位上 */
+body[data-question-type="blank"] .word-slots.inline {
+  display: inline-flex !important;
+  grid-template-columns: none !important;
+  width: auto !important;
+  margin: 0 4px !important;
+  gap: 0;
+  vertical-align: middle;
+}
+
+body[data-question-type="blank"] .word-cell {
+  aspect-ratio: auto;
+  flex: 0 0 auto;
+  width: max-content;
+  min-width: 88px;
+  max-width: min(100%, 74vw);
+  height: auto;
+  min-height: 42px;
+  padding: 2px 12px;
+  font-size: clamp(17px, 4.8vw, 22px);
+  border-radius: 12px;
+  display: inline-grid;
+  place-items: center;
+  line-height: 1.3;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 /* ============================================================
-   小喇叭图标 (Speaker Icon) 替换原音符符号
+   候选答案区：按选项长度自适应列数
+   ============================================================ */
+.choices {
+  gap: 10px;
+}
+
+.choices[data-density="stack"] {
+  grid-template-columns: 1fr;
+}
+
+.choices[data-density="pair"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.choices[data-density="trio"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.choice {
+  /* 字号由选项长度决定（--option-font），窄屏再整体收一点。 */
+  font-size: var(--option-font, 24px);
+  padding-inline: 4px;
+}
+
+.choice-text {
+  display: block;
+}
+
+/* 长选项（选择题 / 材料题）：编号改成行内徽章，文字左对齐换行 */
+.choices[data-density="stack"] .choice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 11px 16px 11px 12px;
+  text-align: left;
+  line-height: 1.45;
+}
+
+.choices[data-density="stack"] .choice small {
+  position: static;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  font-weight: 850;
+  color: #fff;
+  background: #b79aea;
+  border: 1.6px solid var(--ink);
+  border-radius: 999px;
+}
+
+/* 判断题 / 短词填空：居中短标签 */
+.choices[data-density="pair"] .choice,
+.choices[data-density="trio"] .choice {
+  min-height: 62px;
+  padding: 8px 10px;
+  line-height: 1.35;
+  text-align: center;
+}
+
+#bubble-layer text {
+  font-size: var(--bubble-font, 27px);
+}
+
+.candidate-speech {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin: 6px 0 10px;
+  justify-items: center;
+  align-items: center;
+}
+
+.choices.busy~#candidate-speech .speaker-btn {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+
+.speech-status {
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  margin: 8px 12px;
+  min-height: 18px;
+}
+
+/* ============================================================
+   朗读按钮 (Speaker Icon Button)
    ============================================================ */
 .speaker-icon {
   width: 15px;
   height: 15px;
   display: inline-block;
   vertical-align: middle;
-  flex-shrink: 0;
-}
-
-.question-speech {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: #f4ecfb;
-  border: 2px solid var(--ink);
-  box-shadow: 0 3px 0 var(--ink);
-  color: var(--ink);
-  font-weight: 800;
-  font-size: 13px;
-  padding: 5px 18px;
-  border-radius: 999px;
-  margin: 2px auto 8px;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
-}
-
-.question-speech:hover {
-  background: #ebdcf8;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 0 var(--ink);
-}
-
-.question-speech:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--ink);
-}
-
-
-.toggle-btn .sound-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-.toggle-btn .speaker-icon {
-  width: 17px;
-  height: 17px;
-}
-
-.toggle-btn.off .speaker-wave {
-  display: none;
-}
-
-/* ============================================================
-   单词发音行与精美小喇叭按钮 (Speaker Icon Button)
-   ============================================================ */
-.explain-heading {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.explain-top-row {
-  display: flex !important;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: 12px;
-}
-
-.word-pronounce-row {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 10px;
-  vertical-align: middle;
-}
-
-#meaning.explain-meaning {
-  font-size: clamp(17px, 4.5vw, 22px) !important;
-  font-weight: 850 !important;
-  color: var(--ink) !important;
-  letter-spacing: 1.5px !important;
-  text-align: right !important;
-  white-space: nowrap !important;
-  line-height: 1.2 !important;
-  margin: 0 !important;
   flex-shrink: 0;
 }
 
@@ -325,8 +676,13 @@
 }
 
 @keyframes speaker-wave-pulse {
-  0% { opacity: 0.4; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0.4;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 .speaker-btn.icon-only:active,
@@ -352,6 +708,94 @@
   display: block;
 }
 
+.toggle-btn .sound-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.toggle-btn .speaker-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.toggle-btn.off .speaker-wave {
+  display: none;
+}
+
+/* ============================================================
+   解析区 (Explanation)：答案行与解析文案
+   ============================================================ */
+.explain-heading {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 8px !important;
+}
+
+/* 历史题的答案常是整句或整段，答案行独占一行、解析另起一段，避免挤成竖排。 */
+.explain-top-row {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  gap: 8px;
+}
+
+.word-pronounce-row {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 10px;
+  vertical-align: middle;
+  max-width: 100%;
+  min-width: 0;
+}
+
+#answer-word {
+  display: inline-block;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  padding: 5px 12px;
+  border-radius: 11px;
+  background: #fff2d2;
+  border: 1.5px solid #e6cba4;
+  font-size: clamp(14px, 4vw, 17px);
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1.5;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+#meaning.explain-meaning {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: #5c3f52 !important;
+  letter-spacing: 0 !important;
+  text-align: left !important;
+  white-space: normal !important;
+  line-height: 1.7 !important;
+  margin: 0 !important;
+  width: 100%;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* “这个知识点记牢了”小标签：竖向排列后不要被拉成整条色带 */
+.explain-heading > span {
+  align-self: flex-start;
+  font-size: 11px !important;
+  padding: 3px 10px !important;
+  border-radius: 9px !important;
+}
+
 /* ============================================================
    主操作按钮文案居中展示 (下一题、再来一轮等)
    ============================================================ */
@@ -366,91 +810,27 @@
 }
 
 /* ============================================================
-   单词槽与字母卡布局优化：支持单行整齐展示与居中
+   实用小提示 (Hint UI)
    ============================================================ */
-.word-slots {
-  display: flex !important;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: clamp(5px, 1.6vw, 10px);
-  margin: 8px 0 10px;
-  width: 100%;
+.hint {
+  font-size: 13.5px !important;
+  line-height: 1.6 !important;
+  color: #5c3f52 !important;
+  padding: 8px 14px !important;
+  border-left: 3.5px solid #ff7ab6 !important;
+  background: #fff4f8 !important;
+  border-radius: 0 12px 12px 0 !important;
+  margin: 6px 0 10px !important;
+  font-weight: 750 !important;
+  box-shadow: 0 2px 0 rgba(48, 34, 56, 0.05);
 }
 
-/* 单词拼写模式：单行整齐排列，字母自适应尺寸，杜绝多余折行 */
-body[data-question-type="spelling"] .word-slots {
-  display: flex !important;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: clamp(4px, 1.4vw, 9px);
-  max-width: 100%;
-  padding: 2px 0;
+.hint-row {
+  margin-top: 4px;
 }
 
-body[data-question-type="spelling"] .word-cell {
-  flex: 0 1 clamp(34px, 9.2vw, 56px);
-  width: clamp(34px, 9.2vw, 56px);
-  height: clamp(46px, 12vw, 64px);
-  aspect-ratio: auto;
-  min-width: 0;
-  font-size: clamp(20px, 5.6vw, 36px);
-  border-radius: 14px;
-}
-
-/* 单词识义与情境模式：完整单词单卡居中 */
-body[data-question-type="meaning"] .word-slots,
-body[data-question-type="sentence"] .word-slots {
-  display: flex !important;
-  justify-content: center;
-  align-items: center;
-}
-
-body[data-question-type="meaning"] .word-cell,
-body[data-question-type="sentence"] .word-cell {
-  flex: 0 1 auto;
-  width: auto;
-  min-width: 150px;
-  max-width: 90%;
-  height: clamp(52px, 13vw, 68px);
-  aspect-ratio: auto;
-  padding: 0 24px;
-  font-size: clamp(24px, 6.5vw, 38px);
-  border-radius: 18px;
-}
-
-body[data-question-type="meaning"] .choice,
-body[data-question-type="sentence"] .choice {
-  font-size: clamp(12px, 3.6vw, var(--option-font, 25px));
-  padding-inline: 4px;
-}
-
-#bubble-layer text {
-  font-size: var(--bubble-font, 27px);
-}
-
-.candidate-speech {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin: 6px 0 10px;
-  justify-items: center;
-  align-items: center;
-}
-
-.choices.busy ~ #candidate-speech .speaker-btn {
-  opacity: 0.5;
-  cursor: default;
-  pointer-events: none;
-}
-
-.speech-status {
-  font-size: 12px;
-  line-height: 1.5;
-  text-align: center;
-  margin: 8px 12px;
-  min-height: 18px;
+#example {
+  overflow-wrap: anywhere;
 }
 
 .speech-setting {
@@ -471,41 +851,43 @@ body[data-question-type="sentence"] .choice {
   max-width: 150px;
 }
 
-#example {
-  overflow-wrap: anywhere;
-}
-
 /* ============================================================
-   实用小提示 (Hint UI) 视觉优化
+   窄屏适配
    ============================================================ */
-.hint {
-  font-size: 13.5px !important;
-  line-height: 1.6 !important;
-  color: #5c3f52 !important;
-  padding: 8px 14px !important;
-  border-left: 3.5px solid #ff7ab6 !important;
-  background: #fff4f8 !important;
-  border-radius: 0 12px 12px 0 !important;
-  margin: 6px 0 10px !important;
-  font-weight: 750 !important;
-  box-shadow: 0 2px 0 rgba(48, 34, 56, 0.05);
-}
-
-body[data-question-type="spelling"] .hint-row {
-  margin-top: 4px;
-}
-
 @media (max-width: 400px) {
   .mode-pill {
-    padding: 4px 9px;
-    font-size: 12px;
+    padding: 4px 7px;
+    font-size: 11px;
+  }
+
+  .mode-pill .mode-emoji {
+    display: none;
+  }
+
+  .choice {
+    font-size: calc(var(--option-font, 24px) - 3px);
   }
 
   .candidate-speech {
     gap: 10px;
   }
 
-  .target-word {
-    padding: 5px 18px;
+  .target-word.type-badge {
+    padding: 4px 12px;
+    letter-spacing: 2px;
+  }
+
+  .lesson-card {
+    grid-template-columns: auto 1fr auto;
+    gap: 8px;
+    padding: 10px 11px;
+  }
+
+  .lesson-card .lesson-title {
+    font-size: 14px;
+  }
+
+  .material-text {
+    max-height: 30vh;
   }
 }

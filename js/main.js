@@ -4,8 +4,8 @@ import { AudioEngine } from './audio.js';
 import { FX } from './fx.js';
 import { Backdrop } from './bg.js';
 import { mountSofties, softieSVG, bounce, bubbleHit } from './softie.js';
-import { MODES, getMode, saveKey } from './modes.js';
-import { makeRound, placementRound, recommendedLevel, optionsFor, recordAnswer, shuffle, answerAt, partsFor } from './idioms.js';
+import { TYPES, TYPE_MAP, DEFAULT_TYPE_ID, BOOKS, ALL_QUESTIONS, ROUND_SIZE, REVIEW_SIZE, UI_KEY, SAVE_KEY, findBook, findUnit, findLesson, questionsOf, countByType, DEFAULT_BOOK, firstPlayableLesson, bookQuestionCount, lessonQuestionCount } from './course.js';
+import { makeRound, optionsFor, recordAnswer, shuffle } from './quiz.js';
 import { loadSave, persistSave, resetAllSaves, dayKey, currentStreak, bestStreak, hammerOffer, useHammer, playedDays, STICKERS, claimLogin, stickerOn, bonusState } from './storage.js';
 import { ensureDailyQuests, questText, feedQuestEvent, isAllQuestsDone, claimQuestReward } from './quests.js';
 import { TROPHIES, extractTrophyMetrics, evaluateTrophies, getEarnedTrophiesCount, RANK_NAMES } from './trophies.js';
@@ -17,12 +17,65 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 let storage;
 try { storage = window.localStorage; } catch { /* Private browser storage can be blocked. */ }
 const params = new URLSearchParams(location.search);
-let activeModeId = params.get('mode');
-if (!activeModeId) { try { activeModeId = storage?.getItem('softie-english:active-mode'); } catch { /* Storage can be blocked. */ } }
-let mode = getMode(activeModeId);
-let copy = mode.copy;
-let saved = loadSave(storage, mode);
-try { if (!storage?.getItem(saveKey(mode))) saved.settings.motion = !matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { /* Use default settings. */ }
+let saved = loadSave(storage);
+try { if (!storage?.getItem(SAVE_KEY)) saved.settings.motion = !matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { /* Use default settings. */ }
+
+// 当前选中的课程位置与题型，单独存在一个轻量键里，不进入学习记录。
+// 默认落在第一本有题目的册上；没有题目的册照样浏览，只是进不了关卡。
+const opening = firstPlayableLesson(DEFAULT_BOOK);
+const course = {
+  bookId: DEFAULT_BOOK.id,
+  unitId: opening.unit.id,
+  lessonId: opening.lesson.id,
+  typeId: DEFAULT_TYPE_ID,
+};
+try {
+  const raw = storage?.getItem(UI_KEY);
+  if (raw) {
+    const v = JSON.parse(raw);
+    if (v && typeof v === 'object') {
+      if (BOOKS.some((b) => b.id === v.bookId)) course.bookId = v.bookId;
+      if (findBook(course.bookId).units.some((u) => u.id === v.unitId)) course.unitId = v.unitId;
+      if (findUnit(findBook(course.bookId), course.unitId)?.lessons.some((l) => l.id === v.lessonId)) course.lessonId = v.lessonId;
+      if (TYPE_MAP[v.typeId]) course.typeId = v.typeId;
+    }
+  }
+} catch { /* Storage may be blocked. */ }
+if (TYPE_MAP[params.get('type')]) course.typeId = params.get('type');
+
+const currentBook = () => findBook(course.bookId);
+const currentUnit = () => findUnit(currentBook(), course.unitId);
+const currentLesson = () => findLesson(currentUnit(), course.lessonId);
+const currentType = () => TYPE_MAP[course.typeId];
+function saveCourse() { try { storage?.setItem(UI_KEY, JSON.stringify(course)); } catch { /* Storage may be blocked. */ } }
+function selectLesson(unitId, lessonId) {
+  course.unitId = unitId;
+  course.lessonId = lessonId;
+  saveCourse();
+}
+
+const copy = {
+  title: '历史足迹',
+  tagline: '软乎乎的历史研习场',
+  eyebrow: '一寸光阴一寸史',
+  intro: '读史料，选答案，让历史冒个泡。',
+  courseHeading: '先选一册，再挑单元和课',
+  typeHeading: '再选一种题型',
+  startLabel: '开始闯关',
+  pendingLabel: '这本还在补题',
+  ready: '选一个答案，让软乎乎送过去吧。',
+  wrong: '差一点点，再读一遍题干吧。',
+  correct: '气泡命中！选对啦。',
+  finished: '又攻克一个知识点！',
+  learned: '这个知识点记牢了',
+  unlearned: '先来认识这个知识点',
+  footer: '答错也没关系，一起读一读。',
+  home: '回到历史研习场',
+  resultTitle: '每一点进步\n都值得庆祝。',
+  disclaimer: '初中历史（统编版 2025 版）：七上、七下、八上、八下四册目录，选择、判断、填空、材料四种题型自由选择。练过不代表已掌握，记得回看教材。',
+  logoBits: ['历', '史'],
+};
+
 const audio = new AudioEngine();
 const fx = new FX($('#fx'), 300);
 const fxBack = new FX($('#fx-back'), 520);
@@ -31,7 +84,7 @@ const bg = new Backdrop($('#bg'), $('#rays-fallback'));
 const homeActors = mountSofties($('#home-softies'));
 const actors = mountSofties($('#play-softies'));
 const resultActors = mountSofties($('#result-softies'));
-const S = { screen: 'home', run: 0, questions: [], qi: 0, step: 0, ready: false, phase: 'answer', demo: false, kind: 'level', level: mode.levels[0].id, firstTry: true, misses: 0, combo: 0, peak: 0, energy: 0, E: .02, flash: 0, shake: 0, results: [], stepMisses: 0, earnedTrophies: [], bonusOpen: false, pendingLoginBonus: null };
+const S = { screen: 'home', run: 0, questions: [], qi: 0, step: 0, ready: false, phase: 'answer', demo: false, kind: 'lesson', typeId: DEFAULT_TYPE_ID, correctKey: null, firstTry: true, misses: 0, combo: 0, peak: 0, energy: 0, E: .02, flash: 0, shake: 0, results: [], stepMisses: 0, earnedTrophies: [], bonusOpen: false, pendingLoginBonus: null };
 Object.assign(S, { visualE: .02, shownEnergy: 0, energyUnit: 0, idleAt: 0 });
 let musicBaseGain = null;
 let duckRestoreTimer = null;
@@ -75,13 +128,15 @@ function read(items) {
 function readQuestion() {
   const q = activeQuestion();
   if (!q || S.phase !== 'answer') return;
-  return read({ text: mode.id === 'spelling' ? q.word : mode.id === 'meaning' ? `选出「${q.meaning}」对应的英文单词。` : q.translation,
-    lang: mode.id === 'spelling' ? 'en' : 'zh' });
+  const items = [];
+  if (q.material) items.push({ text: `材料：${q.material}`, lang: 'zh' });
+  items.push({ text: q.type === 'blank' ? q.stem.replace(/____/g, '空格') : q.stem, lang: 'zh' });
+  return read(items);
 }
 function readExplanation() {
   const q = activeQuestion();
   if (!q || S.phase !== 'explain') return;
-  return read([{ text: q.word, lang: 'en' }, { text: q.context.replace('____', q.word), lang: 'en' }]);
+  return read([{ text: `答案是${q.options[q.answer]}。`, lang: 'zh' }, { text: q.explain, lang: 'zh' }]);
 }
 const timers = new Set();
 let pendingHammer = null;
@@ -96,7 +151,7 @@ const motionValue = () => {
 const reduced = () => motionValue() <= 0.001;
 const paused = () => document.hidden || S.screen === 'settings' || $('#leave-dialog').open;
 const activeQuestion = () => S.questions[S.qi];
-const levelInfo = (level) => mode.levels.find((l) => l.id === level);
+const secondsOf = (q) => questionSeconds(TYPE_MAP[q?.type || course.typeId]);
 
 let lastClickSoundTime = 0;
 function playClickSound(type = 'bubble') {
@@ -147,7 +202,7 @@ function startHomeMusic() {
   audio.startMusic();
 }
 
-function persist() { $('#storage-note').hidden = persistSave(storage, saved, mode); }
+function persist() { $('#storage-note').hidden = persistSave(storage, saved); }
 function later(fn, ms) {
   const run = S.run;
   const id = setTimeout(() => { timers.delete(id); if (run === S.run) fn(); }, ms);
@@ -272,7 +327,7 @@ let calMonth = new Date().getMonth();
 function updateDailyQuests(event) {
   // Settle completed old saves before replacing yesterday's task list.
   let rewards = claimQuestReward(saved.quests) ? 1 : 0;
-  const changed = ensureDailyQuests(saved.quests, dayKey(), { mode: mode.id, reviewCount: saved.review.length });
+  const changed = ensureDailyQuests(saved.quests, dayKey(), { typeId: course.typeId, reviewCount: saved.review.length });
   if (event) feedQuestEvent(saved.quests, event);
   if (claimQuestReward(saved.quests)) rewards += 1;
   if (rewards) {
@@ -438,7 +493,7 @@ function checkHammer() {
     const dialog = $('#hammer-dialog');
     const msg = $('#hammer-msg');
     if (dialog && msg && !dialog.open) {
-      pendingHammer = { ...offer, day: dayKey(), mode: mode.id };
+      pendingHammer = { ...offer, day: dayKey(), typeId: course.typeId };
       msg.innerHTML = `你缺席了 <b>${offer.missed.length}</b> 天，是否消耗 <b>${offer.hammersNeeded}</b> 把补签金锤接续连续打卡纪录？`;
       dialog.showModal();
       saved.calendar.asked = dayKey();
@@ -613,12 +668,12 @@ function showDayLog(dateStr) {
   if ($('#day-title')) $('#day-title').textContent = `${dateStr} 研习记录`;
   if ($('#day-list')) {
     $('#day-list').innerHTML = records.map((r, i) => {
-      const modeName = MODES[r.mode]?.label || '英语练习';
-      const levelName = r.kind === 'review' ? '错题复习' : MODES[r.mode]?.levels?.find((l) => l.id === r.level)?.name || '';
+      const where = r.kind === 'review' ? '错题重练' : (r.lesson || '历史研习');
+      const typeName = r.type ? ` · ${r.type}` : '';
       const count = r.total == null ? `${r.solved ?? 0} 题` : `${r.solved}/${r.total} 题`;
       const duration = r.timeMs == null ? '' : ` · 用时 ${Math.round(r.timeMs / 1000)} 秒`;
       return `<li>
-        <div><span>第 ${i + 1} 轮 · ${modeName} ${levelName}</span>
+        <div><span>第 ${i + 1} 轮 · ${where}${typeName}</span>
           <small>答对 ${count} · 独立答对 ${r.firstTry ?? 0} · 差一点 ${r.misses ?? 0} · ${r.combo ?? 0} 连击${duration}</small></div>
         <b class="dl-score">${r.score} 分</b>
       </li>`;
@@ -627,18 +682,60 @@ function showDayLog(dateStr) {
   dialog.showModal();
 }
 
-function refreshHome() {
-  $('#levels').innerHTML = mode.levels.map((l) => {
-    const total = mode.questions.filter((q) => q.level === l.id).length;
-    const learned = mode.questions.filter((q) => q.level === l.id && saved.learned.includes(q.id)).length;
-    return `<button class="level-card${saved.recommended === l.id ? ' recommended' : ''}" data-level="${l.id}"><span class="level-icon" aria-hidden="true">${softieSVG(l.color)}</span><span><strong>${l.name}${saved.recommended === l.id ? '<em>推荐起点</em>' : ''}</strong><small>${l.label}</small></span><span class="level-count" aria-label="本玩法练过 ${learned} 道，共 ${total} 道"><b>${learned}</b> / ${total}</span></button>`;
+const CN_NUM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+function unitLabel(u) { return u.no >= 1 ? `第${CN_NUM[u.no - 1] || u.no}单元` : '导言与学法'; }
+
+function renderBookTabs() {
+  const box = $('#book-tabs');
+  if (!box) return;
+  box.innerHTML = BOOKS.map((book) => {
+    const active = book.id === course.bookId;
+    const count = bookQuestionCount(book);
+    const tally = count ? `${count} 题` : '待补题';
+    return `<button type="button" class="book-tab${active ? ' active' : ''}${count ? '' : ' is-empty'}"`
+      + ` data-book="${book.id}" role="tab" aria-selected="${active ? 'true' : 'false'}">`
+      + `<strong>${book.title}</strong><small>${tally}</small></button>`;
   }).join('');
-  $('#start-label').textContent = saved.recommended ? copy.stationStart.replace('{name}', levelInfo(saved.recommended).name) : copy.placement;
-  $('#start-note').textContent = saved.recommended ? `每轮 ${mode.rules.roundSize} 题 · 每题 ${questionSeconds(mode, saved.recommended)} 秒` : `先玩 ${mode.levels.length * mode.rules.placementPerLevel} 题，找到适合你的难度`;
+}
+
+function refreshHome() {
+  const bk = currentBook();
+  const un = currentUnit();
+  const type = currentType();
+  if (!un.lessons.some((l) => l.id === course.lessonId)) course.lessonId = un.lessons[0].id;
+
+  renderBookTabs();
+
+  $('#unit-tabs').innerHTML = bk.units.map((u) => {
+    const active = u.id === course.unitId;
+    return `<button type="button" class="unit-tab${active ? ' active' : ''}" data-unit="${u.id}" role="tab" aria-selected="${active ? 'true' : 'false'}"><small>${unitLabel(u)}</small><strong>${u.name}</strong></button>`;
+  }).join('');
+
+  $('#lesson-list').innerHTML = un.lessons.map((l) => {
+    const qs = questionsOf(l, course.typeId);
+    const learned = qs.filter((q) => saved.learned.includes(q.id)).length;
+    const active = l.id === course.lessonId;
+    const tally = qs.length
+      ? `<b>${learned}</b>/${qs.length}`
+      : '<span class="lesson-todo">待补</span>';
+    return `<button type="button" class="lesson-card${active ? ' active' : ''}" data-lesson="${l.id}" aria-pressed="${active ? 'true' : 'false'}"><span class="lesson-no">${l.label}</span><span class="lesson-title">${l.title}</span><span class="lesson-count" aria-label="本课该题型练过 ${learned} 道，共 ${qs.length} 道">${tally}</span></button>`;
+  }).join('');
+
+  const les = currentLesson();
+  const pool = questionsOf(les, course.typeId);
+  const playable = pool.length > 0;
+  $('#start-round').disabled = !playable;
+  $('#start-round').classList.toggle('is-empty', !playable);
+  $('#start-label').textContent = playable ? `${copy.startLabel} · ${type.label}` : copy.pendingLabel;
+  $('#start-note').textContent = playable
+    ? `${les.label} ${les.title} · 一轮 ${ROUND_SIZE} 题 · 每题 ${type.seconds} 秒`
+    : `${bk.title} · ${les.label} ${les.title} 还没有${type.label}，换一册或换一种题型看看`;
   $('#review-count').textContent = saved.review.length;
   $('#start-review').disabled = !saved.review.length;
-  $('#retest').hidden = !saved.recommended;
-  $('#home-progress').textContent = saved.learned.length ? `本玩法练过 ${saved.learned.length} / ${mode.questions.length} 个单词 · 完成 ${saved.rounds} 轮` : copy.footer;
+  const done = ALL_QUESTIONS.filter((q) => saved.learned.includes(q.id)).length;
+  $('#home-progress').textContent = done
+    ? `已练过 ${done} / ${ALL_QUESTIONS.length} 道题 · 完成 ${saved.rounds} 轮`
+    : copy.footer;
 
   // Re-evaluate existing progress after catalogue updates without dropping old records.
   const newlyEarned = evaluateTrophies(saved.trophies, extractTrophyMetrics({
@@ -663,21 +760,29 @@ function home() {
     audio.stopMusic();
   }
   $('#open-settings').disabled = false;
-  refreshHome(); showScreen('home'); $('#start-placement').focus({ preventScroll: true });
+  refreshHome(); showScreen('home'); $('#start-round').focus({ preventScroll: true });
 }
-function start(kind = 'level', level = saved.recommended || mode.levels[0].id) {
+function start(kind = 'lesson') {
   cancelRun(); audio.unlock();
   updateDailyQuests();
   let questions;
-  if (kind === 'placement') questions = placementRound(Math.random, mode);
-  else if (kind === 'review') questions = shuffle(mode.questions.filter((q) => saved.review.includes(q.id))).slice(0, mode.rules.roundSize);
-  else if (kind === 'demo') questions = mode.levels.flatMap((l) => makeRound(l.id, { mode, count: mode.rules.demoPerLevel }));
-  else questions = makeRound(level, { mode, seen: saved.learned });
+  if (kind === 'review') {
+    questions = shuffle(ALL_QUESTIONS.filter((q) => saved.review.includes(q.id))).slice(0, REVIEW_SIZE);
+  } else if (kind === 'demo') {
+    questions = shuffle(ALL_QUESTIONS).slice(0, ROUND_SIZE);
+  } else {
+    questions = makeRound(questionsOf(currentLesson(), course.typeId), { count: ROUND_SIZE, seen: saved.learned });
+  }
   if (!questions.length) { home(); return; }
-  Object.assign(S, { questions, kind, level, qi: 0, step: 0, combo: 0, peak: 0, misses: 0, playMs: 0, energy: 0, shownEnergy: 0, energyUnit: 0, E: .08, results: [], demo: kind === 'demo', phase: 'answer', demoSlipped: false });
+  Object.assign(S, { questions, kind, qi: 0, step: 0, combo: 0, peak: 0, misses: 0, playMs: 0, energy: 0, shownEnergy: 0, energyUnit: 0, E: .08, results: [], demo: kind === 'demo', phase: 'answer', demoSlipped: false });
   actors.forEach((a) => { a.hidden = true; });
   $('#open-settings').disabled = S.demo;
-  $('#play-title').textContent = S.demo ? '跟着气泡小队玩一轮' : kind === 'placement' ? '测测起点 · 不用紧张' : kind === 'review' ? '再练一练' : `${levelInfo(level).name}${copy.stationSuffix}`;
+  const les = currentLesson();
+  $('#play-title').textContent = S.demo
+    ? '跟着气泡小队玩一轮'
+    : kind === 'review'
+      ? '错题重练'
+      : `${les.label} ${les.title}`;
   $('#demo-banner').hidden = !S.demo;
   $('#exit-game').hidden = S.demo;
   $('#pips').innerHTML = questions.map(() => '<span class="pip"></span>').join('');
@@ -696,19 +801,66 @@ function updateEnergy() {
   $('#hud-total').textContent = S.questions.length;
   $('#hud-misses').textContent = S.misses;
 }
+const escapeHtml = (text) => String(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// 把题干、材料和作答槽摆到题面卡片上。填空题的槽直接嵌在题干里，其余题型单列。
+function renderContext(q, type) {
+  // 题型同时挂到 body 上，答案格与选项密度靠它切换版式。
+  document.body.dataset.questionType = q.type;
+  $('#type-tag').textContent = type.label;
+  $('#stem-guide').textContent = type.guide;
+  const mat = $('#material-text');
+  if (q.material) { mat.textContent = q.material; mat.hidden = false; } else { mat.textContent = ''; mat.hidden = true; }
+  const stem = $('#stem-text');
+  const slots = $('#word-slots');
+  slots.className = q.type === 'blank' ? 'word-slots inline' : 'word-slots';
+  stem.replaceChildren();
+  if (q.type === 'blank') {
+    const [before, after = ''] = q.stem.split('____');
+    stem.append(document.createTextNode(before), slots, document.createTextNode(after));
+  } else {
+    stem.append(document.createTextNode(q.stem));
+    $('#slot-home').append(slots);
+  }
+  const label = q.type === 'blank' ? '题干中待填的空格' : '你的答案';
+  slots.innerHTML = `<span class="word-cell blank" data-index="0" aria-label="${label}">?</span>`;
+  updateOptionFont(q);
+}
+function updateOptionFont(q) {
+  const options = q.options || [''];
+  const longest = Math.max(1, ...options.map((o) => o.length));
+  const box = $('#choices');
+  if (q.type === 'judge') {
+    box.dataset.density = 'pair';
+    box.style.setProperty('--option-font', '26px');
+    return;
+  }
+  if (q.type === 'blank') {
+    // 填空题的候选都是一两个词，固定两列，词短就放大字。
+    box.dataset.density = 'pair';
+    box.style.setProperty('--option-font', `${longest <= 3 ? 22 : longest <= 5 ? 20 : 16}px`);
+    return;
+  }
+  // 选择题 / 材料题的选项是成句的中文，短选项并排两列，长选项单列铺开。
+  const pair = longest <= 6;
+  box.dataset.density = pair ? 'pair' : 'stack';
+  box.style.setProperty('--option-font', `${pair ? (longest <= 4 ? 26 : 20) : longest <= 18 ? 20 : longest <= 28 ? 17 : 15}px`);
+}
 function setupQuestion() {
   speech.cancel();
   $('#tts-note').textContent = '';
-  document.body.dataset.questionType = mode.id;
   const q = activeQuestion();
+  const type = TYPE_MAP[q.type];
+  S.typeId = q.type;
+  document.body.dataset.questionType = q.type;
   Object.assign(S, { step: 0, firstTry: true, stepMisses: 0, questionMisses: S.misses, phase: 'answer', ready: true });
-  S.timeLeft = questionSeconds(mode, q.level) * 1000; S.clockAt = performance.now(); S.lastTick = null;
+  S.timeLeft = secondsOf(q) * 1000; S.clockAt = performance.now(); S.lastTick = null;
   $('#next-question').disabled = false;
   $('#read-question').className = 'speaker-btn icon-only';
   $('#read-question').hidden = false;
   $('#read-question').innerHTML = speakerIconSVG;
-  $('#read-question').setAttribute('aria-label', mode.id === 'spelling' ? '朗读单词' : '朗读题目');
-  $('#read-question').title = mode.id === 'spelling' ? '朗读单词' : '朗读题目';
+  $('#read-question').setAttribute('aria-label', '朗读题目');
+  $('#read-question').title = '朗读题目';
   updateTimer();
   S.E = energyAt(S.qi, S.questions.length);
   const music = musicAt(S.E);
@@ -716,49 +868,17 @@ function setupQuestion() {
   setShowLevel();
   audio.key = S.qi === S.questions.length - 1 ? 2 : 0;
   $('#question-number').textContent = `${String(S.qi + 1).padStart(2, '0')} / ${String(S.questions.length).padStart(2, '0')}`;
-  $('#level-tag').textContent = `${levelInfo(q.level).name} · ${mode.label}`;
-  $('#blank-count').textContent = mode.id === 'spelling' ? `补${q.blanks.length}个字母` : '选一个单词';
-  if (mode.id === 'sentence') {
-    const [before, after] = q.context.split('____');
-    const targetWord = Object.assign(document.createElement('span'), {
-      className: 'target-word sentence-zh',
-      textContent: q.translation,
-    });
-    const sentenceEn = Object.assign(document.createElement('span'), {
-      className: 'sentence-en',
-      textContent: `${before}____${after}`,
-    });
-    const targetGuide = Object.assign(document.createElement('span'), {
-      className: 'target-guide',
-      textContent: '读句子 · 选出空格里的单词',
-    });
-    const targetRow = Object.assign(document.createElement('div'), {
-      className: 'target-word-row',
-    });
-    targetRow.append(targetWord, $('#read-question'));
-    $('#context').replaceChildren(targetRow, sentenceEn, targetGuide);
-  } else {
-    const targetWord = Object.assign(document.createElement('span'), {
-      className: 'target-word',
-      textContent: q.meaning,
-    });
-    const targetGuide = Object.assign(document.createElement('span'), {
-      className: 'target-guide',
-      textContent: mode.id === 'meaning' ? '选出对应的英文单词' : '听发音 · 补齐单词',
-    });
-    const targetRow = Object.assign(document.createElement('div'), {
-      className: 'target-word-row',
-    });
-    targetRow.append(targetWord, $('#read-question'));
-    $('#context').replaceChildren(targetRow, targetGuide);
-  }
-  $('#word-slots').innerHTML = partsFor(q).map((part, i) => `<div class="word-cell${q.blanks.includes(i) ? ' blank' : ''}" data-index="${i}" aria-label="${q.blanks.includes(i) ? `第 ${i + 1} 格待填` : part}">${q.blanks.includes(i) ? '?' : part}</div>`).join('');
-  $('.choice-note').innerHTML = '点一个答案，发射气泡 <span>键盘 1—4 也可以</span>';
+  $('#level-tag').textContent = `${q.lessonLabel} · ${type.label}`;
+  $('#blank-count').textContent = type.note;
+  renderContext(q, type);
+  $('.choice-note').innerHTML = q.type === 'judge'
+    ? '点一个判断，发射气泡 <span>键盘 1—2 也可以</span>'
+    : '点一个答案，发射气泡 <span>键盘 1—4 也可以</span>';
   $('#feedback').textContent = copy.ready;
   $('#stamp').replaceChildren();
   $('#answer-area').hidden = false; $('#explanation').hidden = true; $('#hint').hidden = true;
-  $('#show-hint').hidden = mode.id === 'spelling';
-  $('#show-hint').disabled = S.demo; $('#skip-question').hidden = S.kind !== 'placement';
+  $('#show-hint').hidden = false;
+  $('#show-hint').disabled = S.demo;
   $$('.pip').forEach((p, i) => {
     p.classList.toggle('now', i === S.qi); p.classList.toggle('done', i < S.qi);
     p.style.setProperty('--pip-color', ['#5278ff', '#52dfb5', '#ff6b8b', '#ffcf3f'][Math.min(3, Math.floor(energyAt(i, S.questions.length) * 4.5))]);
@@ -777,28 +897,25 @@ function setupQuestion() {
 }
 function renderChoices() {
   const q = activeQuestion();
-  const blank = q.blanks[S.step];
-  $$('.word-cell').forEach((el, i) => el.classList.toggle('active', i === blank));
-  $('#word-slots').setAttribute('aria-label', partsFor(q).map((char, i) => q.blanks.indexOf(i) >= S.step && q.blanks.includes(i) ? `第${i + 1}格空缺` : char).join('，'));
-  const options = optionsFor(q, S.step, Math.random, mode);
-  const longest = Math.max(...options.map(option => option.length));
-  $('#bubble-layer').style.setProperty('--bubble-font', `${mode.id === 'spelling' ? 27 : Math.min(20, 66 / longest)}px`);
-  $('#choices').style.setProperty('--option-font', `${Math.min(25, 110 / longest)}px`);
-  $('#choices').innerHTML = options.map((char, i) => `<button class="choice" data-char="${char}" aria-label="选 ${char}，快捷键 ${i + 1}"><small aria-hidden="true">${i + 1}</small>${char}</button>`).join('');
+  $$('.word-cell').forEach((el) => el.classList.add('active'));
+  const options = optionsFor(q, Math.random, q.type);
+  S.correctKey = options.find((o) => o.correct)?.key ?? null;
+  const longest = Math.max(1, ...options.map((o) => o.key.length));
+  $('#bubble-layer').style.setProperty('--bubble-font', `${q.type === 'blank' ? Math.min(22, 58 / longest) : 27}px`);
+  $('#choices').innerHTML = options.map((o, i) => `<button type="button" class="choice" data-char="${escapeHtml(o.key)}" data-text="${escapeHtml(o.text)}" aria-label="选项 ${i + 1}：${escapeHtml(o.text)}"><small aria-hidden="true">${i + 1}</small><span class="choice-text">${escapeHtml(o.text)}</span></button>`).join('');
   $('#choices').classList.remove('busy');
-  $('#candidate-speech').innerHTML = $$('.choice').map(b => `<button type="button" class="speaker-btn icon-only" data-speech="${b.dataset.char}" aria-label="朗读 ${b.dataset.char}" title="朗读 ${b.dataset.char}">${speakerIconSVG}</button>`).join('');
+  $('#candidate-speech').innerHTML = options.map((o) => `<button type="button" class="speaker-btn icon-only" data-speech="${escapeHtml(o.text)}" aria-label="朗读 ${escapeHtml(o.text)}" title="朗读 ${escapeHtml(o.text)}">${speakerIconSVG}</button>`).join('');
   const team = actors.filter((a) => !a.hidden);
-  actors.forEach((a) => a.classList.toggle('active-actor', a === team[(S.qi + S.step) % team.length]));
-  $('#actor-caption').textContent = q.blanks.length > 1 ? `第 ${S.step + 1} 个空格 · 气泡接力中` : copy.stageReady;
-  if (S.step > 0 && S.E > .4) { audio.setReach(true); document.body.classList.add('reach'); $('#actor-caption').textContent = '再一个字母，就完整啦！'; }
+  actors.forEach((a) => a.classList.toggle('active-actor', a === team[S.qi % team.length]));
+  $('#actor-caption').textContent = '泡泡小队，准备好啦';
 }
 async function choose(button, automated = false) {
   if (!S.ready || S.screen !== 'play' || S.phase !== 'answer' || paused() || (S.demo && !automated) || button.disabled) return;
   speech.cancel();
   const run = S.run; const q = activeQuestion(); const step = S.step;
   const valid = () => S.run === run && S.screen === 'play' && activeQuestion() === q;
-  const correct = button.dataset.char === answerAt(q, step);
-  const slot = $$('.word-cell')[q.blanks[step]];
+  const correct = button.dataset.char === S.correctKey;
+  const slot = $('.word-cell');
   S.ready = false; $('#choices').classList.add('busy');
   audio.unlock(); audio.keyTap(S.combo);
   try {
@@ -851,31 +968,37 @@ async function choose(button, automated = false) {
 function hint() {
   if (!S.ready || S.phase !== 'answer') return;
   S.firstTry = false;
-  if (mode.id !== 'spelling') {
-    const q = activeQuestion();
-    if (q?.word) {
-      $('#hint').textContent = `💡 首字母是「${q.word[0].toUpperCase()}」，共有 ${q.word.length} 个字母`;
-      $('#hint').hidden = false;
-      $('#feedback').textContent = '用了提示也没关系，读懂意思最重要。';
-    }
+  const q = activeQuestion();
+  const wrongs = $$('.choice').filter((b) => b.dataset.char !== S.correctKey && !b.disabled);
+  if (wrongs.length > 1) {
+    const pick = wrongs[Math.floor(Math.random() * wrongs.length)];
+    pick.disabled = true;
+    pick.classList.add('hint-choice');
   }
-  if (S.stepMisses >= 3) $$('.choice').find((b) => b.dataset.char === answerAt(activeQuestion(), S.step))?.classList.add('hint-choice');
+  $('#hint').textContent = q.type === 'blank'
+    ? `💡 正确答案是 ${q.options[q.answer].length} 个字。`
+    : q.type === 'judge'
+      ? '💡 想一想，这句话有没有偷换时间、地点或人物。'
+      : '💡 已经帮你排除一个错误选项，再读一遍题干。';
+  $('#hint').hidden = false;
+  $('#feedback').textContent = '用了提示也没关系，读懂题干最重要。';
+  if (S.stepMisses >= 3) $$('.choice').find((b) => b.dataset.char === S.correctKey)?.classList.add('hint-choice');
 }
 function completeQuestion(skipped = false, timedOut = false) {
   speech.cancel();
   const q = activeQuestion();
   S.phase = 'explain'; S.ready = false;
   const firstTry = S.firstTry && !skipped;
-  S.results.push({ id: q.id, level: q.level, firstTry, completed: !skipped });
-  recordAnswer(saved, q, firstTry, { demo: S.demo, placement: S.kind === 'placement' });
-  if (!S.demo && S.kind !== 'placement') {
+  S.results.push({ id: q.id, type: q.type, firstTry, completed: !skipped });
+  recordAnswer(saved, q, firstTry, { demo: S.demo });
+  if (!S.demo) {
     saved.stats.problems = (saved.stats.problems || 0) + (skipped ? 0 : 1);
     if (firstTry) saved.stats.firstTry = (saved.stats.firstTry || 0) + 1;
     if (S.kind === 'review' && firstTry) saved.stats.reviewSolved = (saved.stats.reviewSolved || 0) + 1;
     saved.stats.misses += S.misses - S.questionMisses;
     saved.stats.maxCombo = Math.max(saved.stats.maxCombo || 0, S.combo);
 
-    const thinkingMs = questionSeconds(mode, q.level) * 1000 - S.timeLeft;
+    const thinkingMs = secondsOf(q) * 1000 - S.timeLeft;
     if (firstTry && thinkingMs <= 5000) saved.stats.flags.speedy = true;
     const energy = Math.round(10 ** S.energy);
     if (energy >= 1000) saved.stats.flags.energy = true;
@@ -898,23 +1021,28 @@ function completeQuestion(skipped = false, timedOut = false) {
     celebrate(reach); drawStamp();
   } else {
     S.combo = 0; updateEnergy();
-    $$('.word-cell').forEach((el, i) => { el.textContent = partsFor(q)[i]; el.setAttribute('aria-label', partsFor(q)[i]); el.classList.remove('active', 'blank'); });
+    const cell = $('.word-cell');
+    if (cell) {
+      cell.textContent = q.options[q.answer];
+      cell.setAttribute('aria-label', q.options[q.answer]);
+      cell.classList.remove('active', 'blank');
+    }
   }
-  $('#word-slots').setAttribute('aria-label', q.word);
   $$('.pip')[S.qi].classList.replace('now', 'done');
   $$('.pip')[S.qi].classList.toggle('rainbow', S.E > .85);
   updateEnergy();
   $('#pips').setAttribute('aria-label', `已完成 ${S.qi + 1} 题，共 ${S.questions.length} 题`);
-  $('#actor-caption').textContent = skipped ? '一起认识这个新单词' : '泡泡小队，为你欢呼';
-  $('#feedback').textContent = timedOut ? '时间到！读懂这个单词，下一题再挑战。' : skipped ? '还没学过也没关系，先认识它。' : copy.finished;
+  $('#actor-caption').textContent = '泡泡小队，为你欢呼';
+  $('#feedback').textContent = timedOut ? '时间到！读懂这道题，下一题再挑战。' : copy.finished;
   updateTimer();
   $('#answer-area').hidden = true; $('#explanation').hidden = false;
   $('#read-question').hidden = true;
-  $('#answer-word').textContent = q.word; $('#meaning').textContent = q.meaning;
-  if ($('.explain-heading span')) $('.explain-heading span').textContent = skipped ? (copy.unlearned || '先来认识这个单词') : copy.learned;
-  $('#example').textContent = `试着读一读：${q.context.replace('____', q.word)} ${q.translation}`;
+  $('#answer-word').textContent = q.options[q.answer];
+  $('#meaning').textContent = q.explain;
+  if ($('.explain-heading span')) $('.explain-heading span').textContent = skipped ? copy.unlearned : copy.learned;
+  $('#example').textContent = `教材定位：${q.unitName} · ${q.lessonLabel} ${q.lessonTitle}`;
   if (!S.demo && saved.settings.autoSpeak) readExplanation();
-  $('#next-question').textContent = S.qi === S.questions.length - 1 ? '这一轮完成啦 →' : '记住啦，下一题 →';
+  $('#next-question').textContent = S.qi === S.questions.length - 1 ? '这一轮完成啦 →' : '记好啦，下一题 →';
   if (!S.demo) $('#next-question').focus({ preventScroll: true });
   if (S.qi === S.questions.length - 1 && !skipped) playFinale();
   else if (S.demo) later(() => demoNext(), 2200);
@@ -932,7 +1060,7 @@ function updateTimer() {
   $('#timer-label').textContent = active ? '剩余' : '已暂停';
   $('#question-timer').classList.toggle('hurry', active && seconds <= 5);
   $('#question-timer').setAttribute('aria-label', active ? `本题还剩 ${seconds} 秒` : speech.busy ? '朗读中，倒计时已暂停' : '阅读解释，倒计时已暂停');
-  $('#time-fill').style.transform = `scaleX(${Math.max(0, S.timeLeft || 0) / (questionSeconds(mode, activeQuestion()?.level) * 1000)})`;
+  $('#time-fill').style.transform = `scaleX(${Math.max(0, S.timeLeft || 0) / (secondsOf(activeQuestion()) * 1000)})`;
 }
 function tickTimer(t) {
   const elapsed = S.clockAt == null ? 0 : t - S.clockAt;
@@ -1102,67 +1230,69 @@ async function playFinale() {
   if (S.demo) later(demoNext, 800);
 }
 function finish() {
-  const placement = S.kind === 'placement';
-  if (placement) saved.recommended = recommendedLevel(S.results, mode);
   if (!S.demo) {
-    if (!placement) {
-      saved.rounds += 1;
-      const todayStr = dayKey();
-      saved.history.push({
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        day: todayStr,
-        at: Date.now(),
-        score: 100,
-        solved: S.results.filter((r) => r.completed).length,
-        misses: S.misses,
-        firstTry: S.results.filter((r) => r.firstTry).length,
-        combo: S.peak,
-        mode: mode.id,
-        level: S.level,
-        kind: S.kind,
-        total: S.questions.length,
-        timeMs: Math.round(S.playMs),
-      });
+    saved.rounds += 1;
+    const todayStr = dayKey();
+    const head = S.questions[0];
+    saved.history.push({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      day: todayStr,
+      at: Date.now(),
+      score: 100,
+      solved: S.results.filter((r) => r.completed).length,
+      misses: S.misses,
+      firstTry: S.results.filter((r) => r.firstTry).length,
+      combo: S.peak,
+      type: S.kind === 'review' ? '错题重练' : (TYPE_MAP[S.typeId]?.label || ''),
+      lesson: S.kind === 'review' ? '错题重练' : `${head.unitName} · ${head.lessonLabel} ${head.lessonTitle}`,
+      kind: S.kind,
+      total: S.questions.length,
+      timeMs: Math.round(S.playMs),
+    });
 
-      const firstTryCount = S.results.filter(r => r.firstTry && r.completed).length;
-      if (firstTryCount === S.questions.length) {
-        saved.stats.perfects = (saved.stats.perfects || 0) + 1;
-      }
-      saved.stats.playMs += Math.round(S.playMs);
-
-      updateDailyQuests({
-        type: 'round',
-        score: 100,
-        solved: S.results.filter((r) => r.completed).length,
-        total: S.questions.length,
-        firstTryCount,
-      });
-
-      const dayOfWeek = new Date().getDay();
-      saved.stats.flags = saved.stats.flags || {};
-      saved.stats.flags.firstPlay = true;
-      if (dayOfWeek === 0 || dayOfWeek === 6) saved.stats.flags.weekend = true;
-      const hour = new Date().getHours();
-      if (hour >= 22 || hour < 6) saved.stats.flags.night = true;
-      if (S.kind === 'level' && S.level === mode.levels.at(-1).id && S.results.every(r => r.completed)) saved.stats.flags.advanced = true;
-
-      checkTrophies();
+    const firstTryCount = S.results.filter(r => r.firstTry && r.completed).length;
+    if (firstTryCount === S.questions.length) {
+      saved.stats.perfects = (saved.stats.perfects || 0) + 1;
     }
+    saved.stats.playMs += Math.round(S.playMs);
+
+    updateDailyQuests({
+      type: 'round',
+      score: 100,
+      solved: S.results.filter((r) => r.completed).length,
+      total: S.questions.length,
+      firstTryCount,
+    });
+
+    const dayOfWeek = new Date().getDay();
+    saved.stats.flags = saved.stats.flags || {};
+    saved.stats.flags.firstPlay = true;
+    if (dayOfWeek === 0 || dayOfWeek === 6) saved.stats.flags.weekend = true;
+    const hour = new Date().getHours();
+    if (hour >= 22 || hour < 6) saved.stats.flags.night = true;
+    // 「更上一层」：当前这一课的四种题型都至少练过一轮。
+    const covered = new Map();
+    for (const q of currentLesson()?.questions || []) {
+      covered.set(q.type, Boolean(covered.get(q.type)) || saved.learned.includes(q.id));
+    }
+    if (covered.size === TYPES.length && [...covered.values()].every(Boolean)) saved.stats.flags.advanced = true;
+
+    checkTrophies();
     persist();
   }
   showScreen('result'); S.ready = false;
   audio.setReach(false);
-  $('#result-eyebrow').textContent = S.demo ? '演示完成 · 没有写入学习记录' : placement ? '找到起点，快乐出发' : '泡泡小队，为你欢呼';
-  $('#result-title').textContent = placement ? `从「${levelInfo(saved.recommended).name}」\n开始刚刚好。` : copy.resultTitle;
-  $('#result-score').textContent = placement ? levelInfo(saved.recommended).name : '100';
-  $('#score-label').textContent = placement ? '推荐起点' : '完成分';
+  $('#result-eyebrow').textContent = S.demo ? '演示完成 · 没有写入学习记录' : '泡泡小队，为你欢呼';
+  $('#result-title').textContent = copy.resultTitle;
+  $('#result-score').textContent = '100';
+  $('#score-label').textContent = '完成分';
   const first = S.results.filter((r) => r.firstTry).length;
-  $('#result-summary').textContent = placement ? '这不是考试分数，只是一个起点建议。你仍然可以自由选择任何难度。' : `完成 ${S.questions.length} 道题，就值得满分庆祝。\n其中 ${first} 道没有用提示、一次就填对了。`;
+  $('#result-summary').textContent = `完成 ${S.questions.length} 道题，就值得满分庆祝。\n其中 ${first} 道没有用提示、一次就答对了。`;
   $('#result-details').innerHTML = `<div class="result-detail"><b>${S.results.length}</b><span>完成题目</span></div><div class="result-detail"><b>${S.peak}</b><span>最高连击</span></div><div class="result-detail"><b>${S.energy ? displayEnergy(S.energy) : 0}</b><span>快乐能量</span></div>`;
 
   const rQuests = $('#r-quests');
   if (rQuests) {
-    if (!S.demo && !placement && saved.quests?.list) {
+    if (!S.demo && saved.quests?.list) {
       rQuests.innerHTML = `<div class="qm-head"><span>今日委托进度</span><span class="quest-reward"><span class="qham">${HAMMER_SVG}</span></span></div>
         <ol class="quest-list">
           ${saved.quests.list.map((q) => {
@@ -1181,8 +1311,8 @@ function finish() {
     }
   }
 
-  $('#result-start').textContent = placement ? `去${levelInfo(saved.recommended).name}${copy.stationSuffix} →` : S.demo ? '我也来试试 →' : '再来一轮 →';
-  $('#result-review').hidden = S.demo || placement || !saved.review.length;
+  $('#result-start').textContent = S.demo ? '我也来试试 →' : '再来一轮 →';
+  $('#result-review').hidden = S.demo || !saved.review.length;
   $('#result-home').textContent = copy.home;
   if (!reduced()) {
     resultActors.forEach((a, i) => later(() => bounce(a, { big: true, reduced: reduced() }), i * 130));
@@ -1200,7 +1330,7 @@ function scheduleDemo() {
     if (paused()) { scheduleDemo(); return; }
     if (speech.busy) { later(scheduleDemo, 350); return; }
     if (!S.demo || !S.ready) return;
-    const q = activeQuestion(); const correct = answerAt(q, S.step);
+    const q = activeQuestion(); const correct = S.correctKey;
     const buttons = $$('.choice').filter((b) => !b.disabled);
     const miss = S.qi === 1 && S.step === 0 && !S.demoSlipped;
     if (miss) S.demoSlipped = true;
@@ -1210,20 +1340,23 @@ function scheduleDemo() {
 }
 function demoNext() { if (paused()) later(demoNext, 500); else nextQuestion(); }
 
-// Presentation copy belongs to the mode; audience switching starts a fresh run.
-document.body.dataset.mode = mode.theme;
-if ($('#title-lead')) $('#title-lead').textContent = copy.titleLead;
-if ($('#title-accent')) $('#title-accent').textContent = copy.titleAccent;
-document.title = `软乎乎 · ${copy.titleLead}${copy.titleAccent}`;
+// 表面文案：历史研习场。
+document.body.dataset.mode = 'children';
+document.title = `软乎乎 · ${copy.title}`;
 $('#brand-slime').innerHTML = softieSVG();
 $('.brand small').textContent = copy.tagline;
 if ($('#home .eyebrow')) $('#home .eyebrow').textContent = copy.eyebrow;
 $('.intro').textContent = copy.intro;
-$('.section-label h2').textContent = copy.levelHeading;
+$('#course-heading').textContent = copy.courseHeading;
+$('#type-heading').textContent = copy.typeHeading;
 $('.explain-heading span').textContent = copy.learned;
 $('#mode-disclaimer').textContent = copy.disclaimer;
 $('#settings-softie').innerHTML = softieSVG('pink', { happy: true });
-$('#timing-chips').innerHTML = mode.levels.map((l) => `<span>${l.name}<b>${questionSeconds(mode, l.id)}秒</b></span>`).join('');
+function renderTimingChips() {
+  const chips = $('#timing-chips');
+  if (chips) chips.innerHTML = TYPES.map((t) => `<span>${t.label}<b>${t.seconds}秒</b></span>`).join('');
+}
+renderTimingChips();
 
 function initLogoBurst() {
   const star = (R, r, n, jitter = 0, seed = 1) => {
@@ -1245,57 +1378,35 @@ initLogoBurst();
 
 const modeSelect = $('#mode-select');
 if (modeSelect) {
-  modeSelect.innerHTML = Object.values(MODES).map((m) => `<option value="${m.id}">${m.label}</option>`).join('');
-  modeSelect.value = mode.id;
-  modeSelect.addEventListener('change', () => setAudienceMode(modeSelect.value, false));
+  modeSelect.innerHTML = TYPES.map((t) => `<option value="${t.id}">${t.label}</option>`).join('');
+  modeSelect.value = course.typeId;
+  modeSelect.addEventListener('change', () => setType(modeSelect.value, false));
 }
 
-function syncModePills() {
+function syncTypePills() {
   $$('.mode-pill').forEach((btn) => {
-    const active = btn.dataset.mode === mode.id;
+    const active = btn.dataset.mode === course.typeId;
     btn.classList.toggle('active', active);
     btn.setAttribute('aria-checked', active ? 'true' : 'false');
   });
+  if ($('#logo-bit-1')) $('#logo-bit-1').textContent = copy.logoBits[0];
+  if ($('#logo-bit-2')) $('#logo-bit-2').textContent = copy.logoBits[1];
 }
-syncModePills();
+syncTypePills();
 
-function updateAudienceUI() {
-  document.body.dataset.mode = mode.theme;
-  if ($('#title-lead')) $('#title-lead').textContent = copy.titleLead;
-  if ($('#title-accent')) $('#title-accent').textContent = copy.titleAccent;
-  document.title = `软乎乎 · ${copy.titleLead}${copy.titleAccent}`;
-  if ($('.brand small')) $('.brand small').textContent = copy.tagline;
-  if ($('#home .eyebrow')) $('#home .eyebrow').textContent = copy.eyebrow;
-  if ($('.intro')) $('.intro').textContent = copy.intro;
-  if ($('.section-label h2')) $('.section-label h2').textContent = copy.levelHeading;
-  if ($('.explain-heading span')) $('.explain-heading span').textContent = copy.learned;
-  if ($('#mode-disclaimer')) $('#mode-disclaimer').textContent = copy.disclaimer;
-  if ($('#logo-bit-1') && copy.logoBits) $('#logo-bit-1').textContent = copy.logoBits[0];
-  if ($('#logo-bit-2') && copy.logoBits) $('#logo-bit-2').textContent = copy.logoBits[1];
-  if ($('#timing-chips')) $('#timing-chips').innerHTML = mode.levels.map((l) => `<span>${l.name}<b>${questionSeconds(mode, l.id)}秒</b></span>`).join('');
-}
-updateAudienceUI();
-
-function setAudienceMode(newModeId, playFx = true) {
-  if (mode.id === newModeId) return;
+function setType(newTypeId, playFx = true) {
+  if (!TYPE_MAP[newTypeId] || course.typeId === newTypeId) return;
   cancelRun();
-  pendingHammer = null;
-  try { storage?.setItem('softie-english:active-mode', newModeId); } catch {}
-  mode = getMode(newModeId);
-  copy = mode.copy;
-  saved = loadSave(storage, mode);
-
+  course.typeId = newTypeId;
+  saveCourse();
+  if (modeSelect) modeSelect.value = newTypeId;
+  syncTypePills();
   try {
     const url = new URL(location.href);
-    url.searchParams.set('mode', newModeId);
+    url.searchParams.set('type', newTypeId);
     url.searchParams.delete('demo');
     history.replaceState(null, '', url);
-  } catch {}
-
-  if (modeSelect) modeSelect.value = mode.id;
-  syncModePills();
-  updateAudienceUI();
-  applySettings();
+  } catch { /* URL may be unavailable. */ }
   refreshHome();
 
   if (playFx) {
@@ -1311,11 +1422,11 @@ function setAudienceMode(newModeId, playFx = true) {
 
 $('#mode-toggle')?.addEventListener('click', (e) => {
   const btn = e.target.closest('.mode-pill');
-  if (btn && btn.dataset.mode) setAudienceMode(btn.dataset.mode, true);
+  if (btn && btn.dataset.mode) setType(btn.dataset.mode, true);
 });
 $$('.mode-pill').forEach((btn) => {
-  btn.addEventListener('click', (e) => {
-    if (btn.dataset.mode) setAudienceMode(btn.dataset.mode, true);
+  btn.addEventListener('click', () => {
+    if (btn.dataset.mode) setType(btn.dataset.mode, true);
   });
 });
 $('.brand').addEventListener('click', (e) => {
@@ -1324,20 +1435,41 @@ $('.brand').addEventListener('click', (e) => {
   if (S.screen === 'play' && !S.demo) { speech.cancel(); $('#leave-dialog').showModal(); }
   else home();
 });
-$('#levels').addEventListener('click', (e) => {
-  const b = e.target.closest('[data-level]');
-  if (b) {
-    playClickSound('primary');
-    start('level', Number(b.dataset.level));
-  }
+$('#book-tabs')?.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-book]');
+  if (!b || b.dataset.book === course.bookId) return;
+  playClickSound('tab');
+  cancelRun();
+  const book = findBook(b.dataset.book);
+  const opened = firstPlayableLesson(book);
+  course.bookId = book.id;
+  course.unitId = opened.unit.id;
+  course.lessonId = opened.lesson.id;
+  saveCourse();
+  refreshHome();
 });
-$('#start-placement').addEventListener('click', () => {
-  playClickSound('primary');
-  start(saved.recommended ? 'level' : 'placement');
+$('#unit-tabs').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-unit]');
+  if (!b || b.dataset.unit === course.unitId) return;
+  playClickSound('tab');
+  cancelRun();
+  const u = findUnit(currentBook(), b.dataset.unit);
+  course.unitId = u.id;
+  course.lessonId = u.lessons[0].id;
+  saveCourse();
+  refreshHome();
 });
-$('#retest').addEventListener('click', () => {
+$('#lesson-list').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-lesson]');
+  if (!b || b.dataset.lesson === course.lessonId) return;
   playClickSound('primary');
-  start('placement');
+  cancelRun();
+  selectLesson(course.unitId, b.dataset.lesson);
+  refreshHome();
+});
+$('#start-round').addEventListener('click', () => {
+  playClickSound('primary');
+  start('lesson');
 });
 $('#start-review').addEventListener('click', () => {
   playClickSound('primary');
@@ -1404,7 +1536,7 @@ $('#close-day')?.addEventListener('click', () => {
 });
 $('#hammer-yes')?.addEventListener('click', () => {
   playClickSound('primary');
-  if (pendingHammer?.mode === mode.id && pendingHammer.day === dayKey()
+  if (pendingHammer?.typeId === course.typeId && pendingHammer.day === dayKey()
     && useHammer(saved.calendar, saved.history, pendingHammer.missed, new Date())) {
     saved.stats.flags.hammerUsed = true;
     checkTrophies();
@@ -1515,10 +1647,6 @@ $('#show-hint').addEventListener('click', () => {
   playClickSound('bubble');
   hint();
 });
-$('#skip-question').addEventListener('click', () => {
-  playClickSound('bubble');
-  if (S.ready && !S.demo && S.kind === 'placement') completeQuestion(true);
-});
 $('#next-question').addEventListener('click', () => {
   playClickSound('primary');
   if (!S.demo) nextQuestion();
@@ -1547,7 +1675,7 @@ $('#result-home').addEventListener('click', () => {
 });
 $('#result-start').addEventListener('click', () => {
   playClickSound('primary');
-  start(S.demo && !saved.recommended ? 'placement' : 'level', S.kind === 'placement' ? saved.recommended : S.level);
+  start(S.kind === 'review' ? 'review' : 'lesson');
 });
 $('#result-review').addEventListener('click', () => {
   playClickSound('primary');
@@ -1607,7 +1735,7 @@ $('#read-question').addEventListener('click', readQuestion);
 $('#read-explanation').addEventListener('click', readExplanation);
 $('#candidate-speech').addEventListener('click', e => {
   const button = e.target.closest('[data-speech]');
-  if (button && S.ready && S.phase === 'answer') read({ text: button.dataset.speech, lang: 'en' });
+  if (button && S.ready && S.phase === 'answer') read({ text: button.dataset.speech, lang: 'zh' });
 });
 $('#auto-speak-setting').addEventListener('change', e => {
   saved.settings.autoSpeak = e.target.checked; speech.cancel(); persist();

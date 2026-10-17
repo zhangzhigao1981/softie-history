@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 
 import { energyAt, musicAt, crowdAt, burstKinds, correctParticles, celebrationParticles, finaleParticles, gainEnergy } from '../js/choreography.js';
 import { questionSeconds, countdown } from '../js/timer.js';
-import { DEFAULT_MODE } from '../js/modes.js';
+import { TYPES, ROUND_SIZE } from '../js/course.js';
 
 function recorders() {
   const calls = [];
@@ -43,10 +43,13 @@ test('show and music grow with round progress, independently of question difficu
   assert.ok(L > 3, 'long unbroken combo passes the 1000 milestone');
 });
 
-test('difficulty budgets decrease and audience configuration can override them', () => {
-  assert.deepEqual(DEFAULT_MODE.levels.map((l) => questionSeconds(DEFAULT_MODE, l.id)), [30, 24, 20]);
-  assert.equal(questionSeconds({ levels: [{ id: 20, seconds: 15 }] }, 20), 15);
-  assert.equal(questionSeconds({ levels: [{ id: 10 }] }, 10), 30);
+test('每题时限由题型决定：材料题留足读材料的时间，缺省回落到 40 秒', () => {
+  assert.deepEqual(TYPES.map((type) => questionSeconds(type)), TYPES.map((type) => type.seconds));
+  assert.deepEqual(TYPES.map((type) => questionSeconds(type)), [40, 35, 45, 70]);
+  assert.equal(questionSeconds({ seconds: 15 }), 15, '题型可以自带时限');
+  assert.equal(questionSeconds(undefined), 40);
+  assert.equal(questionSeconds({}), 40);
+  assert.ok(ROUND_SIZE >= 5);
 });
 
 test('countdown spends real elapsed thinking time only, never resets between blanks', () => {

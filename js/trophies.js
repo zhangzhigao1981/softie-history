@@ -1,5 +1,5 @@
-// English Trophies and Achievements.
-// Pure functions, isolated per mode save.
+// History Trophies and Achievements.
+// Pure functions, single shared save.
 
 export const TROPHY_CATEGORIES = [
   { id: 'streak', name: '持之以恒' },
@@ -47,13 +47,13 @@ const SERIES_DEFS = [
   {
     key: 'learned',
     cat: 'learned',
-    title: '单词积累',
+    title: '知识点积累',
     metric: 'learnedCount',
     steps: [
-      { need: 10, rank: 'bronze', name: '初识词韵', desc: '完成练习： 10 个单词' },
-      { need: 30, rank: 'silver', name: '触类旁通', desc: '完成练习： 30 个单词' },
-      { need: 60, rank: 'gold', name: '出口成章', desc: '完成练习： 60 个单词' },
-      { need: 100, rank: 'rainbow', name: '学富五车', desc: '完成练习： 100 个单词' },
+      { need: 10, rank: 'bronze', name: '初识史海', desc: '完成练习： 10 道题' },
+      { need: 30, rank: 'silver', name: '触类旁通', desc: '完成练习： 30 道题' },
+      { need: 60, rank: 'gold', name: '博古通今', desc: '完成练习： 60 道题' },
+      { need: 120, rank: 'rainbow', name: '学富五车', desc: '完成练习： 120 道题' },
     ],
   },
   {
@@ -62,9 +62,9 @@ const SERIES_DEFS = [
     title: '连击神准',
     metric: 'maxCombo',
     steps: [
-      { need: 5, rank: 'bronze', name: '行云流水', desc: '达成 5 连击' },
-      { need: 7, rank: 'silver', name: '连珠妙语', desc: '达成 7 连击' },
-      { need: 8, rank: 'gold', name: '一气呵成', desc: '达成 8 连击' },
+      { need: 3, rank: 'bronze', name: '行云流水', desc: '一轮里连续答对 3 题' },
+      { need: 4, rank: 'silver', name: '连珠妙语', desc: '一轮里连续答对 4 题' },
+      { need: 5, rank: 'gold', name: '一气呵成', desc: '一轮 5 题全部连续答对' },
     ],
   },
   {
@@ -84,10 +84,10 @@ const SERIES_DEFS = [
     title: '答题总数',
     metric: 'problems',
     steps: [
-      { need: 50, rank: 'bronze', name: '小试身手', desc: '累计答对 50 道单词题' },
-      { need: 150, rank: 'silver', name: '日积月累', desc: '累计答对 150 道单词题' },
-      { need: 300, rank: 'gold', name: '百炼成钢', desc: '累计答对 300 道单词题' },
-      { need: 500, rank: 'rainbow', name: '博古通今', desc: '累计答对 500 道单词题' },
+      { need: 50, rank: 'bronze', name: '小试身手', desc: '累计答对 50 道题' },
+      { need: 150, rank: 'silver', name: '日积月累', desc: '累计答对 150 道题' },
+      { need: 300, rank: 'gold', name: '百炼成钢', desc: '累计答对 300 道题' },
+      { need: 500, rank: 'rainbow', name: '博古通今', desc: '累计答对 500 道题' },
     ],
   },
   {
@@ -96,9 +96,9 @@ const SERIES_DEFS = [
     title: '温故知新',
     metric: 'reviewSolved',
     steps: [
-      { need: 1, rank: 'bronze', name: '吃一堑长一智', desc: '在复习馆重新答对 1 道错题' },
-      { need: 5, rank: 'silver', name: '查漏补缺', desc: '复习馆累计攻克 5 道生词' },
-      { need: 15, rank: 'gold', name: '温故知新', desc: '复习馆累计攻克 15 道生词' },
+      { need: 1, rank: 'bronze', name: '吃一堑长一智', desc: '在错题本重新答对 1 道错题' },
+      { need: 5, rank: 'silver', name: '查漏补缺', desc: '错题本累计攻克 5 道错题' },
+      { need: 15, rank: 'gold', name: '温故知新', desc: '错题本累计攻克 15 道错题' },
     ],
   },
   {
@@ -106,11 +106,11 @@ const SERIES_DEFS = [
     cat: 'secret',
     title: '奇遇彩蛋',
     steps: [
-      { id: 'secret-first', metric: 'flag:firstPlay', need: 1, rank: 'secret', name: '启程之印', desc: '完成任意模式的首轮挑战' },
-      { id: 'secret-advanced', metric: 'flag:advanced', need: 1, rank: 'secret', name: '更上一层', desc: '完成最高难度的一轮练习' },
+      { id: 'secret-first', metric: 'flag:firstPlay', need: 1, rank: 'secret', name: '启程之印', desc: '完成任意一课的首轮挑战' },
+      { id: 'secret-advanced', metric: 'flag:advanced', need: 1, rank: 'secret', name: '更上一层', desc: '把同一课的选择、判断、填空、材料四种题型都练过' },
       { id: 'secret-night', metric: 'flag:night', need: 1, rank: 'secret', name: '秉烛夜读', desc: '在 22:00 至次日 06:00 之间完成一轮研习' },
-      { id: 'secret-weekend', metric: 'flag:weekend', need: 1, rank: 'secret', name: '偷得浮生', desc: '在周六或周日练习英语' },
-      { id: 'secret-speed', metric: 'flag:speedy', need: 1, rank: 'secret', name: '对答如流', desc: '在 5 秒内迅速独立选对单词' },
+      { id: 'secret-weekend', metric: 'flag:weekend', need: 1, rank: 'secret', name: '偷得浮生', desc: '在周六或周日研习历史' },
+      { id: 'secret-speed', metric: 'flag:speedy', need: 1, rank: 'secret', name: '对答如流', desc: '在 5 秒内迅速独立答对一道题' },
       { id: 'secret-energy', metric: 'flag:energy', need: 1, rank: 'secret', name: '能量绽放', desc: '单轮快乐能量达到 1,000' },
       { id: 'secret-hammer', metric: 'flag:hammerUsed', need: 1, rank: 'secret', name: '逆转时光', desc: '使用补签锤成功挽救一次打卡连击' },
     ],

@@ -1,6 +1,7 @@
 {
-  "repository": "yuanyang749/softie-idioms-app",
-  "commit": "005706b600d2fd0a2c6e108e0066d20f7f993c34",
+  "repository": "yuanyang749/softie-learn-english-app",
+  "commit": "cd5283e51d63356934d9d71a30e3f1f48fb000c0",
+  "note": "哈希基于 LF 归一化后的文本内容，跨平台一致；用于校验演出/音效/角色文件保持上游原样。",
   "files": {
     "js/audio.js": "1cd073282923b1ebd941cff8054a7c23d5c826b303094e0044394a6b0f64d7b7",
     "js/bg.js": "7e1490889b1c737eeb50d40d9c41d1bcedadac321094ae8f8f5574df96186aaa",

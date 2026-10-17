@@ -66,14 +66,23 @@ test('daily quests: feedQuestEvent updates progress and marks completed', () => 
   assert.equal(claimQuestReward(questState), false);
 });
 
-test('daily quests use audience salt and accessible mode-specific energy goals', () => {
+test('daily quests：题型会作为盐值改变序列，选题永远落在已定义的委托里', () => {
   const days = Array.from({ length: 31 }, (_, i) => `2026-10-${String(i + 1).padStart(2, '0')}`);
-  const child = days.map(day => pickDailyQuests(day, { mode: 'meaning', reviewCount: 2 }));
-  const adult = days.map(day => pickDailyQuests(day, { mode: 'spelling', reviewCount: 2 }));
-  assert.notEqual(JSON.stringify(child), JSON.stringify(adult), 'Audience salt must change the sequence');
-  assert.ok(child.flat().some(q => q.id === 'energy300'));
-  assert.ok(adult.flat().some(q => q.id === 'energy1000'));
-  assert.ok(child.flat().every(q => q.id !== 'energy1000'));
-  assert.ok(adult.flat().every(q => q.id !== 'energy300'));
+  const choice = days.map(day => pickDailyQuests(day, { typeId: 'choice', reviewCount: 2 }));
+  const material = days.map(day => pickDailyQuests(day, { typeId: 'material', reviewCount: 2 }));
+  assert.notEqual(JSON.stringify(choice), JSON.stringify(material), '题型盐值必须改变序列');
+  for (const batch of [choice, material]) {
+    for (const quest of batch.flat()) {
+      const def = QUEST_MAP[quest.id];
+      assert.ok(def, `未知委托：${quest.id}`);
+      assert.ok(def.text().length > 0);
+    }
+    assert.ok(batch.flat().every(q => q.goal > 0), '目标必须为正');
+  }
+  for (const day of days) {
+    const list = pickDailyQuests(day, { typeId: 'choice', reviewCount: 0 });
+    assert.equal(list.length, 3);
+    assert.ok(list.every(q => QUEST_MAP[q.id].tier === 'easy' || QUEST_MAP[q.id].tier === 'hard'));
+  }
 });
 

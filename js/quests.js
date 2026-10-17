@@ -1,18 +1,18 @@
-// Daily quests for Idioms泡泡: 2 easy + 1 challenging quest per day.
-// Deterministic per day via day-hash. Separated cleanly per mode save.
+// Daily quests: 2 easy + 1 challenging quest per day.
+// Deterministic per day via day-hash.
 
 export const QUEST_DEFS = [
-  { id: 'play1', tier: 'easy', metric: 'play', goal: 1, text: () => '完成 1 轮英语练习' },
+  { id: 'play1', tier: 'easy', metric: 'play', goal: 1, text: () => '完成 1 轮历史研习' },
   { id: 'combo5', tier: 'easy', metric: 'combo', goal: 5, text: () => '达成 5 连击' },
   { id: 'first5', tier: 'easy', metric: 'firstTry', goal: 5, text: () => '独立答对 5 道题' },
-  { id: 'review1', tier: 'easy', metric: 'review', goal: 1, text: () => '复习攻克 1 个生词', need: (ctx) => (ctx.reviewCount || 0) > 0 },
-  { id: 'play2', tier: 'hard', metric: 'play', goal: 2, text: () => '累计完成 2 轮练习' },
+  { id: 'review1', tier: 'easy', metric: 'review', goal: 1, text: () => '复习攻克 1 道错题', need: (ctx) => (ctx.reviewCount || 0) > 0 },
+  { id: 'play2', tier: 'hard', metric: 'play', goal: 2, text: () => '累计完成 2 轮研习' },
   { id: 'combo8', tier: 'hard', metric: 'combo', goal: 8, text: () => '达成 8 连击' },
   { id: 'first8', tier: 'hard', metric: 'firstTry', goal: 8, text: () => '独立答对 8 道题' },
-  { id: 'review2', tier: 'hard', metric: 'review', goal: 2, text: () => '复习攻克 2 个生词', need: (ctx) => (ctx.reviewCount || 0) >= 2 },
+  { id: 'review2', tier: 'hard', metric: 'review', goal: 2, text: () => '复习攻克 2 道错题', need: (ctx) => (ctx.reviewCount || 0) >= 2 },
   { id: 'perfect1', tier: 'hard', metric: 'perfect', goal: 1, text: () => '独立全对通关一轮（100 分）' },
-  { id: 'energy300', tier: 'hard', metric: 'energy', goal: 300, text: () => '快乐能量达到 300', need: (ctx) => !ctx.mode || ctx.mode !== 'spelling' },
-  { id: 'energy1000', tier: 'hard', metric: 'energy', goal: 1000, text: () => '快乐能量达到 1,000', need: (ctx) => ctx.mode === 'spelling' },
+  { id: 'energy300', tier: 'hard', metric: 'energy', goal: 300, text: () => '快乐能量达到 300' },
+  { id: 'play3', tier: 'hard', metric: 'play', goal: 3, text: () => '累计完成 3 轮研习' },
 ];
 
 export const QUEST_MAP = Object.fromEntries(QUEST_DEFS.map((q) => [q.id, q]));
@@ -46,7 +46,7 @@ function shuffle(arr, rng) {
 }
 
 export function pickDailyQuests(day, ctx = {}) {
-  const rng = rngFrom(hashDay(`${day}-${ctx.mode || 'meaning'}`));
+  const rng = rngFrom(hashDay(`${day}-${ctx.typeId || 'all'}`));
   const available = QUEST_DEFS.filter((q) => !q.need || q.need(ctx));
   const easy = shuffle(available.filter((q) => q.tier === 'easy'), rng);
   const hard = shuffle(available.filter((q) => q.tier === 'hard'), rng);

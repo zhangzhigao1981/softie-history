@@ -1,4 +1,4 @@
-import { DEFAULT_MODE, saveKey } from './modes.js';
+import { ALL_QUESTIONS, SAVE_KEY, SAVE_VERSION } from './course.js';
 
 export function dayKey(d = new Date()) {
   const y = d.getFullYear();
@@ -84,11 +84,10 @@ export function useHammer(calendar, history, missed, today = new Date()) {
   return true;
 }
 
-export function freshSave(mode = DEFAULT_MODE) {
+export function freshSave() {
   const today = dayKey();
   return {
-    version: mode.version,
-    recommended: null,
+    version: SAVE_VERSION,
     learned: [],
     review: [],
     rounds: 0,
@@ -127,19 +126,18 @@ export function freshSave(mode = DEFAULT_MODE) {
   };
 }
 
-export function loadSave(storage, mode = DEFAULT_MODE) {
-  const base = freshSave(mode);
+export function loadSave(storage) {
+  const base = freshSave();
   try {
-    const raw = storage?.getItem(saveKey(mode));
+    const raw = storage?.getItem(SAVE_KEY);
     if (!raw) return base;
     const value = JSON.parse(raw);
-    if (value?.version !== mode.version) return base;
+    if (value?.version !== SAVE_VERSION) return base;
 
-    const known = new Set(mode.questions.map((q) => q.id));
+    const known = new Set(ALL_QUESTIONS.map((q) => q.id));
     for (const key of ['learned', 'review']) {
       base[key] = [...new Set((Array.isArray(value[key]) ? value[key] : []).filter((id) => known.has(id)))];
     }
-    base.recommended = mode.levels.some((l) => l.id === value.recommended) ? value.recommended : null;
     base.rounds = Number.isSafeInteger(value.rounds) && value.rounds >= 0 ? value.rounds : 0;
 
     if (typeof value.settings?.sound === 'boolean') base.settings.sound = value.settings.sound;
@@ -231,10 +229,10 @@ export function claimLogin(bonus, calendar = {}, today = new Date()) {
 export const stickerOn = (bonus, key) => (bonus?.stickers || {})[key] || null;
 export const bonusState = (save) => save?.bonus || { last: null, run: 0, stickers: {}, total: 0 };
 
-export function persistSave(storage, save, mode = DEFAULT_MODE) {
+export function persistSave(storage, save) {
   if (!storage) return false;
   try {
-    storage.setItem(saveKey(mode), JSON.stringify(save));
+    storage.setItem(SAVE_KEY, JSON.stringify(save));
     return true;
   } catch {
     return false;
@@ -245,19 +243,15 @@ export function resetAllSaves(storage) {
   if (!storage) return;
   try {
     const toRemove = [];
+    // 本作使用 softie-history: 前缀；同源下可能还留着改造前的英语版存档，一并清掉。
+    const prefixes = ['softie-history:', 'softie-english:'];
+    const collect = (key) => {
+      if (typeof key === 'string' && prefixes.some((prefix) => key.startsWith(prefix))) toRemove.push(key);
+    };
     if (typeof storage.length === 'number' && typeof storage.key === 'function') {
-      for (let i = 0; i < storage.length; i++) {
-        const key = storage.key(i);
-        if (key && key.startsWith('softie-english:')) {
-          toRemove.push(key);
-        }
-      }
+      for (let i = 0; i < storage.length; i++) collect(storage.key(i));
     } else if (typeof storage.keys === 'function') {
-      for (const key of storage.keys()) {
-        if (typeof key === 'string' && key.startsWith('softie-english:')) {
-          toRemove.push(key);
-        }
-      }
+      for (const key of storage.keys()) collect(key);
     }
     for (const key of toRemove) {
       try {

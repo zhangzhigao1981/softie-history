@@ -5,8 +5,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#fff8ec">
-  <meta name="description" content="和五只软乎乎一起学简单英语。120 个启蒙词，识义、拼写、情境填词三种玩法，答对就让气泡和音乐一起庆祝。">
-  <title>软乎乎 · 英语泡泡</title>
+  <meta name="description" content="和五只软乎乎一起研习初中历史。统编版 2025 版七上、七下、八上、八下四册目录，选择题、判断题、填空题、材料题四种题型，按册、单元与课自由挑选，答对就让气泡和音乐一起庆祝。">
+  <title>软乎乎 · 历史足迹</title>
   <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="show.css">
@@ -21,8 +21,8 @@
   <canvas id="fx-back" aria-hidden="true"></canvas>
   <main id="app">
     <header class="topbar">
-      <a href="./" class="brand" aria-label="软乎乎首页"><span id="brand-slime"
-          aria-hidden="true"></span><span>softie<small>软乎乎的文字游乐场</small></span></a>
+      <a href="./" class="brand" aria-label="历史足迹首页"><span id="brand-slime"
+          aria-hidden="true"></span><span>历史足迹<small>软乎乎的历史研习场</small></span></a>
       <div class="top-actions" role="toolbar" aria-label="快捷设置">
         <button type="button" class="icon-btn settings-btn" id="open-settings" aria-label="游戏设置" title="游戏设置">
           <svg viewBox="-16 -16 32 32" aria-hidden="true">
@@ -43,13 +43,13 @@
 
     <section id="home" class="screen" aria-labelledby="logo">
       <div class="hero">
-        <p class="eyebrow" id="home-eyebrow">小小英语，大大能量</p>
-        <h1 id="logo" class="logo" aria-label="英语泡泡">
+        <p class="eyebrow" id="home-eyebrow">一寸光阴一寸史</p>
+        <h1 id="logo" class="logo" aria-label="历史足迹">
           <svg class="logo-burst" viewBox="-100 -100 200 200" aria-hidden="true">
             <path id="logo-burst-path" fill="#ffd23f" stroke="#302238" stroke-width="5" stroke-linejoin="round" />
             <path id="logo-burst-inner" fill="#ff7ab6" stroke="#302238" stroke-width="4" stroke-linejoin="round" />
           </svg>
-          <span class="logo-top" aria-hidden="true"><i data-c="英">英</i><i data-c="语">语</i></span>
+          <span class="logo-top" aria-hidden="true"><i data-c="历">历</i><i data-c="史">史</i></span>
           <span class="logo-ribbon" aria-hidden="true">
             <svg class="ribbon-bg" viewBox="0 0 300 70" preserveAspectRatio="none">
               <path d="M4 22 L34 16 L28 36 L40 58 L6 62 L18 42Z" fill="#2a4fd6" stroke="#302238" stroke-width="4"
@@ -61,7 +61,7 @@
               <path d="M42 18 Q150 6 258 18" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="7 6"
                 stroke-linecap="round" opacity=".8" />
             </svg>
-            <i>泡</i><i>泡</i>
+            <i>足</i><i>迹</i>
           </span>
           <span class="logo-bits" aria-hidden="true">
             <b id="logo-bit-1" style="--x:-46%;--y:4%;--r:-18deg;--c:#3fdcb0">妙</b>
@@ -70,14 +70,14 @@
             <b style="--x:36%;--y:86%;--r:-12deg;--c:#ffd23f">○</b>
           </span>
         </h1>
-        <p class="intro">选对一个字，让快乐冒个泡。</p>
+        <p class="intro">读史料，选答案，让历史冒个泡。</p>
         <div class="home-stage" aria-hidden="true">
           <div id="home-softies" class="slime-party"></div>
           <div class="stage-floor"></div>
         </div>
       </div>
-      <button id="start-placement" class="big-btn start-button"><span id="start-label">个性化闯关</span><small
-          id="start-note">先玩六题，轻松找起点</small></button>
+      <button id="start-round" class="big-btn start-button"><span id="start-label">开始闯关</span><small
+          id="start-note">第1课 鸦片战争 · 一轮 5 题 · 每题 40 秒</small></button>
 
       <div class="activity-bar" role="toolbar" aria-label="日常活动与成就">
         <button type="button" class="activity-pill bonus-pill" id="open-bonus" aria-label="每日签到" title="每日签到"
@@ -108,7 +108,7 @@
           <span class="activity-label">今日委托</span>
         </button>
 
-        <button type="button" class="activity-pill cal-pill" id="open-calendar" aria-label="英语足迹" title="英语足迹"
+        <button type="button" class="activity-pill cal-pill" id="open-calendar" aria-label="历史足迹" title="历史足迹"
           aria-haspopup="dialog">
           <span class="action-dot" id="cal-dot" hidden aria-hidden="true"></span>
           <span class="activity-icon" aria-hidden="true">
@@ -123,10 +123,10 @@
               <circle cx="3" cy="0.8" r="1.1" fill="#302238" />
             </svg>
           </span>
-          <span class="activity-label">英语足迹</span>
+          <span class="activity-label">历史足迹</span>
         </button>
 
-        <button type="button" class="activity-pill trophy-pill" id="open-trophy" aria-label="英语奖杯" title="英语奖杯"
+        <button type="button" class="activity-pill trophy-pill" id="open-trophy" aria-label="历史奖杯" title="历史奖杯"
           aria-haspopup="dialog">
           <span class="trophy-badge" id="trophy-badge">0</span>
           <span class="activity-icon" aria-hidden="true">
@@ -140,57 +140,61 @@
               </g>
             </svg>
           </span>
-          <span class="activity-label">英语奖杯</span>
+          <span class="activity-label">历史奖杯</span>
         </button>
       </div>
 
       <div class="section-label">
-        <h2>也可以，自己选一站</h2>
-        <div id="mode-toggle" class="mode-toggle" role="radiogroup" aria-label="游戏模式">
-          <button type="button" class="mode-pill active" data-mode="meaning" role="radio" aria-checked="true">
-            <span class="mode-emoji" aria-hidden="true">🍭</span>
-            <span>识义</span>
+        <h2 id="course-heading">先选一册，再挑单元和课</h2>
+      </div>
+      <div id="book-tabs" class="book-tabs" role="tablist" aria-label="选择册次"></div>
+      <div id="unit-tabs" class="unit-tabs" role="tablist" aria-label="选择单元"></div>
+      <div id="lesson-list" class="lesson-list" aria-label="选择课时"></div>
+
+      <div class="section-label">
+        <h2 id="type-heading">再选一种题型</h2>
+        <div id="mode-toggle" class="mode-toggle" role="radiogroup" aria-label="题型">
+          <button type="button" class="mode-pill active" data-mode="choice" role="radio" aria-checked="true">
+            <span class="mode-emoji" aria-hidden="true">🔖</span>
+            <span>选择题</span>
           </button>
-          <button type="button" class="mode-pill" data-mode="spelling" role="radio" aria-checked="false">
-            <svg class="mode-svg" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M11.5 2 L5.5 10.5 H10 L8.5 18 L15.5 8.5 H10.5 Z" fill="#ffd86b" stroke="#302238" stroke-width="1.8" stroke-linejoin="round"/>
-            </svg>
-            <span>拼写</span>
+          <button type="button" class="mode-pill" data-mode="judge" role="radio" aria-checked="false">
+            <span class="mode-emoji" aria-hidden="true">⚖️</span>
+            <span>判断题</span>
           </button>
-          <button type="button" class="mode-pill" data-mode="sentence" role="radio" aria-checked="false">
-            <span class="mode-emoji" aria-hidden="true">🌟</span><span>填词</span>
+          <button type="button" class="mode-pill" data-mode="blank" role="radio" aria-checked="false">
+            <span class="mode-emoji" aria-hidden="true">✍️</span>
+            <span>填空题</span>
+          </button>
+          <button type="button" class="mode-pill" data-mode="material" role="radio" aria-checked="false">
+            <span class="mode-emoji" aria-hidden="true">📜</span>
+            <span>材料题</span>
           </button>
         </div>
-        <select id="mode-select" class="sr-only" aria-hidden="true" tabindex="-1">
-          <option value="meaning">单词识义</option>
-          <option value="spelling">单词拼写</option>
-          <option value="sentence">情境填词</option>
-        </select>
+        <select id="mode-select" class="sr-only" aria-hidden="true" tabindex="-1"></select>
       </div>
-      <div id="levels" class="level-list" aria-label="选择难度"></div>
       <div class="home-actions">
         <button id="start-review" class="sub-btn" disabled>再练一练 <span id="review-count">0</span></button>
         <button id="start-demo" class="sub-btn">泡泡秀演示 <span aria-hidden="true">▷</span></button>
       </div>
 
-      <p id="home-progress" class="footnote">不用赶时间，答错也没关系。</p>
-      <button id="retest" class="quiet-button" hidden>重新测测起点</button>
+      <p id="home-progress" class="footnote">答错也没关系，一起读一读。</p>
     </section>
 
     <section id="play" class="screen" aria-labelledby="play-title" hidden>
       <div class="play-top"><button id="exit-game" class="text-button">← 返回</button>
-        <h1 id="play-title">萌芽小站</h1><span id="question-number">01 / 08</span>
+        <h1 id="play-title">历史研习场</h1><span id="question-number">01 / 05</span>
       </div>
       <div class="arcade-hud">
         <div class="hud-top">
           <div id="pips" class="pips" aria-label="本局进度"></div>
           <div id="question-timer" class="question-timer" role="timer"><span id="timer-label">剩余</span><b
-              id="time-left">30</b><span>秒</span><span class="time-track"><i id="time-fill"></i></span></div>
+              id="time-left">40</b><span>秒</span><span class="time-track"><i id="time-fill"></i></span></div>
           <div id="demo-banner" hidden><span>演示模式</span><button id="stop-demo" aria-label="结束演示">结束演示</button></div>
         </div>
         <div class="hud-bottom">
-          <div class="tally"><span class="tally-pill">填对 <b id="hud-solved">0</b><small>/ <span
-                  id="hud-total">8</span></small></span><span class="tally-pill miss-pill">差一点 <b
+          <div class="tally"><span class="tally-pill">答对 <b id="hud-solved">0</b><small>/ <span
+                  id="hud-total">5</span></small></span><span class="tally-pill miss-pill">差一点 <b
                 id="hud-misses">0</b></span></div>
           <div class="energy-cluster">
             <div id="combo-box" class="combo-box">
@@ -222,28 +226,30 @@
         </svg>
         <div class="spot spot-l"></div>
         <div class="spot spot-r"></div><span id="actor-caption">泡泡小队，准备好啦</span>
-        <div id="play-softies" class="slime-party"></div><span class="reach-tag">就差一个字母！</span>
+        <div id="play-softies" class="slime-party"></div><span class="reach-tag">就差一点！</span>
       </div>
       <article id="question-card" class="question-card">
         <div class="marquee" aria-hidden="true"></div>
-        <div class="card-heading"><span id="level-tag">萌芽 · 单词识义</span><span id="blank-count">选一个答案</span></div>
+        <div class="card-heading"><span id="level-tag">第1课 · 选择题</span><span id="blank-count">四选一</span></div>
         <div id="context" class="context">
           <div class="target-word-row">
-            <span class="target-word"></span>
-            <button type="button" id="read-question" class="speaker-btn icon-only" aria-label="朗读发音" title="朗读发音"><svg class="speaker-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M9 3.5 L4.5 7 H1.5 C1 7 .5 7.5 .5 8 V12 C.5 12.5 1 13 1.5 13 H4.5 L9 16.5 C9.7 17 10.5 16.5 10.5 15.7 V4.3 C10.5 3.5 9.7 3 9 3.5 Z" fill="currentColor"/><path class="speaker-wave" d="M13.5 6.5 C14.8 7.8 14.8 12.2 13.5 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="speaker-wave" d="M16 4 C18.5 6.5 18.5 13.5 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+            <span id="type-tag" class="target-word type-badge">选择题</span>
+            <button type="button" id="read-question" class="speaker-btn icon-only" aria-label="朗读题目" title="朗读题目"><svg class="speaker-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M9 3.5 L4.5 7 H1.5 C1 7 .5 7.5 .5 8 V12 C.5 12.5 1 13 1.5 13 H4.5 L9 16.5 C9.7 17 10.5 16.5 10.5 15.7 V4.3 C10.5 3.5 9.7 3 9 3.5 Z" fill="currentColor"/><path class="speaker-wave" d="M13.5 6.5 C14.8 7.8 14.8 12.2 13.5 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="speaker-wave" d="M16 4 C18.5 6.5 18.5 13.5 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
           </div>
-          <span class="target-guide"></span>
+          <figure id="material-text" class="material-text" hidden></figure>
+          <p id="stem-text" class="stem-text"></p>
+          <div id="slot-home" class="slot-home"></div>
+          <span id="stem-guide" class="target-guide">选出最符合题意的一项</span>
         </div>
         <div id="word-slots" class="word-slots" aria-label="待完成的答案"></div>
         <div id="stamp" aria-hidden="true"></div>
-        <p id="feedback" class="feedback" role="status" aria-live="polite">让软乎乎把选中的答案送过去吧。</p>
+        <p id="feedback" class="feedback" role="status" aria-live="polite">选一个答案，让软乎乎送过去吧。</p>
       </article>
       <div id="answer-area">
         <p class="choice-note">点一个答案，发射气泡 <span>键盘 1—4 也可以</span></p>
         <div id="choices" class="choices" aria-label="候选答案"></div>
         <div id="candidate-speech" class="candidate-speech" aria-label="朗读候选答案"></div>
-        <div class="hint-row"><button id="show-hint" class="text-button">给我一点提示</button><button id="skip-question"
-            class="text-button" hidden>还没学过</button></div>
+        <div class="hint-row"><button id="show-hint" class="text-button">给我一点提示</button></div>
         <p id="hint" class="hint" hidden></p>
       </div>
       <div id="explanation" class="explanation" hidden>
@@ -251,14 +257,14 @@
           <div class="explain-top-row">
             <div class="word-pronounce-row">
               <b id="answer-word"></b>
-              <button type="button" id="read-explanation" class="speaker-btn icon-only" aria-label="朗读单词和短句" title="朗读单词和短句"><svg class="speaker-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M9 3.5 L4.5 7 H1.5 C1 7 .5 7.5 .5 8 V12 C.5 12.5 1 13 1.5 13 H4.5 L9 16.5 C9.7 17 10.5 16.5 10.5 15.7 V4.3 C10.5 3.5 9.7 3 9 3.5 Z" fill="currentColor"/><path class="speaker-wave" d="M13.5 6.5 C14.8 7.8 14.8 12.2 13.5 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="speaker-wave" d="M16 4 C18.5 6.5 18.5 13.5 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+              <button type="button" id="read-explanation" class="speaker-btn icon-only" aria-label="朗读答案与解析" title="朗读答案与解析"><svg class="speaker-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M9 3.5 L4.5 7 H1.5 C1 7 .5 7.5 .5 8 V12 C.5 12.5 1 13 1.5 13 H4.5 L9 16.5 C9.7 17 10.5 16.5 10.5 15.7 V4.3 C10.5 3.5 9.7 3 9 3.5 Z" fill="currentColor"/><path class="speaker-wave" d="M13.5 6.5 C14.8 7.8 14.8 12.2 13.5 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="speaker-wave" d="M16 4 C18.5 6.5 18.5 13.5 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
             </div>
             <div id="meaning" class="explain-meaning"></div>
           </div>
-          <span>今天又练了一个单词</span>
+          <span>这个知识点记牢了</span>
         </div>
         <p id="example" class="example"></p>
-        <button id="next-question" class="primary">记住啦，下一题 <span aria-hidden="true">→</span></button>
+        <button id="next-question" class="primary">记好啦，下一题 <span aria-hidden="true">→</span></button>
       </div>
       <p id="tts-note" class="speech-status" role="status" aria-live="polite"></p>
     </section>
@@ -272,8 +278,8 @@
       <div id="result-details" class="result-details"></div>
       <div class="quest-mini" id="r-quests"></div>
       <button id="result-start" class="primary">再来一轮 <span aria-hidden="true">→</span></button>
-      <button id="result-review" class="secondary" hidden>再练一练 · 待复习单词</button>
-      <button id="result-home" class="text-button">回到文字游乐场</button>
+      <button id="result-review" class="secondary" hidden>再练一练 · 待复习题目</button>
+      <button id="result-home" class="text-button">回到历史研习场</button>
     </section>
     <section id="settings" class="screen settings-screen" aria-labelledby="settings-title" hidden>
       <div class="settings-heading"><button id="close-settings" class="text-button">← 返回首页</button><span
@@ -326,7 +332,7 @@
       <div class="settings-card rules-settings">
         <h2>挑战规则</h2>
         <div class="timing-chips" id="timing-chips"></div>
-        <p>双空题共用时间，朗读和阅读解释时暂停，超时后先认识答案，再挑战下一题。</p>
+        <p>每题独立计时，朗读题目与查看解析时暂停，超时后先认识答案，再挑战下一题。</p>
         <p class="dialog-note" id="mode-disclaimer"></p>
       </div>
     </section>
@@ -340,8 +346,8 @@
   <p id="storage-note" class="storage-note" role="status" hidden>浏览器未能保存记录，本次仍可继续玩。</p>
 
   <dialog id="leave-dialog" aria-labelledby="leave-title">
-    <h2 id="leave-title">要回到游乐场吗？</h2>
-    <p>已完成题目的学习记录会保留，这一轮不会算作完成。</p>
+    <h2 id="leave-title">要回到研习场吗？</h2>
+    <p>已完成题目的研习记录会保留，这一轮不会算作完成。</p>
     <div class="dialog-actions"><button id="keep-playing" class="secondary">继续玩</button><button id="leave-confirm"
         class="primary">回到首页</button></div>
   </dialog>
@@ -354,14 +360,14 @@
     <div class="guide-content">
       <div class="guide-step">
         <span class="guide-badge">1</span>
-        <div><b>选字发射泡泡</b>
-          <p>看中文选单词、听音补字母，或读短句填词。点击答案（电脑端按 1–4），软乎乎会吐出彩色泡泡，把答案送进空格！</p>
+        <div><b>选答案，发射泡泡</b>
+          <p>先选单元、再挑一课，最后挑题型。点击答案（电脑端按 1—4），软乎乎会吐出彩色泡泡，把答案送进空格！</p>
         </div>
       </div>
       <div class="guide-step">
         <span class="guide-badge">2</span>
         <div><b>逐题时限挑战</b>
-          <p>萌芽 30 秒、成长 24 秒、绽放 20 秒。读解释和查看提示时暂停，超时无惩罚！</p>
+          <p>选择题 40 秒、判断题 35 秒、填空题 45 秒、材料题 70 秒。读解析和查看提示时暂停，超时无惩罚！</p>
         </div>
       </div>
       <div class="guide-step">
@@ -387,7 +393,7 @@
     <button type="button" class="icon-btn close-dialog-btn" id="close-trophy" aria-label="关闭">✕</button>
     <div class="dialog-head">
       <div class="tr-dialog-title-group">
-        <h2 id="tr-dialog-title">英语奖杯馆</h2>
+        <h2 id="tr-dialog-title">历史奖杯馆</h2>
         <span class="tree-count" id="trophy-count">0 / 0</span>
       </div>
     </div>
@@ -483,13 +489,13 @@
     </div>
   </dialog>
 
-  <!-- 英语足迹日历打卡 Modal -->
+  <!-- 历史足迹日历打卡 Modal -->
   <dialog id="calendar-dialog" class="calendar-dialog" aria-labelledby="cal-title">
     <button type="button" class="icon-btn close-dialog-btn" id="close-calendar" aria-label="关闭">✕</button>
     <div class="dialog-head">
       <div class="cal-nav-group">
         <button type="button" class="cal-nav" id="cal-prev" aria-label="上一月">‹</button>
-        <h2 id="cal-title">英语足迹</h2>
+        <h2 id="cal-title">历史足迹</h2>
         <button type="button" class="cal-nav" id="cal-next" aria-label="下一月">›</button>
       </div>
     </div>
@@ -558,14 +564,14 @@
           </g>
         </svg>
       </div>
-      <p id="confirm-msg" class="confirm-msg">确定要清除此设备上的所有英语练习记录、成就与签到数据吗？<br><small>清除后数据将无法恢复。</small></p>
+      <p id="confirm-msg" class="confirm-msg">确定要清除此设备上的所有历史研习记录、成就与签到数据吗？<br><small>清除后数据将无法恢复。</small></p>
     </div>
     <div class="dialog-actions">
       <button type="button" id="confirm-no" class="secondary">再想想</button>
       <button type="button" id="confirm-yes" class="danger-btn">继续重置</button>
     </div>
   </dialog>
-  <noscript>请开启 JavaScript，和软乎乎一起玩英语。</noscript>
+  <noscript>请开启 JavaScript，和软乎乎一起研习历史。</noscript>
 </body>
 
 </html>
