@@ -63,6 +63,12 @@ export function validateQuestion(q) {
       if (q.axis.length > 6) problems.push('时间轴最多六个节点，否则手机上一格放不下');
       if (!q.axis.every((n) => n && n.year)) problems.push('时间轴节点缺少年份');
       if (q.axis.filter((n) => !n.text).length !== 1) problems.push('时间轴要恰好留一个空节点');
+      // 同一根轴上出现两个同年节点，说明这年的两件大事被拆成了两格，学生会分不清哪一格该填什么。
+      const years = q.axis.map((n) => n.year);
+      if (new Set(years).size !== years.length) problems.push('时间轴有重复年份');
+      // 选项里不得重复轴上已经写出来的事件，否则等于把答案提前给了。
+      const shown = new Set(q.axis.map((n) => n.text).filter(Boolean));
+      if ((q.options || []).some((o) => shown.has(o))) problems.push('选项与轴上已显示的事件重复');
     }
   }
   if (!q.explain) problems.push('缺少解析');
