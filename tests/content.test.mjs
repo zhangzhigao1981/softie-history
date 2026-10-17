@@ -48,8 +48,8 @@ test('课程结构：四册按年级排列，每册「单元 → 课」逐级可
   assert.equal(findLesson(book('b8a').units[0], 'nope').id, book('b8a').units[0].lessons[0].id);
 });
 
-test('题库：只有八年级上册完整，每课四题型各 5 题，共 520 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 520);
+test('题库：只有八年级上册完整，每课四题型不少于 5 题，共 530 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 530);
   assert.deepEqual(TYPE_IDS, ['choice', 'judge', 'blank', 'material']);
 
   const counts = { choice: 0, judge: 0, blank: 0, material: 0 };
@@ -58,16 +58,16 @@ test('题库：只有八年级上册完整，每课四题型各 5 题，共 520 
     for (const lesson of unit.lessons) {
       for (const typeId of TYPE_IDS) {
         const list = questionsOf(lesson, typeId);
-        assert.equal(list.length, 5, `${lesson.label} ${lesson.title} 的 ${typeId} 题量应为 5`);
-        assert.equal(countByType(lesson, typeId), 5);
+        assert.ok(list.length >= 5, `${lesson.label} ${lesson.title} 的 ${typeId} 题量不应少于 5，实际 ${list.length}`);
+        assert.equal(countByType(lesson, typeId), list.length);
         counts[typeId] += list.length;
         for (const q of list) problems.push(...validateQuestion(q).map((p) => `${q.id}: ${p}`));
       }
-      assert.equal(lesson.questions.length, 20);
-      assert.equal(lessonQuestionCount(lesson), 20);
+      assert.ok(lesson.questions.length >= 20, `${lesson.label} ${lesson.title} 题量不应少于 20`);
+      assert.equal(lessonQuestionCount(lesson), lesson.questions.length);
     }
   }
-  assert.deepEqual(counts, { choice: 130, judge: 130, blank: 130, material: 130 });
+  assert.deepEqual(counts, { choice: 140, judge: 130, blank: 130, material: 130 });
   assert.deepEqual(problems, []);
 });
 
@@ -92,7 +92,7 @@ test('待补题的册：骨架在、题目为空，界面能识别出「没有�
   // 打开任意一册都定位到「第一道有题的课」；空册回落到首单元首课，不致抛错。
   const opened = firstPlayableLesson(book('b8a'));
   assert.equal(opened.lesson.id, 'b8a-u1-l1');
-  assert.equal(bookQuestionCount(book('b8a')), 520);
+  assert.equal(bookQuestionCount(book('b8a')), 530);
   for (const id of PENDING_BOOK_IDS) {
     const fallback = firstPlayableLesson(book(id));
     assert.equal(fallback.unit.id, book(id).units[0].id);
