@@ -48,8 +48,8 @@ test('课程结构：四册按年级排列，每册「单元 → 课」逐级可
   assert.equal(findLesson(book('b8a').units[0], 'nope').id, book('b8a').units[0].lessons[0].id);
 });
 
-test('题库：八上前六单元十九课都有题，共 899 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 899);
+test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 1150);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -67,9 +67,9 @@ test('题库：八上前六单元十九课都有题，共 899 题且全部通过
       assert.equal(lessonQuestionCount(lesson), lesson.questions.length);
     }
   }
-  // 第一至第六单元十九课已补齐，其余 7 课仍待补。
-  assert.deepEqual(withQuestions, ['b8a-u1-l1', 'b8a-u1-l2', 'b8a-u1-l3', 'b8a-u2-l1', 'b8a-u2-l2', 'b8a-u2-l3', 'b8a-u2-l4', 'b8a-u3-l1', 'b8a-u3-l2', 'b8a-u3-l3', 'b8a-u4-l1', 'b8a-u4-l2', 'b8a-u5-l1', 'b8a-u5-l2', 'b8a-u5-l3', 'b8a-u6-l1', 'b8a-u6-l2', 'b8a-u6-l3', 'b8a-u6-l4']);
-  assert.deepEqual(counts, { choice: 321, blank: 382, material: 101, timeline: 95 });
+  // 七单元加导言与学法共 26 课，全部补齐。
+  assert.deepEqual(withQuestions, ['b8a-u1-l1', 'b8a-u1-l2', 'b8a-u1-l3', 'b8a-u2-l1', 'b8a-u2-l2', 'b8a-u2-l3', 'b8a-u2-l4', 'b8a-u3-l1', 'b8a-u3-l2', 'b8a-u3-l3', 'b8a-u4-l1', 'b8a-u4-l2', 'b8a-u5-l1', 'b8a-u5-l2', 'b8a-u5-l3', 'b8a-u6-l1', 'b8a-u6-l2', 'b8a-u6-l3', 'b8a-u6-l4', 'b8a-u7-l1', 'b8a-u7-l2', 'b8a-u7-l3', 'b8a-u0-l1', 'b8a-u0-l2', 'b8a-u0-l3', 'b8a-u0-l4']);
+  assert.deepEqual(counts, { choice: 418, blank: 466, material: 136, timeline: 130 });
   assert.deepEqual(problems, []);
 
   // 有题的课，四类题型都够凑满一轮。
@@ -89,19 +89,22 @@ test('待补的册与课：骨架在、题目为空，界面能识别出「没�
     assert.equal(bookQuestionCount(bk), 0, `${bk.title} 现在不该有题目`);
   }
 
-  // 八上除前六单元十九课外全部待补，逐课确认为空。
-  const FILLED = new Set(['b8a-u1-l1', 'b8a-u1-l2', 'b8a-u1-l3', 'b8a-u2-l1', 'b8a-u2-l2', 'b8a-u2-l3', 'b8a-u2-l4', 'b8a-u3-l1', 'b8a-u3-l2', 'b8a-u3-l3', 'b8a-u4-l1', 'b8a-u4-l2', 'b8a-u5-l1', 'b8a-u5-l2', 'b8a-u5-l3', 'b8a-u6-l1', 'b8a-u6-l2', 'b8a-u6-l3', 'b8a-u6-l4']);
+  // 八上 26 课已全部有题，逐课确认非空。
+  const FILLED = new Set(['b8a-u1-l1', 'b8a-u1-l2', 'b8a-u1-l3', 'b8a-u2-l1', 'b8a-u2-l2', 'b8a-u2-l3', 'b8a-u2-l4', 'b8a-u3-l1', 'b8a-u3-l2', 'b8a-u3-l3', 'b8a-u4-l1', 'b8a-u4-l2', 'b8a-u5-l1', 'b8a-u5-l2', 'b8a-u5-l3', 'b8a-u6-l1', 'b8a-u6-l2', 'b8a-u6-l3', 'b8a-u6-l4', 'b8a-u7-l1', 'b8a-u7-l2', 'b8a-u7-l3', 'b8a-u0-l1', 'b8a-u0-l2', 'b8a-u0-l3', 'b8a-u0-l4']);
   let pending = 0;
   for (const unit of book('b8a').units) {
     assert.ok(unit.lessons.length > 0, `八上 ${unit.name} 要有课`);
     for (const lesson of unit.lessons) {
-      if (FILLED.has(lesson.id)) continue;
+      if (FILLED.has(lesson.id)) {
+        assert.ok(lesson.questions.length > 0, `${lesson.label} ${lesson.title} 要有题目`);
+        continue;
+      }
       assert.deepEqual(lesson.questions, [], `${lesson.label} ${lesson.title} 还没有题目`);
       for (const typeId of TYPE_IDS) assert.equal(questionsOf(lesson, typeId).length, 0);
       pending += 1;
     }
   }
-  assert.equal(pending, 7, '八上 26 课里应有 7 课待补');
+  assert.equal(pending, 0, '八上 26 课应全部有题');
   // 清题不动骨架：课目录仍然是 104 课。
   assert.equal(TOTAL_LESSONS, 104);
 
@@ -112,7 +115,7 @@ test('待补的册与课：骨架在、题目为空，界面能识别出「没�
   // 打开有题的册落到第 1 课；空册回落到首单元首课，不致抛错。
   const opened = firstPlayableLesson(book('b8a'));
   assert.equal(opened.lesson.id, 'b8a-u1-l1');
-  assert.equal(bookQuestionCount(book('b8a')), 899);
+  assert.equal(bookQuestionCount(book('b8a')), 1150);
   const l1 = book('b8a').units[0].lessons[0];
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
