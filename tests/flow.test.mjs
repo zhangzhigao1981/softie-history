@@ -27,11 +27,11 @@ test('首页默认落在第一单元第一课，从首页可以直接开始一�
   const f = createApp();
   assert.equal(f.app.scene.screen, 'home');
   const tabs = f.$('#unit-tabs').innerHTML;
-  assert.ok(tabs.includes('data-unit="u1"') && tabs.includes('导言与学史方法'), '单元标签要包含全部单元');
+  assert.ok(tabs.includes('data-unit="u1"') && /导言/.test(tabs), '单元标签要包含全部单元');
   assert.ok(tabs.includes('class="unit-tab active"'), '当前单元要高亮');
   const cards = f.$('#lesson-list').innerHTML;
-  assert.ok(cards.includes('data-lesson="b8a-u1-l1"'), '课程卡要带上课程 id');
-  assert.ok(cards.includes('第1课') && cards.includes('鸦片战争'));
+  assert.ok(cards.includes('data-lesson="b7a-u1-l1"'), '课程卡要带上课程 id');
+  assert.ok(cards.includes('第1课') && cards.includes('远古时期的人类活动'));
   assert.ok(f.$('#start-label').textContent.includes('开始闯关'));
   assert.ok(f.$('#start-note').textContent.includes('一轮 5 题'), '开始按钮要写明本轮题量');
 
@@ -66,7 +66,7 @@ test('四种题型都能完整走完一轮，题面、候选与解析各就各�
       const axisHtml = f.$('#axis-board').innerHTML;
       assert.equal((axisHtml.match(/class="axis-node/g) || []).length, q.axis.length, '时间轴节点数要对上');
       assert.equal((axisHtml.match(/is-blank/g) || []).length, 1, '时间轴恰好留一个空位');
-      assert.match(axisHtml, /class="axis-year">\d/, '节点要显示年份');
+      assert.match(axisHtml, /class="axis-year">[^<]*\d/, '节点要显示年份');
     }
 
     // 候选数量与标签
@@ -105,17 +105,17 @@ test('切换单元、课时与题型只改写界面键，学习记录不受影�
   const f = createApp();
   f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: 'u3' } }) } });
   assert.equal(f.app.course.unitId, 'u3');
-  assert.equal(f.app.course.lessonId, 'b8a-u3-l1', '换单元要落到该单元第一课');
+  assert.equal(f.app.course.lessonId, 'b7a-u3-l1', '换单元要落到该单元第一课');
   assert.equal(f.storedUi().unitId, 'u3');
 
-  f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: 'b8a-u3-l3' } }) } });
-  assert.equal(f.app.course.lessonId, 'b8a-u3-l3');
-  assert.equal(f.storedUi().lessonId, 'b8a-u3-l3');
+  f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: 'b7a-u3-l3' } }) } });
+  assert.equal(f.app.course.lessonId, 'b7a-u3-l3');
+  assert.equal(f.storedUi().lessonId, 'b7a-u3-l3');
 
-  // 除第 1 课外其余课都已清空待补，要开局得先切回有题的那一课。
+  // 七上只有第 1 课有题，要开局得先切回这一课。
   f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: 'u1' } }) } });
-  f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: 'b8a-u1-l1' } }) } });
-  assert.equal(f.app.course.lessonId, 'b8a-u1-l1');
+  f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: 'b7a-u1-l1' } }) } });
+  assert.equal(f.app.course.lessonId, 'b7a-u1-l1');
 
   f.app.setType('material', false);
   assert.equal(f.app.course.typeId, 'material');
@@ -123,7 +123,7 @@ test('切换单元、课时与题型只改写界面键，学习记录不受影�
 
   f.app.start('lesson');
   assert.ok(f.app.scene.questions.every((q) => q.type === 'material'));
-  assert.ok(f.app.scene.questions.every((q) => q.lessonId === 'b8a-u1-l1'));
+  assert.ok(f.app.scene.questions.every((q) => q.lessonId === 'b7a-u1-l1'));
   assert.equal(f.stored().learned.length, 0, '开题不会写学习记录');
   await f.round({});
   assert.equal(f.stored().learned.length, ROUND_SIZE);
@@ -133,29 +133,30 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   const f = createApp();
   const tabs = f.$('#book-tabs').innerHTML;
   for (const id of ['b7a', 'b7b', 'b8a', 'b8b']) assert.ok(tabs.includes(`data-book="${id}"`), `缺少 ${id} 的册标签`);
-  assert.equal((tabs.match(/is-empty/g) || []).length, 3, '七上、七下、八下都还没有题目');
+  assert.equal((tabs.match(/is-empty/g) || []).length, 2, '七下、八下都还没有题目');
   assert.match(tabs, /class="book-tab active"/);
-  assert.match(tabs, /1150 题/);
+  assert.match(tabs, /40 题/, '七上已有第 1 课的 40 题');
+  assert.match(tabs, /1150 题/, '八上仍是 1150 题');
 
-  // 切到还没题目的七年级上册：册、单元、课都跟着换，开始按钮转为提示态。
-  f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b7a' } }) } });
-  assert.equal(f.app.course.bookId, 'b7a');
-  assert.equal(f.app.course.unitId, 'u1');
-  assert.equal(f.app.course.lessonId, 'b7a-u1-l1');
-  assert.equal(f.storedUi().bookId, 'b7a', '册次记在界面键里');
-  assert.equal(f.$('#start-round').disabled, true);
-  assert.equal(f.$('#start-label').textContent, '这本还在补题');
-  assert.match(f.$('#start-note').textContent, /还没有选择题/);
-  assert.match(f.$('#lesson-list').innerHTML, /lesson-todo/, '课卡片显示「待补」而不是 0/0');
-  assert.equal(f.stored().learned.length, 0);
-
-  // 目录本身要完整：七上有 4 个正课单元加导言与学法，共 25 课。
+  // 七上目录本身要完整：4 个正课单元加导言与学法，共 25 课。
   const unitTabs = f.$('#unit-tabs').innerHTML;
   assert.equal((unitTabs.match(/class="unit-tab/g) || []).length, 5);
   assert.ok(unitTabs.includes('导言、活动课与学史方法'));
   f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: 'u0' } }) } });
   assert.equal(f.app.course.lessonId, 'b7a-u0-l1');
   assert.match(f.$('#lesson-list').innerHTML, /学史方法（三）/);
+
+  // 切到还没题目的七年级下册：册、单元、课都跟着换，开始按钮转为提示态。
+  f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b7b' } }) } });
+  assert.equal(f.app.course.bookId, 'b7b');
+  assert.equal(f.app.course.unitId, 'u1');
+  assert.equal(f.app.course.lessonId, 'b7b-u1-l1');
+  assert.equal(f.storedUi().bookId, 'b7b', '册次记在界面键里');
+  assert.equal(f.$('#start-round').disabled, true);
+  assert.equal(f.$('#start-label').textContent, '这本还在补题');
+  assert.match(f.$('#start-note').textContent, /还没有选择题/);
+  assert.match(f.$('#lesson-list').innerHTML, /lesson-todo/, '课卡片显示「待补」而不是 0/0');
+  assert.equal(f.stored().learned.length, 0);
 
   // 切回八年级上册，关卡恢复可用，并且真的能出题。
   f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b8a' } }) } });
@@ -169,6 +170,9 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
 
 test('八上全部 26 课都能开局，界面里不再有待补徽章', async () => {
   const f = createApp();
+  // 默认落在七上，先切到八上再逐课检查。
+  f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b8a' } }) } });
+  assert.equal(f.app.course.bookId, 'b8a');
   // 第一单元三课：课卡不挂待补徽章，进度按 0/题量 显示。
   const list = f.$('#lesson-list').innerHTML;
   assert.equal((list.match(/lesson-todo/g) || []).length, 0, '第一单元不该再有待补徽章');
@@ -419,11 +423,11 @@ test('首页进度与奖杯数量会跟着学习记录更新', async () => {
   f.app.start('lesson');
   await f.round({});
   f.app.home();
-  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 1150 道题 · 完成 1 轮/);
+  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 1190 道题 · 完成 1 轮/);
   assert.match(f.$('#trophy-badge').textContent, /^\d+ \/ \d+$/);
   // 课程卡显示「本课该题型练过几道 / 共几道」。分母直接取题库实际题量，
   // 以后往第 1 课加题不用再回来改这个断言。
-  const choicePool = QUESTIONS.filter((q) => q.lessonId === 'b8a-u1-l1' && q.type === 'choice').length;
+  const choicePool = QUESTIONS.filter((q) => q.lessonId === DEFAULT_BOOK.units[0].lessons[0].id && q.type === 'choice').length;
   assert.ok(choicePool > 5, '第 1 课的选择题池应多于一轮的题量');
   assert.match(f.$('#lesson-list').innerHTML, new RegExp(`<b>5</b>/${choicePool}`), '课程卡显示本课该题型的进度');
 });
