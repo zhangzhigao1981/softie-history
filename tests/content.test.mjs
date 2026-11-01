@@ -56,15 +56,15 @@ test('题库：七上第 1 课 48 题，四类题型覆盖古人类、北京人�
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
   assert.deepEqual(byType, { choice: 20, blank: 14, material: 8, timeline: 6 });
   assert.equal(lessonQuestionCount(l1), 48);
-  assert.equal(bookQuestionCount(book('b7a')), 102);
+  assert.equal(bookQuestionCount(book('b7a')), 162);
   // 本课三处子目（我国境内古人类、北京人、山顶洞人）都要有题落到。
   const stems = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['元谋人', '蓝田人', '郧县人', '北京人', '山顶洞人', '裴文中', '天然火', '人工取火', '第一手资料']) {
     assert.ok(stems.includes(key), `第 1 课应覆盖 ${key}`);
   }
-  // 第 3 课起仍待补。
+  // 第一单元三课之外仍待补。
   const others = book('b7a').units.flatMap((u) => u.lessons)
-    .filter((l) => !['b7a-u1-l1', 'b7a-u1-l2'].includes(l.id));
+    .filter((l) => !['b7a-u1-l1', 'b7a-u1-l2', 'b7a-u1-l3'].includes(l.id));
   for (const l of others) assert.deepEqual(l.questions, [], `${l.label} ${l.title} 还没有题目`);
 });
 
@@ -83,8 +83,22 @@ test('题库：七上第 2 课 54 题，覆盖农业起源、河姆渡、仰韶�
   }
 });
 
+test('题库：七上第 3 课 60 题，覆盖良渚、陶寺、多元一体与炎黄传说', () => {
+  const l3 = book('b7a').units[0].lessons[2];
+  assert.equal(l3.label, '第3课');
+  assert.equal(l3.title, '中华文明的起源');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l3, typeId).length;
+  assert.deepEqual(byType, { choice: 28, blank: 16, material: 11, timeline: 5 });
+  assert.equal(lessonQuestionCount(l3), 60);
+  const text = l3.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['良渚', '陶寺', '牛河梁', '红山文化', '多元', '一体', '禅让', '阪泉', '涿鹿', '人文初祖', '探源工程']) {
+    assert.ok(text.includes(key), `第 3 课应覆盖 ${key}`);
+  }
+});
+
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 1252);
+  assert.equal(TOTAL_QUESTIONS, 1312);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -145,7 +159,7 @@ test('待补的册与课：骨架在、题目为空，界面能识别出「没�
 
   assert.deepEqual(PLAYABLE_BOOKS.map((b) => b.id), ['b7a', 'b8a']);
   assert.equal(DEFAULT_BOOK.id, 'b7a', '默认落在第一本有题的册');
-  assert.equal(bookQuestionCount(book('b7a')), 102);
+  assert.equal(bookQuestionCount(book('b7a')), 162);
 
   // 打开有题的册落到第 1 课；空册回落到首单元首课，不致抛错。
   const opened = firstPlayableLesson(book('b8a'));
@@ -176,7 +190,11 @@ test('题库：题号唯一、答案落在候选项内、题型与选项格式�
     assert.equal(new Set(q.options).size, q.options.length, `候选项重复：${q.id}`);
     assert.equal(q.options.length, 4, `各类题型都是四选一：${q.id}`);
     if (q.type === 'blank') assert.ok(q.stem.includes('____'), `填空题缺少空格：${q.id}`);
-    if (q.type === 'material') assert.ok(q.material.trim().length >= 10, `材料过短：${q.id}`);
+    if (q.type === 'material') {
+      assert.ok(q.material.trim().length >= 10, `材料过短：${q.id}`);
+      // 答案不能是「①②③④」这种序号：朗读时既没有信息量，也会让「朗读不泄露答案」失效。
+      assert.ok(q.options[q.answer].length >= 2, `材料题答案过短：${q.id}`);
+    }
     assert.ok(q.explain.trim().length >= 10, `解析过短：${q.id}`);
     assert.equal(q.blanks.length, 1, '每道题只有一个作答位');
     assert.equal(q.parts[0], q.options[q.answer]);
