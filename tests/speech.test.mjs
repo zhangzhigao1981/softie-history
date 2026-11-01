@@ -181,8 +181,11 @@ test('切到后台会中止朗读，并把隐藏期间的时间排除在计时�
 test('浏览器不响应朗读时，看门狗会放开倒计时', async () => {
   const synth = browser(); const f = createApp({ speechOptions: { synth, Utterance } });
   f.app.start('lesson'); const budget = f.app.scene.timeLeft;
-  await f.advance(15000); assert.equal(f.app.speech.busy, false); assert.equal(f.app.scene.timeLeft, budget);
-  await f.advance(1000); assert.equal(f.app.scene.timeLeft, budget - 1000);
+  // 每一句按自己的长度单独计时，所以放行时刻不再固定是 15 秒。
+  await f.advance(20000);
+  assert.equal(f.app.speech.busy, false, '看门狗要在 20 秒内放行');
+  assert.equal(f.app.scene.timeLeft, budget, '朗读期间的时间不扣');
+  await f.advance(1000); assert.equal(f.app.scene.timeLeft, budget - 1000, '放开后倒计时才开始走');
   assert.equal(f.musicGains.at(-1), 0.8);
 });
 
@@ -205,4 +208,61 @@ test('演示模式也会自动朗读题目，方便没人操作时也能看懂',
   const expected = q.material ? `材料：${q.material}` : q.stem.replace(/____/g, '空格');
   assert.equal(synth.spoken[0].text, expected);
   f.app.home();
+});
+
+test('朗读引擎：长材料按句计时，念到十几秒也不会被看门狗掐断', async () => {
+  const f = service();
+  const text = '北京人遗址中发现灰烬、烧石和烧骨，这说明他们已经开始使用火。'.repeat(3);
+  const done = f.reader.speak({ text, lang: 'zh' });
+  assert.equal(f.synth.spoken.length, 1);
+  const cancelsAtStart = f.synth.cancels;
+  f.advance(16000);
+  assert.equal(f.reader.busy, true, '还在念，不能判定为没响应');
+  assert.equal(f.synth.cancels, cancelsAtStart, '不能中途 cancel 掉正在念的这一句');
+  f.synth.spoken[0].onend();
+  assert.equal(await done, true);
+});
+
+test('朗读引擎：念完一句就重新计时，不会因为总时长超限中断后一句', async () => {
+  const f = service();
+  const done = f.reader.speak([{ text: '甲'.repeat(40), lang: 'zh' }, { text: '乙'.repeat(40), lang: 'zh' }]);
+  f.advance(14000);
+  f.synth.spoken[0].onend();
+  assert.equal(f.synth.spoken.length, 2, '材料念完接着念设问');
+  f.advance(14000);
+  assert.equal(f.reader.busy, true, '换了一句就重新给足时间');
+  f.synth.spoken[1].onend();
+  assert.equal(await done, true);
+});
+
+test('朗读引擎：超长文本按句号切段逐句朗读，不会整段塞给引擎', async () => {
+  const f = service();
+  const sentence = '北京人已经会使用天然火。';
+  const text = sentence.repeat(20);
+  f.reader.speak({ text, lang: 'zh' });
+  assert.ok(f.synth.spoken[0].text.length <= 160, '单句不超过 160 字');
+  while (f.reader.busy) f.synth.spoken.at(-1).onend();
+  assert.ok(f.synth.spoken.length > 1, '长文本要切成多句');
+  assert.equal(f.synth.spoken.map(u => u.text).join(''), text, '切开后要一字不少地念完');
+});
+
+test('朗读引擎：朗读期间一直握着当前这句的引用，避免被回收后声音中断', async () => {
+  const f = service();
+  const done = f.reader.speak({ text: '虎门销烟', lang: 'zh' });
+  assert.equal(f.reader.current, f.synth.spoken[0]);
+  f.synth.spoken[0].onend();
+  assert.equal(f.reader.current, null);
+  assert.equal(await done, true);
+});
+
+test('朗读引擎：上一句还在播放时，新的一句等它停下来再开口', async () => {
+  const synth = browser();
+  synth.speaking = true;
+  const f = service(synth);
+  const done = f.reader.speak({ text: '虎门销烟', lang: 'zh' });
+  assert.equal(synth.spoken.length, 0, 'cancel 还没生效，先等一会儿');
+  f.advance(120);
+  assert.equal(synth.spoken.length, 1);
+  synth.spoken[0].onend();
+  assert.equal(await done, true);
 });
