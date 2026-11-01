@@ -485,7 +485,7 @@
 .axis-node:not(:first-child)::before {
   content: '';
   position: absolute;
-  top: 20px;
+  top: 34px;
   left: -50%;
   width: 100%;
   height: 3px;
@@ -494,12 +494,18 @@
 }
 
 .axis-year {
-  height: 14px;
+  /* 年份允许折两行：像「距今约5900—4400年」这种区间写法在窄屏上单行放不下，
+     原来 nowrap 会顶出节点被裁掉。固定两行高度，保证各节点圆点仍在同一水平线。 */
+  min-height: 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   line-height: 14px;
   font-size: 11px;
   font-weight: 900;
   color: #8a6aa0;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .axis-dot {
