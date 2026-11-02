@@ -347,8 +347,8 @@ test('题库：七下第 1 课 66 题，覆盖隋的统一、大运河、科举�
   for (const key of ['杨坚', '大兴城', '陈后主', '流求', '洛阳', '涿郡', '余杭郡', '邗沟', '进士科', '江都', '含嘉仓', '皮日休']) {
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
-  // 第 6 课起仍待补。
-  const rest = book('b7b').units[0].lessons.slice(5);
+  // 第 7 课起仍待补。
+  const rest = book('b7b').units[0].lessons.slice(6);
   for (const l of rest) assert.deepEqual(l.questions, [], `${l.label} ${l.title} 还没有题目`);
 });
 
@@ -381,6 +381,24 @@ test('题库：七下第 5 课 65 题，覆盖唐蕃和亲、突厥、回纥与�
   // 教材导语与课后活动的诗文、图像也要有题落到。
   for (const key of ['日月山', '凉州行', '法曲', '步辇图', '大昭寺']) {
     assert.ok(text.includes(key), `第 5 课应覆盖 ${key}`);
+  }
+});
+
+test('题库：七下第 6 课 64 题，覆盖遣唐使、鉴真东渡、新罗、玄奘与大食', () => {
+  const l6 = book('b7b').units[0].lessons[5];
+  assert.equal(l6.label, '第6课');
+  assert.equal(l6.title, '隋唐时期的中外文化交流');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l6, typeId).length;
+  assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l6), 64);
+  const text = l6.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['遣隋使', '遣唐使', '阿倍仲麻吕', '晁衡', '平城京', '和同开珎', '鉴真', '大明寺', '唐招提寺', '鸿胪寺', '崔致远', '桂苑笔耕集', '玄奘', '天竺', '那烂陀寺', '大唐西域记', '大食', '造纸术', '唐人']) {
+    assert.ok(text.includes(key), `第 6 课应覆盖 ${key}`);
+  }
+  // 教材插图与课后活动也要有题落到。
+  for (const key of ['弘法大师行状绘词', '客使图', '印度', '开元通宝']) {
+    assert.ok(text.includes(key), `第 6 课应覆盖 ${key}`);
   }
 });
 
@@ -458,7 +476,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 2880);
+  assert.equal(TOTAL_QUESTIONS, 2944);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
