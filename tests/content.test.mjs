@@ -347,9 +347,10 @@ test('题库：七下第 1 课 66 题，覆盖隋的统一、大运河、科举�
   for (const key of ['杨坚', '大兴城', '陈后主', '流求', '洛阳', '涿郡', '余杭郡', '邗沟', '进士科', '江都', '含嘉仓', '皮日休']) {
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
-  // 第 7 课起仍待补。
-  const rest = book('b7b').units[0].lessons.slice(6);
-  for (const l of rest) assert.deepEqual(l.questions, [], `${l.label} ${l.title} 还没有题目`);
+  // 第 1 单元 7 课到这一课已全部补齐。
+  for (const l of book('b7b').units[0].lessons) {
+    assert.ok(l.questions.length > 0, `${l.label} ${l.title} 应已有题目`);
+  }
 });
 
 test('题库：七下第 4 课 64 题，覆盖安史之乱、唐末变局与五代十国', () => {
@@ -399,6 +400,24 @@ test('题库：七下第 6 课 64 题，覆盖遣唐使、鉴真东渡、新罗�
   // 教材插图与课后活动也要有题落到。
   for (const key of ['弘法大师行状绘词', '客使图', '印度', '开元通宝']) {
     assert.ok(text.includes(key), `第 6 课应覆盖 ${key}`);
+  }
+});
+
+test('题库：七下第 7 课 69 题，覆盖雕版印刷、天文医药、思想家与唐诗书画', () => {
+  const l7 = book('b7b').units[0].lessons[6];
+  assert.equal(l7.label, '第7课');
+  assert.equal(l7.title, '隋唐时期的科技与文化');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l7, typeId).length;
+  assert.deepEqual(byType, { choice: 33, blank: 17, material: 13, timeline: 6 });
+  assert.equal(lessonQuestionCount(l7), 69);
+  const text = l7.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['雕版印刷', '金刚经', '王玠', '藏经洞', '波斯', '一行', '大衍历', '子午线', '孙思邈', '千金方', '药王', '唐本草', '韩愈', '柳宗元', '元气', '李白', '诗仙', '杜甫', '诗史', '白居易', '颜真卿', '柳公权', '阎立本', '吴道子', '莫高窟', '鸣沙山', '赵州桥', '李春']) {
+    assert.ok(text.includes(key), `第 7 课应覆盖 ${key}`);
+  }
+  // 教材的插图、学史崇德与知识拓展也要有题落到。
+  for (const key of ['颜勤礼碑', '玄秘塔碑', '送子天王图', '人命至重', '敞肩拱']) {
+    assert.ok(text.includes(key), `第 7 课应覆盖 ${key}`);
   }
 });
 
@@ -476,7 +495,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 2944);
+  assert.equal(TOTAL_QUESTIONS, 3013);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
