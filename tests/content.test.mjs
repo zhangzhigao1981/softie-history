@@ -28,7 +28,7 @@ test('课程结构：四册按年级排列，每册「单元 → 课」逐级可
     assert.equal(bk.units.filter((u) => u.no < 1).length, 1, `${bk.title} 要有一个导言与学法分组`);
   }
 
-  assert.equal(TOTAL_LESSONS, 104);
+  assert.equal(TOTAL_LESSONS, 102);
   for (const bk of BOOKS) {
     for (const unit of bk.units) {
       assert.ok(unit.id && unit.name, '单元必须有 id 与名称');
@@ -56,16 +56,15 @@ test('题库：七上第 1 课 48 题，四类题型覆盖古人类、北京人�
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
   assert.deepEqual(byType, { choice: 20, blank: 14, material: 8, timeline: 6 });
   assert.equal(lessonQuestionCount(l1), 48);
-  assert.equal(bookQuestionCount(book('b7a')), 1263);
+  assert.equal(bookQuestionCount(book('b7a')), 1363);
   // 本课三处子目（我国境内古人类、北京人、山顶洞人）都要有题落到。
   const stems = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['元谋人', '蓝田人', '郧县人', '北京人', '山顶洞人', '裴文中', '天然火', '人工取火', '第一手资料']) {
     assert.ok(stems.includes(key), `第 1 课应覆盖 ${key}`);
   }
-  // 已补齐的四课之外仍待补。
-  const others = book('b7a').units.flatMap((u) => u.lessons)
-    .filter((l) => !['b7a-u1-l1', 'b7a-u1-l2', 'b7a-u1-l3', 'b7a-u2-l1', 'b7a-u2-l2', 'b7a-u2-l3', 'b7a-u2-l4', 'b7a-u2-l5', 'b7a-u3-l1', 'b7a-u3-l2', 'b7a-u3-l3', 'b7a-u3-l4', 'b7a-u3-l5', 'b7a-u3-l6', 'b7a-u3-l7', 'b7a-u4-l1', 'b7a-u4-l2', 'b7a-u4-l3', 'b7a-u4-l4', 'b7a-u4-l5'].includes(l.id));
-  for (const l of others) assert.deepEqual(l.questions, [], `${l.label} ${l.title} 还没有题目`);
+  // 七上只剩第 21 课活动课是待补骨架，导言课与学史方法都已出题。
+  const empty = book('b7a').units.flatMap((u) => u.lessons).filter((l) => !l.questions.length);
+  assert.deepEqual(empty.map((l) => l.id), ['b7a-u0-l2'], '只应剩活动课待补');
 });
 
 test('题库：七上第 2 课 54 题，覆盖农业起源、河姆渡、仰韶与大汶口', () => {
@@ -335,8 +334,38 @@ test('题库：七上第 20 课 72 题，覆盖齐民要术、祖冲之、书法
   }
 });
 
+test('题库：七上导言课 40 题，按四单元导语与大事年表铺开', () => {
+  const intro = book('b7a').units[4].lessons[0];
+  assert.equal(intro.label, '导言课');
+  assert.equal(intro.title, '中国古代史开篇');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(intro, typeId).length;
+  assert.deepEqual(byType, { choice: 18, blank: 9, material: 8, timeline: 5 });
+  assert.equal(lessonQuestionCount(intro), 40);
+  const text = intro.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['元谋人', '多元一体', '夏朝', '统一多民族', '大一统', '汉武帝', '280', '孝文帝', '江南', '齐民要术', '公元元年']) {
+    assert.ok(text.includes(key), `导言课应覆盖 ${key}`);
+  }
+});
+
+test('题库：七上学史方法合并为一课 60 题，文物、纪年、地图三块都有题', () => {
+  const extra = book('b7a').units[4].lessons.filter((l) => l.label === '学史方法');
+  assert.equal(extra.length, 1, '三则学史方法应合并成一课');
+  const m = extra[0];
+  assert.equal(m.title, '文物、纪年与地图的读法');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(m, typeId).length;
+  assert.deepEqual(byType, { choice: 26, blank: 14, material: 12, timeline: 8 });
+  assert.equal(lessonQuestionCount(m), 60);
+  const text = m.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  // 三块内容都要有题落到：文物三价值、四种纪年法、读图四步。
+  for (const key of ['司母戊鼎', '泥范铸造', '艺术价值', '干支', '甲子', '王位纪年', '年号', '汉武帝', '公元元年', '图名', '图例', '图注', '乌巢', '黄河']) {
+    assert.ok(text.includes(key), `学史方法应覆盖 ${key}`);
+  }
+});
+
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 2413);
+  assert.equal(TOTAL_QUESTIONS, 2513);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -392,12 +421,12 @@ test('待补的册与课：骨架在、题目为空，界面能识别出「没�
     }
   }
   assert.equal(pending, 0, '八上 26 课应全部有题');
-  // 清题不动骨架：课目录仍然是 104 课。
-  assert.equal(TOTAL_LESSONS, 104);
+  // 清题不动骨架：课目录仍然是 102 课。
+  assert.equal(TOTAL_LESSONS, 102);
 
   assert.deepEqual(PLAYABLE_BOOKS.map((b) => b.id), ['b7a', 'b8a']);
   assert.equal(DEFAULT_BOOK.id, 'b7a', '默认落在第一本有题的册');
-  assert.equal(bookQuestionCount(book('b7a')), 1263);
+  assert.equal(bookQuestionCount(book('b7a')), 1363);
 
   // 打开有题的册落到第 1 课；空册回落到首单元首课，不致抛错。
   const opened = firstPlayableLesson(book('b8a'));
@@ -505,12 +534,11 @@ test('教材目录与统编版 2025 版一致：四册正课逐课快照', () =>
 
 test('导言与学史方法：各册分组位置与课名', () => {
   const extra = (id) => book(id).units.filter((u) => u.no < 1)[0].lessons;
+  // 七上的三则学史方法合并成一课「学史方法」，仍在本册导言分组末位。
   assert.deepEqual(extra('b7a').map((l) => `${l.label} ${l.title}`), [
     '导言课 中国古代史开篇',
     '第21课 活动课 从考古发现看中华文明的起源',
-    '学史方法（一） 如何从出土文物中获取信息',
-    '学史方法（二） 如何掌握历史纪年法',
-    '学史方法（三） 如何阅读历史地图',
+    '学史方法 文物、纪年与地图的读法',
   ]);
   assert.deepEqual(extra('b7b').map((l) => `${l.label} ${l.title}`), [
     '导言课 中国古代史（下）开篇',
