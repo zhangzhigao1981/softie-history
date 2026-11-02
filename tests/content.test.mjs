@@ -439,6 +439,24 @@ test('题库：七下第 8 课 67 题，覆盖陈桥兵变、中央集权加强�
   }
 });
 
+test('题库：七下第 9 课 66 题，覆盖契丹与西夏建国、澶渊之盟与宋夏和议', () => {
+  const l9 = book('b7b').units[1].lessons[1];
+  assert.equal(l9.label, '第9课');
+  assert.equal(l9.title, '辽、西夏与北宋并立');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l9, typeId).length;
+  assert.deepEqual(byType, { choice: 32, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l9), 66);
+  const text = l9.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['契丹', '耶律阿保机', '上京', '党项', '元昊', '兴庆府', '西夏文字', '石敬瑭', '燕云十六州', '寇准', '宋真宗', '澶渊之盟', '岁币', '岁赐', '榷场', '应县木塔']) {
+    assert.ok(text.includes(key), `第 9 课应覆盖 ${key}`);
+  }
+  // 材料研读、想一想与知识拓展也要有题落到。
+  for (const key of ['以国制治契丹', '天朝万顺', '敕燃马牌', '西州回鹘']) {
+    assert.ok(text.includes(key), `第 9 课应覆盖 ${key}`);
+  }
+});
+
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
   const l3 = book('b7b').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
@@ -513,7 +531,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 3080);
+  assert.equal(TOTAL_QUESTIONS, 3146);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
