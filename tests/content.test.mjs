@@ -347,9 +347,23 @@ test('题库：七下第 1 课 66 题，覆盖隋的统一、大运河、科举�
   for (const key of ['杨坚', '大兴城', '陈后主', '流求', '洛阳', '涿郡', '余杭郡', '邗沟', '进士科', '江都', '含嘉仓', '皮日休']) {
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
-  // 第 4 课起仍待补。
-  const rest = book('b7b').units[0].lessons.slice(3);
+  // 第 5 课起仍待补。
+  const rest = book('b7b').units[0].lessons.slice(4);
   for (const l of rest) assert.deepEqual(l.questions, [], `${l.label} ${l.title} 还没有题目`);
+});
+
+test('题库：七下第 4 课 64 题，覆盖安史之乱、唐末变局与五代十国', () => {
+  const l4 = book('b7b').units[0].lessons[3];
+  assert.equal(l4.label, '第4课');
+  assert.equal(l4.title, '安史之乱与唐朝衰亡');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l4, typeId).length;
+  assert.deepEqual(byType, { choice: 30, blank: 15, material: 13, timeline: 6 });
+  assert.equal(lessonQuestionCount(l4), 64);
+  const text = l4.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['节度使', '外重内轻', '安禄山', '史思明', '755', '763', '郭子仪', '回纥', '藩镇割据', '黄巢', '大齐', '朱温', '后梁', '后周', '周世宗', '北汉']) {
+    assert.ok(text.includes(key), `第 4 课应覆盖 ${key}`);
+  }
 });
 
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
@@ -426,7 +440,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 2751);
+  assert.equal(TOTAL_QUESTIONS, 2815);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
