@@ -11,7 +11,7 @@ import { TYPE_IDS } from '../js/content/kit.js';
 import { validateQuestion } from '../js/quiz.js';
 
 const book = (id) => BOOKS.find((b) => b.id === id);
-const PENDING_BOOK_IDS = ['b7b', 'b8b'];
+const PENDING_BOOK_IDS = ['b8b'];
 
 test('课程结构：四册按年级排列，每册「单元 → 课」逐级可查', () => {
   assert.deepEqual(BOOKS.map((b) => b.id), ['b7a', 'b7b', 'b8a', 'b8b']);
@@ -334,6 +334,24 @@ test('题库：七上第 20 课 72 题，覆盖齐民要术、祖冲之、书法
   }
 });
 
+test('题库：七下第 1 课 66 题，覆盖隋的统一、大运河、科举制与隋亡', () => {
+  const l1 = book('b7b').units[0].lessons[0];
+  assert.equal(l1.label, '第1课');
+  assert.equal(l1.title, '隋朝统一与灭亡');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
+  assert.deepEqual(byType, { choice: 32, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l1), 66);
+  const text = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  // 四个子目与两处拓展都要有题落到。
+  for (const key of ['杨坚', '大兴城', '陈后主', '流求', '洛阳', '涿郡', '余杭郡', '邗沟', '进士科', '江都', '含嘉仓', '皮日休']) {
+    assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
+  }
+  // 同单元其余六课仍待补。
+  const rest = book('b7b').units[0].lessons.slice(1);
+  for (const l of rest) assert.deepEqual(l.questions, [], `${l.label} ${l.title} 还没有题目`);
+});
+
 test('题库：七上导言课 40 题，按四单元导语与大事年表铺开', () => {
   const intro = book('b7a').units[4].lessons[0];
   assert.equal(intro.label, '导言课');
@@ -380,7 +398,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 2555);
+  assert.equal(TOTAL_QUESTIONS, 2621);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -439,7 +457,7 @@ test('待补的册与课：骨架在、题目为空，界面能识别出「没�
   // 清题不动骨架：课目录仍然是 102 课。
   assert.equal(TOTAL_LESSONS, 102);
 
-  assert.deepEqual(PLAYABLE_BOOKS.map((b) => b.id), ['b7a', 'b8a']);
+  assert.deepEqual(PLAYABLE_BOOKS.map((b) => b.id), ['b7a', 'b7b', 'b8a']);
   assert.equal(DEFAULT_BOOK.id, 'b7a', '默认落在第一本有题的册');
   assert.equal(bookQuestionCount(book('b7a')), 1405);
 
@@ -515,7 +533,7 @@ const CATALOGUE = {
     '第16课 三国鼎立', '第17课 西晋的短暂统一和北方各族的内迁', '第18课 东晋南朝政治和江南地区开发', '第19课 北朝政治和北方民族大交融', '第20课 三国两晋南北朝时期的科技与文化',
   ],
   b7b: [
-    '第1课 隋朝统一与灭亡', '第2课 唐朝建立与“贞观之治”', '第3课 “开元盛世”', '第4课 安史之乱与唐朝衰亡', '第5课 隋唐时期的民族交往与交融', '第6课 隋唐时期的中外文化交流', '第7课 隋唐时期的科技与文化',
+    '第1课 隋朝统一与灭亡', '第2课 唐朝建立与“贞观之治”', '第3课 “开元盛世”与唐朝经济的繁荣', '第4课 安史之乱与唐朝衰亡', '第5课 隋唐时期的民族交往与交融', '第6课 隋唐时期的中外文化交流', '第7课 隋唐时期的科技与文化',
     '第8课 北宋的政治', '第9课 辽、西夏与北宋并立', '第10课 金与南宋对峙', '第11课 元朝的建立与统一', '第12课 辽宋夏金元时期经济的繁荣', '第13课 辽宋夏金元时期的对外交流', '第14课 辽宋夏金元时期的科技与文化',
     '第15课 明朝的统治', '第16课 明朝的对外关系', '第17课 明朝的灭亡和清朝的建立', '第18课 清朝的边疆治理', '第19课 清朝君主专制的强化', '第20课 明清时期社会经济的发展', '第21课 明清时期的科技与文化', '第22课 活动课 我国传统节日的起源与传承',
   ],

@@ -133,10 +133,11 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   const f = createApp();
   const tabs = f.$('#book-tabs').innerHTML;
   for (const id of ['b7a', 'b7b', 'b8a', 'b8b']) assert.ok(tabs.includes(`data-book="${id}"`), `缺少 ${id} 的册标签`);
-  assert.equal((tabs.match(/is-empty/g) || []).length, 2, '七下、八下都还没有题目');
+  assert.equal((tabs.match(/is-empty/g) || []).length, 1, '只剩八下没有题目');
   assert.match(tabs, /class="book-tab active"/);
   assert.match(tabs, /1405 题/, '七上 23 课已全齐，共 1405 题');
   assert.match(tabs, /1150 题/, '八上仍是 1150 题');
+  assert.match(tabs, /66 题/, '七下已有第 1 课的 66 题');
 
   // 七上目录本身要完整：4 个正课单元加导言与学法，共 23 课（三则学史方法合并为一课）。
   const unitTabs = f.$('#unit-tabs').innerHTML;
@@ -147,17 +148,25 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   assert.match(f.$('#lesson-list').innerHTML, /学史方法/);
   assert.ok(!f.$('#lesson-list').innerHTML.includes('lesson-todo'), '七上已无待补课');
 
-  // 切到还没题目的七年级下册：册、单元、课都跟着换，开始按钮转为提示态。
+  // 切到七年级下册：第 1 课已有题，其余课挂「待补」。
   f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b7b' } }) } });
   assert.equal(f.app.course.bookId, 'b7b');
   assert.equal(f.app.course.unitId, 'u1');
   assert.equal(f.app.course.lessonId, 'b7b-u1-l1');
   assert.equal(f.storedUi().bookId, 'b7b', '册次记在界面键里');
+  assert.equal(f.$('#start-round').disabled, false, '七下第 1 课已能开局');
+  assert.match(f.$('#lesson-list').innerHTML, /lesson-todo/, '第 2 课起仍挂「待补」');
+  assert.equal(f.stored().learned.length, 0);
+
+  // 切到还没题目的八年级下册：册、单元、课都跟着换，开始按钮转为提示态。
+  f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b8b' } }) } });
+  assert.equal(f.app.course.bookId, 'b8b');
+  assert.equal(f.app.course.unitId, 'u1');
+  assert.equal(f.app.course.lessonId, 'b8b-u1-l1');
+  assert.equal(f.storedUi().bookId, 'b8b');
   assert.equal(f.$('#start-round').disabled, true);
   assert.equal(f.$('#start-label').textContent, '这本还在补题');
   assert.match(f.$('#start-note').textContent, /还没有选择题/);
-  assert.match(f.$('#lesson-list').innerHTML, /lesson-todo/, '课卡片显示「待补」而不是 0/0');
-  assert.equal(f.stored().learned.length, 0);
 
   // 切回八年级上册，关卡恢复可用，并且真的能出题。
   f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b8a' } }) } });
@@ -424,7 +433,7 @@ test('首页进度与奖杯数量会跟着学习记录更新', async () => {
   f.app.start('lesson');
   await f.round({});
   f.app.home();
-  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 2555 道题 · 完成 1 轮/);
+  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 2621 道题 · 完成 1 轮/);
   assert.match(f.$('#trophy-badge').textContent, /^\d+ \/ \d+$/);
   // 课程卡显示「本课该题型练过几道 / 共几道」。分母直接取题库实际题量，
   // 以后往第 1 课加题不用再回来改这个断言。
