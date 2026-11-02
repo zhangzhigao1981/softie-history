@@ -347,8 +347,8 @@ test('题库：七下第 1 课 66 题，覆盖隋的统一、大运河、科举�
   for (const key of ['杨坚', '大兴城', '陈后主', '流求', '洛阳', '涿郡', '余杭郡', '邗沟', '进士科', '江都', '含嘉仓', '皮日休']) {
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
-  // 第 5 课起仍待补。
-  const rest = book('b7b').units[0].lessons.slice(4);
+  // 第 6 课起仍待补。
+  const rest = book('b7b').units[0].lessons.slice(5);
   for (const l of rest) assert.deepEqual(l.questions, [], `${l.label} ${l.title} 还没有题目`);
 });
 
@@ -363,6 +363,24 @@ test('题库：七下第 4 课 64 题，覆盖安史之乱、唐末变局与五�
   const text = l4.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['节度使', '外重内轻', '安禄山', '史思明', '755', '763', '郭子仪', '回纥', '藩镇割据', '黄巢', '大齐', '朱温', '后梁', '后周', '周世宗', '北汉']) {
     assert.ok(text.includes(key), `第 4 课应覆盖 ${key}`);
+  }
+});
+
+test('题库：七下第 5 课 65 题，覆盖唐蕃和亲、突厥、回纥与渤海南诏', () => {
+  const l5 = book('b7b').units[0].lessons[4];
+  assert.equal(l5.label, '第5课');
+  assert.equal(l5.title, '隋唐时期的民族交往与交融');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l5, typeId).length;
+  assert.deepEqual(byType, { choice: 31, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l5), 65);
+  const text = l5.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['松赞干布', '逻些', '641', '文成公主', '金城公主', '尺带珠丹', '唐蕃会盟碑', '天可汗', '安西都护府', '北庭都护府', '回纥', '怀仁可汗', '回鹘', '维吾尔族', '靺鞨', '大祚荣', '海东盛国', '皮逻阁', '云南王', '南诏']) {
+    assert.ok(text.includes(key), `第 5 课应覆盖 ${key}`);
+  }
+  // 教材导语与课后活动的诗文、图像也要有题落到。
+  for (const key of ['日月山', '凉州行', '法曲', '步辇图', '大昭寺']) {
+    assert.ok(text.includes(key), `第 5 课应覆盖 ${key}`);
   }
 });
 
@@ -440,7 +458,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 2815);
+  assert.equal(TOTAL_QUESTIONS, 2880);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
