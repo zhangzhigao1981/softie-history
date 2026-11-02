@@ -135,7 +135,7 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   for (const id of ['b7a', 'b7b', 'b8a', 'b8b']) assert.ok(tabs.includes(`data-book="${id}"`), `缺少 ${id} 的册标签`);
   assert.equal((tabs.match(/is-empty/g) || []).length, 2, '七下、八下都还没有题目');
   assert.match(tabs, /class="book-tab active"/);
-  assert.match(tabs, /1363 题/, '七上已有二十二课的 1363 题');
+  assert.match(tabs, /1405 题/, '七上 23 课已全齐，共 1405 题');
   assert.match(tabs, /1150 题/, '八上仍是 1150 题');
 
   // 七上目录本身要完整：4 个正课单元加导言与学法，共 23 课（三则学史方法合并为一课）。
@@ -145,6 +145,7 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: 'u0' } }) } });
   assert.equal(f.app.course.lessonId, 'b7a-u0-l1');
   assert.match(f.$('#lesson-list').innerHTML, /学史方法/);
+  assert.ok(!f.$('#lesson-list').innerHTML.includes('lesson-todo'), '七上已无待补课');
 
   // 切到还没题目的七年级下册：册、单元、课都跟着换，开始按钮转为提示态。
   f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b7b' } }) } });
@@ -423,7 +424,7 @@ test('首页进度与奖杯数量会跟着学习记录更新', async () => {
   f.app.start('lesson');
   await f.round({});
   f.app.home();
-  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 2513 道题 · 完成 1 轮/);
+  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 2555 道题 · 完成 1 轮/);
   assert.match(f.$('#trophy-badge').textContent, /^\d+ \/ \d+$/);
   // 课程卡显示「本课该题型练过几道 / 共几道」。分母直接取题库实际题量，
   // 以后往第 1 课加题不用再回来改这个断言。
