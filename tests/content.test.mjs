@@ -347,9 +347,23 @@ test('题库：七下第 1 课 66 题，覆盖隋的统一、大运河、科举�
   for (const key of ['杨坚', '大兴城', '陈后主', '流求', '洛阳', '涿郡', '余杭郡', '邗沟', '进士科', '江都', '含嘉仓', '皮日休']) {
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
-  // 同单元其余六课仍待补。
-  const rest = book('b7b').units[0].lessons.slice(1);
+  // 第 3 课起仍待补。
+  const rest = book('b7b').units[0].lessons.slice(2);
   for (const l of rest) assert.deepEqual(l.questions, [], `${l.label} ${l.title} 还没有题目`);
+});
+
+test('题库：七下第 2 课 62 题，覆盖唐朝建立、贞观之治与武则天', () => {
+  const l2 = book('b7b').units[0].lessons[1];
+  assert.equal(l2.label, '第2课');
+  assert.equal(l2.title, '唐朝建立与“贞观之治”');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l2, typeId).length;
+  assert.deepEqual(byType, { choice: 29, blank: 15, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l2), 62);
+  const text = l2.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['李渊', '昭陵六骏', '覆舟', '魏征', '房玄龄', '中书省', '门下省', '尚书省', '进士', '武则天', '殿试', '乾陵', '国子监', '四门学']) {
+    assert.ok(text.includes(key), `第 2 课应覆盖 ${key}`);
+  }
 });
 
 test('题库：七上导言课 40 题，按四单元导语与大事年表铺开', () => {
@@ -398,7 +412,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 2621);
+  assert.equal(TOTAL_QUESTIONS, 2683);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
