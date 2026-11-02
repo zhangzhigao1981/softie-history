@@ -347,9 +347,23 @@ test('题库：七下第 1 课 66 题，覆盖隋的统一、大运河、科举�
   for (const key of ['杨坚', '大兴城', '陈后主', '流求', '洛阳', '涿郡', '余杭郡', '邗沟', '进士科', '江都', '含嘉仓', '皮日休']) {
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
-  // 第 3 课起仍待补。
-  const rest = book('b7b').units[0].lessons.slice(2);
+  // 第 4 课起仍待补。
+  const rest = book('b7b').units[0].lessons.slice(3);
   for (const l of rest) assert.deepEqual(l.questions, [], `${l.label} ${l.title} 还没有题目`);
+});
+
+test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
+  const l3 = book('b7b').units[0].lessons[2];
+  assert.equal(l3.label, '第3课');
+  assert.equal(l3.title, '“开元盛世”与唐朝经济的繁荣');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l3, typeId).length;
+  assert.deepEqual(byType, { choice: 32, blank: 16, material: 14, timeline: 6 });
+  assert.equal(lessonQuestionCount(l3), 68);
+  const text = l3.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['开元', '姚崇', '宋璟', '裁减冗员', '曲辕犁', '筒车', '四善', '蜀锦', '越窑', '邢窑', '唐三彩', '陆羽', '茶圣', '扬一益二', '草市', '朱雀街', '坊', '百万']) {
+    assert.ok(text.includes(key), `第 3 课应覆盖 ${key}`);
+  }
 });
 
 test('题库：七下第 2 课 62 题，覆盖唐朝建立、贞观之治与武则天', () => {
@@ -412,7 +426,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 2683);
+  assert.equal(TOTAL_QUESTIONS, 2751);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
