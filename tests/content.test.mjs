@@ -421,6 +421,24 @@ test('题库：七下第 7 课 69 题，覆盖雕版印刷、天文医药、思�
   }
 });
 
+test('题库：七下第 8 课 67 题，覆盖陈桥兵变、中央集权加强与王安石变法', () => {
+  const l8 = book('b7b').units[1].lessons[0];
+  assert.equal(l8.label, '第8课');
+  assert.equal(l8.title, '北宋的政治');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l8, typeId).length;
+  assert.deepEqual(byType, { choice: 33, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l8), 67);
+  const text = l8.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['赵匡胤', '陈桥兵变', '黄袍', '开封', '先南后北', '北汉', '崇文抑武', '杯酒释兵权', '通判', '知州', '节度使', '殿试', '天子门生', '王安石', '宋神宗', '青苗法', '募役法', '方田均税法', '保甲法', '王小波']) {
+    assert.ok(text.includes(key), `第 8 课应覆盖 ${key}`);
+  }
+  // 材料研读、学史崇德与知识拓展也要有题落到。
+  for (const key of ['儒林公议', '赵普', '范仲淹', '百家姓']) {
+    assert.ok(text.includes(key), `第 8 课应覆盖 ${key}`);
+  }
+});
+
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
   const l3 = book('b7b').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
@@ -495,7 +513,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 3013);
+  assert.equal(TOTAL_QUESTIONS, 3080);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
