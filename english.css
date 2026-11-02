@@ -469,6 +469,8 @@
   align-items: stretch;
   justify-content: space-between;
   gap: 2px;
+  /* 首尾节点的文字原来会顶到卡片内边界，窄屏上看着像被裁。留一点内边距。 */
+  padding: 0 3px;
 }
 
 .axis-node {

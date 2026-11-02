@@ -56,7 +56,7 @@ test('题库：七上第 1 课 48 题，四类题型覆盖古人类、北京人�
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
   assert.deepEqual(byType, { choice: 20, blank: 14, material: 8, timeline: 6 });
   assert.equal(lessonQuestionCount(l1), 48);
-  assert.equal(bookQuestionCount(book('b7a')), 526);
+  assert.equal(bookQuestionCount(book('b7a')), 586);
   // 本课三处子目（我国境内古人类、北京人、山顶洞人）都要有题落到。
   const stems = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['元谋人', '蓝田人', '郧县人', '北京人', '山顶洞人', '裴文中', '天然火', '人工取火', '第一手资料']) {
@@ -64,7 +64,7 @@ test('题库：七上第 1 课 48 题，四类题型覆盖古人类、北京人�
   }
   // 已补齐的四课之外仍待补。
   const others = book('b7a').units.flatMap((u) => u.lessons)
-    .filter((l) => !['b7a-u1-l1', 'b7a-u1-l2', 'b7a-u1-l3', 'b7a-u2-l1', 'b7a-u2-l2', 'b7a-u2-l3', 'b7a-u2-l4', 'b7a-u2-l5', 'b7a-u3-l1'].includes(l.id));
+    .filter((l) => !['b7a-u1-l1', 'b7a-u1-l2', 'b7a-u1-l3', 'b7a-u2-l1', 'b7a-u2-l2', 'b7a-u2-l3', 'b7a-u2-l4', 'b7a-u2-l5', 'b7a-u3-l1', 'b7a-u3-l2'].includes(l.id));
   for (const l of others) assert.deepEqual(l.questions, [], `${l.label} ${l.title} 还没有题目`);
 });
 
@@ -181,8 +181,22 @@ test('题库：七上第 9 课 65 题，覆盖秦灭六国、中央集权与巩�
   }
 });
 
+test('题库：七上第 10 课 60 题，覆盖秦的暴政、陈胜吴广起义与秦亡', () => {
+  const l10 = book('b7a').units[2].lessons[1];
+  assert.equal(l10.label, '第10课');
+  assert.equal(l10.title, '秦末农民大起义');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l10, typeId).length;
+  assert.deepEqual(byType, { choice: 29, blank: 15, material: 11, timeline: 5 });
+  assert.equal(lessonQuestionCount(l10), 60);
+  const text = l10.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['焚书坑儒', '骊山陵', '大泽乡', '渔阳', '张楚', '揭竿', '巨鹿', '破釜沉舟', '刘邦', '前 209']) {
+    assert.ok(text.includes(key), `第 10 课应覆盖 ${key}`);
+  }
+});
+
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 1676);
+  assert.equal(TOTAL_QUESTIONS, 1736);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -243,7 +257,7 @@ test('待补的册与课：骨架在、题目为空，界面能识别出「没�
 
   assert.deepEqual(PLAYABLE_BOOKS.map((b) => b.id), ['b7a', 'b8a']);
   assert.equal(DEFAULT_BOOK.id, 'b7a', '默认落在第一本有题的册');
-  assert.equal(bookQuestionCount(book('b7a')), 526);
+  assert.equal(bookQuestionCount(book('b7a')), 586);
 
   // 打开有题的册落到第 1 课；空册回落到首单元首课，不致抛错。
   const opened = firstPlayableLesson(book('b8a'));
