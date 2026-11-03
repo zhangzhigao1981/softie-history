@@ -813,8 +813,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：八上全册 26 课都有题，共 1179 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 4159);
+test('题库：八上全册 26 课都有题，共 1211 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 4191);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -882,7 +882,7 @@ test('待补的册与课：骨架在、题目为空，界面能识别出「没�
   // 打开有题的册落到第 1 课；空册回落到首单元首课，不致抛错。
   const opened = firstPlayableLesson(book('b8a'));
   assert.equal(opened.lesson.id, 'b8a-u1-l1');
-  assert.equal(bookQuestionCount(book('b8a')), 1179);
+  assert.equal(bookQuestionCount(book('b8a')), 1211);
   for (const lesson of [book('b8a').units[0].lessons[0], book('b8a').units[0].lessons[1]]) {
     for (const typeId of TYPE_IDS) {
       assert.ok(questionsOf(lesson, typeId).length >= 5, `${lesson.label} 的 ${typeId} 要够凑满一轮`);
