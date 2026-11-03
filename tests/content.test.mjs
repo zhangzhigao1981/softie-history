@@ -659,6 +659,28 @@ test('题库：七下第 20 课 67 题，覆盖农业恢复、手工业商业发
   }
 });
 
+test('题库：七下第 21 课 72 题，覆盖科技名著、长城北京城、思想家与小说戏曲', () => {
+  const l21 = book('b7b').units[2].lessons[6];
+  assert.equal(l21.label, '第21课');
+  assert.equal(l21.title, '明清时期的科技与文化');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l21, typeId).length;
+  assert.deepEqual(byType, { choice: 36, blank: 17, material: 13, timeline: 6 });
+  assert.equal(lessonQuestionCount(l21), 72);
+  const text = l21.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['李时珍', '本草纲目', '徐光启', '农政全书', '利玛窦', '几何原本', '徐霞客', '宋应星', '天工开物', '嘉峪关', '紫禁城', '中轴线', '王守仁', '知行合一', '黄宗羲', '顾炎武', '王夫之', '罗贯中', '曹雪芹', '红楼梦', '汤显祖', '牡丹亭', '昆曲', '京剧']) {
+    assert.ok(text.includes(key), `第 21 课应覆盖 ${key}`);
+  }
+  // 材料研读、相关史事与知识拓展也要有题落到。
+  for (const key of ['贵五谷而贱金玉', '长生殿', '桃花扇', '永乐大典', '四库全书']) {
+    assert.ok(text.includes(key), `第 21 课应覆盖 ${key}`);
+  }
+  // 第三单元正课 7 课到这一课已全部补齐（活动课第 22 课仍待补）。
+  for (const l of book('b7b').units[2].lessons.slice(0, 7)) {
+    assert.ok(l.questions.length > 0, `${l.label} ${l.title} 应已有题目`);
+  }
+});
+
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
   const l3 = book('b7b').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
@@ -733,7 +755,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 3908);
+  assert.equal(TOTAL_QUESTIONS, 3980);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
