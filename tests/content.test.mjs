@@ -529,6 +529,28 @@ test('题库：七下第 13 课 68 题，覆盖中外交通、海外贸易与文
   }
 });
 
+test('题库：七下第 14 课 73 题，覆盖活字印刷、指南针火药、天文、理学与宋词元曲', () => {
+  const l14 = book('b7b').units[1].lessons[6];
+  assert.equal(l14.label, '第14课');
+  assert.equal(l14.title, '辽宋夏金元时期的科技与文化');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l14, typeId).length;
+  assert.deepEqual(byType, { choice: 37, blank: 17, material: 13, timeline: 6 });
+  assert.equal(lessonQuestionCount(l14), 73);
+  const text = l14.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['毕昇', '泥活字', '王祯', '转轮排字盘', '锡活字', '司南', '罗盘', '指南针', '突火枪', '火铳', '铜火炮', '四大发明', '沈括', '十二气历', '梦溪笔谈', '苏颂', '水运仪象台', '郭守敬', '简仪', '授时历', '365.2425', '程朱理学', '朱熹', '词牌', '苏轼', '李清照', '辛弃疾', '陆游', '关汉卿', '窦娥冤', '资治通鉴', '史学两司马']) {
+    assert.ok(text.includes(key), `第 14 课应覆盖 ${key}`);
+  }
+  // 材料研读、相关史事、知识拓展与课后活动也要有题落到。
+  for (const key of ['白象塔', '石油', '培根', '马致远']) {
+    assert.ok(text.includes(key), `第 14 课应覆盖 ${key}`);
+  }
+  // 第二单元 7 课到这一课已全部补齐。
+  for (const l of book('b7b').units[1].lessons) {
+    assert.ok(l.questions.length > 0, `${l.label} ${l.title} 应已有题目`);
+  }
+});
+
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
   const l3 = book('b7b').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
@@ -603,7 +625,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 3423);
+  assert.equal(TOTAL_QUESTIONS, 3496);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
