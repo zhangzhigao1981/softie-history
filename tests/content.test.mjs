@@ -48,18 +48,22 @@ test('课程结构：四册按年级排列，每册「单元 → 课」逐级可
   assert.equal(findLesson(book('b8a').units[0], 'nope').id, book('b8a').units[0].lessons[0].id);
 });
 
-test('题库：七上第 1 课 48 题，四类题型覆盖古人类、北京人与山顶洞人', () => {
+test('题库：七上第 1 课 56 题，四类题型覆盖古人类、北京人、山顶洞人与石器用途', () => {
   const l1 = book('b7a').units[0].lessons[0];
   assert.equal(l1.label, '第1课');
   assert.equal(l1.title, '远古时期的人类活动');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
-  assert.deepEqual(byType, { choice: 20, blank: 14, material: 8, timeline: 6 });
-  assert.equal(lessonQuestionCount(l1), 48);
-  assert.equal(bookQuestionCount(book('b7a')), 1405);
+  assert.deepEqual(byType, { choice: 24, blank: 16, material: 10, timeline: 6 });
+  assert.equal(lessonQuestionCount(l1), 56);
+  assert.equal(bookQuestionCount(book('b7a')), 1413);
   // 本课三处子目（我国境内古人类、北京人、山顶洞人）都要有题落到。
   const stems = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['元谋人', '蓝田人', '郧县人', '北京人', '山顶洞人', '裴文中', '天然火', '人工取火', '第一手资料']) {
+    assert.ok(stems.includes(key), `第 1 课应覆盖 ${key}`);
+  }
+  // 课后活动的石器用途、读地图与知识拓展的古DNA 也要有题落到。
+  for (const key of ['砍砸器', '尖状器', '刮削器', '捕鱼', '古DNA', '周口店']) {
     assert.ok(stems.includes(key), `第 1 课应覆盖 ${key}`);
   }
   // 七上 23 课已全部有题，不再有待补骨架。
@@ -810,7 +814,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 4122);
+  assert.equal(TOTAL_QUESTIONS, 4130);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -871,7 +875,7 @@ test('待补的册与课：骨架在、题目为空，界面能识别出「没�
 
   assert.deepEqual(PLAYABLE_BOOKS.map((b) => b.id), ['b7a', 'b7b', 'b8a']);
   assert.equal(DEFAULT_BOOK.id, 'b7a', '默认落在第一本有题的册');
-  assert.equal(bookQuestionCount(book('b7a')), 1405);
+  assert.equal(bookQuestionCount(book('b7a')), 1413);
 
   // 打开有题的册落到第 1 课；空册回落到首单元首课，不致抛错。
   const opened = firstPlayableLesson(book('b8a'));
