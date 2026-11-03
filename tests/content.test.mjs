@@ -457,6 +457,24 @@ test('题库：七下第 9 课 66 题，覆盖契丹与西夏建国、澶渊之�
   }
 });
 
+test('题库：七下第 10 课 67 题，覆盖金灭辽北宋、靖康之变与岳飞抗金', () => {
+  const l10 = book('b7b').units[1].lessons[2];
+  assert.equal(l10.label, '第10课');
+  assert.equal(l10.title, '金与南宋对峙');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l10, typeId).length;
+  assert.deepEqual(byType, { choice: 32, blank: 16, material: 13, timeline: 6 });
+  assert.equal(lessonQuestionCount(l10), 67);
+  const text = l10.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['女真', '完颜', '阿骨打', '会宁府', '金太祖', '1125', '1127', '靖康之变', '赵构', '宋高宗', '临安', '岳飞', '岳家军', '郾城', '莫须有', '1141', '淮水', '大散关', '秦桧', '八字军', '金世宗']) {
+    assert.ok(text.includes(key), `第 10 课应覆盖 ${key}`);
+  }
+  // 材料研读、想一想、知识拓展与课后活动也要有题落到。
+  for (const key of ['宾铁', '卤簿钟', '题临安邸', '译经所']) {
+    assert.ok(text.includes(key), `第 10 课应覆盖 ${key}`);
+  }
+});
+
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
   const l3 = book('b7b').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
@@ -531,7 +549,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 3146);
+  assert.equal(TOTAL_QUESTIONS, 3213);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
