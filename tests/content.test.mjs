@@ -551,6 +551,24 @@ test('题库：七下第 14 课 73 题，覆盖活字印刷、指南针火药、
   }
 });
 
+test('题库：七下第 15 课 69 题，覆盖明朝建立、强化皇权、八股取士与民族关系', () => {
+  const l15 = book('b7b').units[2].lessons[0];
+  assert.equal(l15.label, '第15课');
+  assert.equal(l15.title, '明朝的统治');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l15, typeId).length;
+  assert.deepEqual(byType, { choice: 33, blank: 17, material: 13, timeline: 6 });
+  assert.equal(lessonQuestionCount(l15), 69);
+  const text = l15.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['朱元璋', '应天府', '靖难之役', '朱棣', '北京', '丞相', '六部', '五军都督府', '兵部', '内阁', '首辅', '三司', '锦衣卫', '东厂', '西厂', '厂卫', '四书', '四书章句集注', '八股文', '乡试', '会试', '殿试', '奴儿干都司', '俺答汗', '隆庆和议', '大明律']) {
+    assert.ok(text.includes(key), `第 15 课应覆盖 ${key}`);
+  }
+  // 材料研读、相关史事与想一想也要有题落到。
+  for (const key of ['皇明祖训', '江南贡院', '库页岛', '削藩']) {
+    assert.ok(text.includes(key), `第 15 课应覆盖 ${key}`);
+  }
+});
+
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
   const l3 = book('b7b').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
@@ -625,7 +643,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 3496);
+  assert.equal(TOTAL_QUESTIONS, 3565);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
