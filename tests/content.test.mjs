@@ -28,7 +28,7 @@ test('课程结构：四册按年级排列，每册「单元 → 课」逐级可
     assert.equal(bk.units.filter((u) => u.no < 1).length, 1, `${bk.title} 要有一个导言与学法分组`);
   }
 
-  assert.equal(TOTAL_LESSONS, 102);
+  assert.equal(TOTAL_LESSONS, 101);
   for (const bk of BOOKS) {
     for (const unit of bk.units) {
       assert.ok(unit.id && unit.name, '单元必须有 id 与名称');
@@ -713,6 +713,29 @@ test('题库：七下导言课 40 题，按三单元导语与大事年表铺开'
   }
 });
 
+test('题库：七下学史方法 60 题，合并两则方法并把大事年表（下）编进来', () => {
+  const methods = book('b7b').units.filter((u) => u.no < 1)[0].lessons[1];
+  assert.equal(methods.label, '学史方法');
+  assert.equal(methods.title, '文献、史事与大事年表');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(methods, typeId).length;
+  assert.deepEqual(byType, { choice: 26, blank: 14, material: 12, timeline: 8 });
+  assert.equal(lessonQuestionCount(methods), 60);
+  const text = methods.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  // （一）如何读懂文献史料
+  for (const key of ['旧唐书', '魏征', '刘昫', '以古为镜', '兼听则明', '互', '出处']) {
+    assert.ok(text.includes(key), `学史方法应覆盖 ${key}`);
+  }
+  // （二）如何把握史事要素
+  for (const key of ['靖康之变', '宋徽宗', '宋钦宗', '东京', '背景和原因', '结果']) {
+    assert.ok(text.includes(key), `学史方法应覆盖 ${key}`);
+  }
+  // （三）附录大事年表（下）
+  for (const key of ['大事年表', '605', '630', '1005', '1206', '1553', '1771', '1684', '1762']) {
+    assert.ok(text.includes(key), `学史方法应覆盖 ${key}`);
+  }
+});
+
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
   const l3 = book('b7b').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
@@ -787,7 +810,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 4062);
+  assert.equal(TOTAL_QUESTIONS, 4122);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -843,8 +866,8 @@ test('待补的册与课：骨架在、题目为空，界面能识别出「没�
     }
   }
   assert.equal(pending, 0, '八上 26 课应全部有题');
-  // 清题不动骨架：课目录仍然是 102 课。
-  assert.equal(TOTAL_LESSONS, 102);
+  // 清题不动骨架：课目录仍然是 101 课（七下两则学史方法合并成一课）。
+  assert.equal(TOTAL_LESSONS, 101);
 
   assert.deepEqual(PLAYABLE_BOOKS.map((b) => b.id), ['b7a', 'b7b', 'b8a']);
   assert.equal(DEFAULT_BOOK.id, 'b7a', '默认落在第一本有题的册');
@@ -962,10 +985,10 @@ test('导言与学史方法：各册分组位置与课名', () => {
     '第21课 活动课 从考古发现看中华文明的起源',
     '学史方法 文物、纪年与地图的读法',
   ]);
+  // 七下的两则学史方法同样合并成一课，并把附录大事年表（下）并入该课。
   assert.deepEqual(extra('b7b').map((l) => `${l.label} ${l.title}`), [
     '导言课 中国古代史（下）开篇',
-    '学史方法（一） 如何读懂文献史料',
-    '学史方法（二） 如何把握史事要素',
+    '学史方法 文献、史事与大事年表',
   ]);
   assert.deepEqual(extra('b8a').map((l) => `${l.label} ${l.title}`), [
     '导言课 中国近代史开篇',
