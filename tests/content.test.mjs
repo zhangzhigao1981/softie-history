@@ -475,6 +475,24 @@ test('题库：七下第 10 课 67 题，覆盖金灭辽北宋、靖康之变与
   }
 });
 
+test('题库：七下第 11 课 70 题，覆盖蒙古兴起、元朝统一、行省制与民族交融', () => {
+  const l11 = book('b7b').units[1].lessons[3];
+  assert.equal(l11.label, '第11课');
+  assert.equal(l11.title, '元朝的建立与统一');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l11, typeId).length;
+  assert.deepEqual(byType, { choice: 34, blank: 17, material: 13, timeline: 6 });
+  assert.equal(lessonQuestionCount(l11), 70);
+  const text = l11.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['铁木真', '成吉思汗', '1260', '忽必烈', '1271', '大都', '1276', '临安', '1279', '文天祥', '汗青', '中书省', '枢密院', '御史台', '宣政院', '行省', '澎湖', '巡检司', '北庭都元帅府', '宣慰使司', '凉州', '回回', '四等人制', '色目人', '妙应寺', '驿站']) {
+    assert.ok(text.includes(key), `第 11 课应覆盖 ${key}`);
+  }
+  // 材料研读、相关史事与知识拓展也要有题落到。
+  for (const key of ['元史·地理志', '钓鱼城', '阔端', '急递铺', '正气歌']) {
+    assert.ok(text.includes(key), `第 11 课应覆盖 ${key}`);
+  }
+});
+
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
   const l3 = book('b7b').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
@@ -549,7 +567,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 3213);
+  assert.equal(TOTAL_QUESTIONS, 3283);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
