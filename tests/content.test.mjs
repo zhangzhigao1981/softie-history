@@ -623,6 +623,24 @@ test('题库：七下第 18 课 73 题，覆盖台湾建制、西藏管辖、西
   }
 });
 
+test('题库：七下第 19 课 67 题，覆盖军机处、文字狱、社会矛盾与闭关政策', () => {
+  const l19 = book('b7b').units[2].lessons[4];
+  assert.equal(l19.label, '第19课');
+  assert.equal(l19.title, '清朝君主专制的强化');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l19, typeId).length;
+  assert.deepEqual(byType, { choice: 32, blank: 16, material: 13, timeline: 6 });
+  assert.equal(lessonQuestionCount(l19), 67);
+  const text = l19.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['议政王大臣会议', '南书房', '军机房', '军机处', '军机大臣', '奏折', '文字狱', '胡中藻', '尊孔读经', '和珅', '白莲教', '禁海令', '广州十三行', '闭关', '马戛尔尼']) {
+    assert.ok(text.includes(key), `第 19 课应覆盖 ${key}`);
+  }
+  // 材料研读、相关史事与知识拓展也要有题落到。
+  for (const key of ['檐曝杂记', '南书房行走', '嘉庆', '天朝物产丰盈']) {
+    assert.ok(text.includes(key), `第 19 课应覆盖 ${key}`);
+  }
+});
+
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
   const l3 = book('b7b').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
@@ -697,7 +715,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 3774);
+  assert.equal(TOTAL_QUESTIONS, 3841);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
