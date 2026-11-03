@@ -136,7 +136,7 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   assert.equal((tabs.match(/is-empty/g) || []).length, 1, '只剩八下没有题目');
   assert.match(tabs, /class="book-tab active"/);
   assert.match(tabs, /1413 题/, '七上 23 课已全齐，共 1413 题');
-  assert.match(tabs, /1139 题/, '八上 1139 题');
+  assert.match(tabs, /1160 题/, '八上 1160 题');
   assert.match(tabs, /1567 题/, '七下 24 课全齐，共 1567 题');
 
   // 七上目录本身要完整：4 个正课单元加导言与学法，共 23 课（三则学史方法合并为一课）。
@@ -198,8 +198,12 @@ test('八上全部 26 课都能开局，界面里不再有待补徽章', async (
   const list = f.$('#lesson-list').innerHTML;
   assert.equal((list.match(/lesson-todo/g) || []).length, 0, '第一单元不该再有待补徽章');
   for (const label of ['第1课', '第2课', '第3课']) assert.match(list, new RegExp(label));
-  assert.match(list, /<b>0<\/b>\/16/, '第 1 课选择题仍按 0/16 显示进度');
-  assert.match(list, /<b>0<\/b>\/12/, '第 2 课选择题按 0/12 显示进度');
+  // 八上正在逐课重做，题量会变；这里只校验「0/题量」的显示格式，不锁死具体数字。
+  for (const id of ['b8a-u1-l1', 'b8a-u1-l2', 'b8a-u1-l3']) {
+    const at = list.indexOf(`data-lesson="${id}"`);
+    assert.ok(at !== -1, `${id} 的课卡应存在`);
+    assert.match(list.slice(at, at + 400), /<b>0<\/b>\/\d+/, `${id} 要按 0/题量 显示进度`);
+  }
 
   // 逐个单元、逐课检查：不挂待补徽章，四类题型都能开局。
   const units = [['u1', 3], ['u2', 4], ['u3', 3], ['u4', 2], ['u5', 3], ['u6', 4], ['u7', 3], ['u0', 4]];
@@ -444,7 +448,7 @@ test('首页进度与奖杯数量会跟着学习记录更新', async () => {
   f.app.start('lesson');
   await f.round({});
   f.app.home();
-  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 4119 道题 · 完成 1 轮/);
+  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 4140 道题 · 完成 1 轮/);
   assert.match(f.$('#trophy-badge').textContent, /^\d+ \/ \d+$/);
   // 课程卡显示「本课该题型练过几道 / 共几道」。分母直接取题库实际题量，
   // 以后往第 1 课加题不用再回来改这个断言。
