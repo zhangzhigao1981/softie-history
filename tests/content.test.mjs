@@ -569,6 +569,24 @@ test('题库：七下第 15 课 69 题，覆盖明朝建立、强化皇权、八
   }
 });
 
+test('题库：七下第 16 课 69 题，覆盖郑和下西洋、戚继光抗倭、援朝与澳门', () => {
+  const l16 = book('b7b').units[2].lessons[1];
+  assert.equal(l16.label, '第16课');
+  assert.equal(l16.title, '明朝的对外关系');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l16, typeId).length;
+  assert.deepEqual(byType, { choice: 33, blank: 17, material: 13, timeline: 6 });
+  assert.equal(lessonQuestionCount(l16), 69);
+  const text = l16.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['郑和', '明成祖', '1405', '1433', '七次', '红海', '西洋', '三宝', '榜葛剌', '戚继光', '倭寇', '戚家军', '台州', '纪效新书', '丰臣秀吉', '葡萄牙', '1553', '澳门', '守澳官', '陈诚']) {
+    assert.ok(text.includes(key), `第 16 课应覆盖 ${key}`);
+  }
+  // 材料研读、相关史事与知识拓展也要有题落到。
+  for (const key of ['天妃灵应之记', '麒麟', '浡泥', '苏禄']) {
+    assert.ok(text.includes(key), `第 16 课应覆盖 ${key}`);
+  }
+});
+
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
   const l3 = book('b7b').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
@@ -643,7 +661,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 3565);
+  assert.equal(TOTAL_QUESTIONS, 3634);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
