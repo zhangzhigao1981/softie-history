@@ -641,6 +641,24 @@ test('题库：七下第 19 课 67 题，覆盖军机处、文字狱、社会矛
   }
 });
 
+test('题库：七下第 20 课 67 题，覆盖农业恢复、手工业商业发展与人口增长', () => {
+  const l20 = book('b7b').units[2].lessons[5];
+  assert.equal(l20.label, '第20课');
+  assert.equal(l20.title, '明清时期社会经济的发展');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l20, typeId).length;
+  assert.deepEqual(byType, { choice: 32, blank: 16, material: 13, timeline: 6 });
+  assert.equal(lessonQuestionCount(l20), 67);
+  const text = l20.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['轻徭薄赋', '鱼鳞图册', '河道总督', '玉米', '松江', '景德镇', '机户', '票号', '徽商', '白银', '滋生人丁', '田赋', '天下四聚', '湖广']) {
+    assert.ok(text.includes(key), `第 20 课应覆盖 ${key}`);
+  }
+  // 材料研读、相关史事与知识拓展也要有题落到。
+  for (const key of ['明神宗实录', '姑苏繁华图', '商帮', '商品粮基地']) {
+    assert.ok(text.includes(key), `第 20 课应覆盖 ${key}`);
+  }
+});
+
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
   const l3 = book('b7b').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
@@ -715,7 +733,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 3841);
+  assert.equal(TOTAL_QUESTIONS, 3908);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
