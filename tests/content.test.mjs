@@ -675,9 +675,41 @@ test('题库：七下第 21 课 72 题，覆盖科技名著、长城北京城、
   for (const key of ['贵五谷而贱金玉', '长生殿', '桃花扇', '永乐大典', '四库全书']) {
     assert.ok(text.includes(key), `第 21 课应覆盖 ${key}`);
   }
-  // 第三单元正课 7 课到这一课已全部补齐（活动课第 22 课仍待补）。
-  for (const l of book('b7b').units[2].lessons.slice(0, 7)) {
+  // 第三单元 8 课（含活动课）到这一课已全部补齐。
+  for (const l of book('b7b').units[2].lessons) {
     assert.ok(l.questions.length > 0, `${l.label} ${l.title} 应已有题目`);
+  }
+});
+
+test('题库：七下第 22 课活动课 42 题，覆盖节日来源、民族节日与活动流程', () => {
+  const l22 = book('b7b').units[2].lessons[7];
+  assert.equal(l22.label, '第22课');
+  assert.ok(l22.title.includes('我国传统节日的起源与传承'));
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l22, typeId).length;
+  assert.deepEqual(byType, { choice: 18, blank: 9, material: 10, timeline: 5 });
+  assert.equal(lessonQuestionCount(l22), 42);
+  const text = l22.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['李士达', '岁朝村庆图', '春节', '清明', '端午', '中秋', '泼水节', '火把节', '藏历新年', '回历新年', '连续性', '统一性', '小组研究', '班级交流', '传承']) {
+    assert.ok(text.includes(key), `第 22 课应覆盖 ${key}`);
+  }
+  // 活动课的成果要求与资料类型也要有题落到。
+  for (const key of ['时代背景', '社会根源', '展示会', '体育']) {
+    assert.ok(text.includes(key), `第 22 课应覆盖 ${key}`);
+  }
+});
+
+test('题库：七下导言课 40 题，按三单元导语与大事年表铺开', () => {
+  const intro = book('b7b').units.filter((u) => u.no < 1)[0].lessons[0];
+  assert.equal(intro.label, '导言课');
+  assert.equal(intro.title, '中国古代史（下）开篇');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(intro, typeId).length;
+  assert.deepEqual(byType, { choice: 18, blank: 9, material: 8, timeline: 5 });
+  assert.equal(lessonQuestionCount(intro), 40);
+  const text = intro.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['繁荣与开放', '民族关系发展和社会变化', '巩固与发展', '大运河', '科举制', '安史之乱', '五代十国', '崇文抑武', '经济重心南移', '交融', '郑和', '故步自封']) {
+    assert.ok(text.includes(key), `导言课应覆盖 ${key}`);
   }
 });
 
@@ -755,7 +787,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 3980);
+  assert.equal(TOTAL_QUESTIONS, 4062);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
