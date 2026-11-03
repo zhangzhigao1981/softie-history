@@ -511,6 +511,24 @@ test('题库：七下第 12 课 72 题，覆盖农业、手工业、商业与经
   }
 });
 
+test('题库：七下第 13 课 68 题，覆盖中外交通、海外贸易与文化交流', () => {
+  const l13 = book('b7b').units[1].lessons[5];
+  assert.equal(l13.label, '第13课');
+  assert.equal(l13.title, '辽宋夏金元时期的对外交流');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l13, typeId).length;
+  assert.deepEqual(byType, { choice: 32, blank: 17, material: 13, timeline: 6 });
+  assert.equal(lessonQuestionCount(l13), 68);
+  const text = l13.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
+  for (const key of ['草原丝绸之路', '波斯湾', '鼎盛', '马可·波罗', '市舶司', '泉州', '明州', '140', '香料', '象牙', '蒲寿庚', '六胜塔', '回回药方', '指南针', '南海一号']) {
+    assert.ok(text.includes(key), `第 13 课应覆盖 ${key}`);
+  }
+  // 材料研读、相关史事与知识拓展也要有题落到。
+  for (const key of ['市舶之利最厚', '朔门', '清真寺', '来样加工']) {
+    assert.ok(text.includes(key), `第 13 课应覆盖 ${key}`);
+  }
+});
+
 test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长安城', () => {
   const l3 = book('b7b').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
@@ -585,7 +603,7 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
 });
 
 test('题库：八上全册 26 课都有题，共 1150 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 3355);
+  assert.equal(TOTAL_QUESTIONS, 3423);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
