@@ -138,7 +138,7 @@ test('册次切换：四册都能浏览，没有题目的课进不了关卡并�
   assert.match(tabs, /1413 题/, '七上 23 课已全齐，共 1413 题');
   assert.match(tabs, /1750 题/, '八上 1750 题');
   assert.match(tabs, /1567 题/, '七下 24 课全齐，共 1567 题');
-  assert.match(tabs, /605 题/, '八下第 1—9 课已录题，共 605 题');
+  assert.match(tabs, /672 题/, '八下第 1—10 课已录题，共 672 题');
 
   // 七上目录本身要完整：4 个正课单元加导言与学法，共 23 课（三则学史方法合并为一课）。
   const unitTabs = f.$('#unit-tabs').innerHTML;
@@ -179,10 +179,10 @@ test('册次切换：四册都能浏览，没有题目的课进不了关卡并�
   assert.equal(f.$('#start-round').disabled, false, '八下第 1 课已能开局');
   assert.ok(f.$('#start-label').textContent.includes('开始闯关'));
   assert.equal((f.$('#lesson-list').innerHTML.match(/lesson-todo/g) || []).length, 0, '第一单元 4 课已全齐');
-  // 第二单元也已无待补，切到第三单元：第 10 课没有题，开始按钮转为提示态。
+  // 第二单元也已无待补，切到第三单元：第 11 课没有题，开始按钮转为提示态。
   f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: 'u3' } }) } });
-  f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: 'b8b-u3-l3' } }) } });
-  assert.equal(f.app.course.lessonId, 'b8b-u3-l3');
+  f.$('#lesson-list').click({ target: { closest: () => ({ dataset: { lesson: 'b8b-u3-l4' } }) } });
+  assert.equal(f.app.course.lessonId, 'b8b-u3-l4');
   assert.equal(f.$('#start-round').disabled, true);
   assert.equal(f.$('#start-label').textContent, '这一课还在补题');
   assert.match(f.$('#start-note').textContent, /还没有出题/);
@@ -456,7 +456,7 @@ test('首页进度与奖杯数量会跟着学习记录更新', async () => {
   f.app.start('lesson');
   await f.round({});
   f.app.home();
-  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 5335 道题 · 完成 1 轮/);
+  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 5402 道题 · 完成 1 轮/);
   assert.match(f.$('#trophy-badge').textContent, /^\d+ \/ \d+$/);
   // 课程卡显示「本课该题型练过几道 / 共几道」。分母直接取题库实际题量，
   // 以后往第 1 课加题不用再回来改这个断言。
