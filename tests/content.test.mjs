@@ -28,7 +28,7 @@ test('课程结构：四册按年级排列，每册「单元 → 课」逐级可
     assert.equal(bk.units.filter((u) => u.no < 1).length, 1, `${bk.title} 要有一个导言与学法分组`);
   }
 
-  assert.equal(TOTAL_LESSONS, 101);
+  assert.equal(TOTAL_LESSONS, 99);
   for (const bk of BOOKS) {
     for (const unit of bk.units) {
       assert.ok(unit.id && unit.name, '单元必须有 id 与名称');
@@ -813,8 +813,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：八上全册 26 课都有题，共 1782 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 4762);
+test('题库：八上全册 26 课都有题，共 1750 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 4730);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -832,8 +832,8 @@ test('题库：八上全册 26 课都有题，共 1782 题且全部通过自检'
       assert.equal(lessonQuestionCount(lesson), lesson.questions.length);
     }
   }
-  // 七单元加导言与学法共 26 课，全部补齐。
-  assert.deepEqual(withQuestions, ['b8a-u1-l1', 'b8a-u1-l2', 'b8a-u1-l3', 'b8a-u2-l1', 'b8a-u2-l2', 'b8a-u2-l3', 'b8a-u2-l4', 'b8a-u3-l1', 'b8a-u3-l2', 'b8a-u3-l3', 'b8a-u4-l1', 'b8a-u4-l2', 'b8a-u5-l1', 'b8a-u5-l2', 'b8a-u5-l3', 'b8a-u6-l1', 'b8a-u6-l2', 'b8a-u6-l3', 'b8a-u6-l4', 'b8a-u7-l1', 'b8a-u7-l2', 'b8a-u7-l3', 'b8a-u0-l1', 'b8a-u0-l2', 'b8a-u0-l3', 'b8a-u0-l4']);
+  // 七单元 22 课加导言课、学史方法共 24 课，全部补齐。
+  assert.deepEqual(withQuestions, ['b8a-u1-l1', 'b8a-u1-l2', 'b8a-u1-l3', 'b8a-u2-l1', 'b8a-u2-l2', 'b8a-u2-l3', 'b8a-u2-l4', 'b8a-u3-l1', 'b8a-u3-l2', 'b8a-u3-l3', 'b8a-u4-l1', 'b8a-u4-l2', 'b8a-u5-l1', 'b8a-u5-l2', 'b8a-u5-l3', 'b8a-u6-l1', 'b8a-u6-l2', 'b8a-u6-l3', 'b8a-u6-l4', 'b8a-u7-l1', 'b8a-u7-l2', 'b8a-u7-l3', 'b8a-u0-l1', 'b8a-u0-l2']);
   // 八上正在逐课重做，题量会变；这里只校验总账与题型齐全，不锁死具体数字。
   assert.equal(Object.values(counts).reduce((x, y) => x + y, 0), bookQuestionCount(book('b8a')));
   for (const typeId of TYPE_IDS) assert.ok(counts[typeId] > 0, `${typeId} 在八上要有题`);
@@ -857,7 +857,7 @@ test('待补的册与课：骨架在、题目为空，界面能识别出「没�
   }
 
   // 八上 26 课已全部有题，逐课确认非空。
-  const FILLED = new Set(['b8a-u1-l1', 'b8a-u1-l2', 'b8a-u1-l3', 'b8a-u2-l1', 'b8a-u2-l2', 'b8a-u2-l3', 'b8a-u2-l4', 'b8a-u3-l1', 'b8a-u3-l2', 'b8a-u3-l3', 'b8a-u4-l1', 'b8a-u4-l2', 'b8a-u5-l1', 'b8a-u5-l2', 'b8a-u5-l3', 'b8a-u6-l1', 'b8a-u6-l2', 'b8a-u6-l3', 'b8a-u6-l4', 'b8a-u7-l1', 'b8a-u7-l2', 'b8a-u7-l3', 'b8a-u0-l1', 'b8a-u0-l2', 'b8a-u0-l3', 'b8a-u0-l4']);
+  const FILLED = new Set(['b8a-u1-l1', 'b8a-u1-l2', 'b8a-u1-l3', 'b8a-u2-l1', 'b8a-u2-l2', 'b8a-u2-l3', 'b8a-u2-l4', 'b8a-u3-l1', 'b8a-u3-l2', 'b8a-u3-l3', 'b8a-u4-l1', 'b8a-u4-l2', 'b8a-u5-l1', 'b8a-u5-l2', 'b8a-u5-l3', 'b8a-u6-l1', 'b8a-u6-l2', 'b8a-u6-l3', 'b8a-u6-l4', 'b8a-u7-l1', 'b8a-u7-l2', 'b8a-u7-l3', 'b8a-u0-l1', 'b8a-u0-l2']);
   let pending = 0;
   for (const unit of book('b8a').units) {
     assert.ok(unit.lessons.length > 0, `八上 ${unit.name} 要有课`);
@@ -872,8 +872,8 @@ test('待补的册与课：骨架在、题目为空，界面能识别出「没�
     }
   }
   assert.equal(pending, 0, '八上 26 课应全部有题');
-  // 清题不动骨架：课目录仍然是 101 课（七下两则学史方法合并成一课）。
-  assert.equal(TOTAL_LESSONS, 101);
+  // 清题不动骨架：课目录仍然是 99 课（七上三则、七下两则、八上三则学史方法各合并成一课）。
+  assert.equal(TOTAL_LESSONS, 99);
 
   assert.deepEqual(PLAYABLE_BOOKS.map((b) => b.id), ['b7a', 'b7b', 'b8a']);
   assert.equal(DEFAULT_BOOK.id, 'b7a', '默认落在第一本有题的册');
@@ -882,7 +882,7 @@ test('待补的册与课：骨架在、题目为空，界面能识别出「没�
   // 打开有题的册落到第 1 课；空册回落到首单元首课，不致抛错。
   const opened = firstPlayableLesson(book('b8a'));
   assert.equal(opened.lesson.id, 'b8a-u1-l1');
-  assert.equal(bookQuestionCount(book('b8a')), 1782);
+  assert.equal(bookQuestionCount(book('b8a')), 1750);
   for (const lesson of [book('b8a').units[0].lessons[0], book('b8a').units[0].lessons[1]]) {
     for (const typeId of TYPE_IDS) {
       assert.ok(questionsOf(lesson, typeId).length >= 5, `${lesson.label} 的 ${typeId} 要够凑满一轮`);
@@ -993,11 +993,10 @@ test('导言与学史方法：各册分组位置与课名', () => {
     '导言课 中国古代史（下）开篇',
     '学史方法 文献、史事与大事年表',
   ]);
+  // 八上的三则学史方法同样合并成一课，并把附录大事年表（上）并入该课。
   assert.deepEqual(extra('b8a').map((l) => `${l.label} ${l.title}`), [
     '导言课 中国近代史开篇',
-    '学史方法（一） 如何评价历史人物',
-    '学史方法（二） 如何从历史图像中获取信息',
-    '学史方法（三） 如何从影视剧中获取信息',
+    '学史方法 人物、图像、影视与大事年表',
   ]);
   // 八下的「学史方法」栏目与八上同为三则，位置在本册导言分组末位。
   assert.deepEqual(extra('b8b').map((l) => `${l.label} ${l.title}`), [

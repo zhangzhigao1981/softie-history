@@ -136,7 +136,7 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   assert.equal((tabs.match(/is-empty/g) || []).length, 1, '只剩八下没有题目');
   assert.match(tabs, /class="book-tab active"/);
   assert.match(tabs, /1413 题/, '七上 23 课已全齐，共 1413 题');
-  assert.match(tabs, /1782 题/, '八上 1782 题');
+  assert.match(tabs, /1750 题/, '八上 1750 题');
   assert.match(tabs, /1567 题/, '七下 24 课全齐，共 1567 题');
 
   // 七上目录本身要完整：4 个正课单元加导言与学法，共 23 课（三则学史方法合并为一课）。
@@ -189,7 +189,7 @@ test('册次切换：四册都能浏览，没题目的册进不了关卡并给�
   assert.equal(f.app.scene.questions.length, ROUND_SIZE);
 });
 
-test('八上全部 26 课都能开局，界面里不再有待补徽章', async () => {
+test('八上全部 24 课都能开局，界面里不再有待补徽章', async () => {
   const f = createApp();
   // 默认落在七上，先切到八上再逐课检查。
   f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b8a' } }) } });
@@ -206,7 +206,7 @@ test('八上全部 26 课都能开局，界面里不再有待补徽章', async (
   }
 
   // 逐个单元、逐课检查：不挂待补徽章，四类题型都能开局。
-  const units = [['u1', 3], ['u2', 4], ['u3', 3], ['u4', 2], ['u5', 3], ['u6', 4], ['u7', 3], ['u0', 4]];
+  const units = [['u1', 3], ['u2', 4], ['u3', 3], ['u4', 2], ['u5', 3], ['u6', 4], ['u7', 3], ['u0', 2]];
   for (const [unitId, count] of units) {
     f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: unitId } }) } });
     assert.equal(f.app.course.unitId, unitId);
@@ -448,7 +448,7 @@ test('首页进度与奖杯数量会跟着学习记录更新', async () => {
   f.app.start('lesson');
   await f.round({});
   f.app.home();
-  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 4762 道题 · 完成 1 轮/);
+  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 4730 道题 · 完成 1 轮/);
   assert.match(f.$('#trophy-badge').textContent, /^\d+ \/ \d+$/);
   // 课程卡显示「本课该题型练过几道 / 共几道」。分母直接取题库实际题量，
   // 以后往第 1 课加题不用再回来改这个断言。
