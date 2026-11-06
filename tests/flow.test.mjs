@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 
 import { createApp, QUESTIONS, TYPES, BOOKS } from './helpers/app-harness.mjs';
 import { freshSave, currentStreak, dayKey } from '../js/storage.js';
@@ -484,4 +487,33 @@ test('题库里的每道题都能被真实渲染并判对一次', async () => {
       f.app.nextQuestion();
     }
   }
+});
+
+// 首页要等 41 个 ES module 全部到齐才能渲染；静态 import 失败无法被捕获，
+// 任一文件没下载成功整页就停在静态骨架，且不会自愈——线上偶发「卡住」就是这个原因。
+// 这条测试守住启动守护，防止以后改回静态脚本。
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+test('首页：启动守护就位，依赖链全部预加载', () => {
+  const html = readFileSync(resolve(ROOT, 'index.html'), 'utf8');
+  assert.ok(!/<script type="module" src="js\/main\.js"><\/script>/.test(html), '不能再用静态 module 脚本引入 main.js');
+  assert.match(html, /import\('\.\/js\/main\.js'\)/, 'main.js 必须动态 import，失败才能捕获');
+  assert.match(html, /id="boot-status"/, '缺少启动状态条');
+  assert.match(html, /id="boot-retry"/, '缺少重新加载按钮');
+
+  const hrefs = [...html.matchAll(/<link rel="modulepreload" href="([^"]+)">/g)].map((m) => m[1]);
+  assert.ok(hrefs.length > 0, '一个模块都没预加载');
+
+  const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((d) => (
+    d.isDirectory() ? walk(resolve(dir, d.name)) : [resolve(dir, d.name)]
+  ));
+  const onDisk = walk(resolve(ROOT, 'js'))
+    .filter((f) => f.endsWith('.js'))
+    .map((f) => f.slice(ROOT.length + 1).replace(/\\/g, '/'))
+    .sort();
+
+  for (const href of hrefs) {
+    assert.ok(existsSync(resolve(ROOT, href)), `预加载指向不存在的文件：${href}`);
+  }
+  assert.deepEqual([...hrefs].sort(), onDisk, '预加载清单与 js/ 下的模块不一致，新增模块要补一行');
 });

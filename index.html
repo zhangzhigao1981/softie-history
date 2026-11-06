@@ -11,7 +11,106 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="show.css">
   <link rel="stylesheet" href="english.css">
-  <script type="module" src="js/main.js"></script>
+  <!-- 题库分成 32 个单元模块，首屏依赖链有四层。这里全部提前预取，避免逐层等待。
+       新增单元或册时同步补一行；漏写只是少一次预取，不影响功能。 -->
+  <link rel="modulepreload" href="js/audio.js">
+  <link rel="modulepreload" href="js/bg.js">
+  <link rel="modulepreload" href="js/choreography.js">
+  <link rel="modulepreload" href="js/content/b7a/extra.js">
+  <link rel="modulepreload" href="js/content/b7a/u1.js">
+  <link rel="modulepreload" href="js/content/b7a/u2.js">
+  <link rel="modulepreload" href="js/content/b7a/u3.js">
+  <link rel="modulepreload" href="js/content/b7a/u4.js">
+  <link rel="modulepreload" href="js/content/b7b/extra.js">
+  <link rel="modulepreload" href="js/content/b7b/u1.js">
+  <link rel="modulepreload" href="js/content/b7b/u2.js">
+  <link rel="modulepreload" href="js/content/b7b/u3.js">
+  <link rel="modulepreload" href="js/content/b8a/extra.js">
+  <link rel="modulepreload" href="js/content/b8a/u1.js">
+  <link rel="modulepreload" href="js/content/b8a/u2.js">
+  <link rel="modulepreload" href="js/content/b8a/u3.js">
+  <link rel="modulepreload" href="js/content/b8a/u4.js">
+  <link rel="modulepreload" href="js/content/b8a/u5.js">
+  <link rel="modulepreload" href="js/content/b8a/u6.js">
+  <link rel="modulepreload" href="js/content/b8a/u7.js">
+  <link rel="modulepreload" href="js/content/b8b/extra.js">
+  <link rel="modulepreload" href="js/content/b8b/u1.js">
+  <link rel="modulepreload" href="js/content/b8b/u2.js">
+  <link rel="modulepreload" href="js/content/b8b/u3.js">
+  <link rel="modulepreload" href="js/content/b8b/u4.js">
+  <link rel="modulepreload" href="js/content/b8b/u5.js">
+  <link rel="modulepreload" href="js/content/b8b/u6.js">
+  <link rel="modulepreload" href="js/content/b8b/u7.js">
+  <link rel="modulepreload" href="js/content/history.js">
+  <link rel="modulepreload" href="js/content/kit.js">
+  <link rel="modulepreload" href="js/core.js">
+  <link rel="modulepreload" href="js/course.js">
+  <link rel="modulepreload" href="js/fx.js">
+  <link rel="modulepreload" href="js/main.js">
+  <link rel="modulepreload" href="js/quests.js">
+  <link rel="modulepreload" href="js/quiz.js">
+  <link rel="modulepreload" href="js/softie.js">
+  <link rel="modulepreload" href="js/speech.js">
+  <link rel="modulepreload" href="js/storage.js">
+  <link rel="modulepreload" href="js/timer.js">
+  <link rel="modulepreload" href="js/trophies.js">
+  <style>
+    /* 首屏启动状态：题库加载完成前给用户明确反馈，而不是停在静态骨架。 */
+    .boot-status {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      margin: 0 auto;
+      max-width: 420px;
+      box-sizing: border-box;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      background: #302238;
+      color: #fff8ec;
+      box-shadow: 0 10px 30px rgba(48, 34, 56, .28);
+      /* 快网络下不闪：延迟 300ms 才淡入，加载更快的用户根本看不到这条。 */
+      opacity: 0;
+      animation: boot-in .28s ease .3s forwards;
+    }
+    @keyframes boot-in { to { opacity: 1; } }
+    .boot-status.is-done { animation: none; opacity: 0; transition: opacity .2s ease; }
+    .boot-status.is-error { background: #7d1f2e; }
+    .boot-dot {
+      flex: 0 0 auto;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ffd23f;
+      animation: boot-pulse 1s ease-in-out infinite;
+    }
+    .boot-status.is-error .boot-dot { background: #ff8fa3; animation: none; }
+    @keyframes boot-pulse {
+      0%, 100% { transform: scale(.7); opacity: .5; }
+      50% { transform: scale(1); opacity: 1; }
+    }
+    .boot-text { display: flex; flex-direction: column; gap: 2px; line-height: 1.35; min-width: 0; flex: 1 1 auto; }
+    .boot-text b { font-size: 13px; font-weight: 700; }
+    .boot-text small { font-size: 11px; opacity: .72; overflow-wrap: anywhere; word-break: break-word; }
+    #boot-retry {
+      flex: 0 0 auto;
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: #ffd23f;
+      color: #302238;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    #boot-retry[hidden] { display: none; }
+    @media (prefers-reduced-motion: reduce) { .boot-dot { animation: none; } }
+  </style>
 </head>
 
 <body data-screen="home">
@@ -572,7 +671,82 @@
       <button type="button" id="confirm-yes" class="danger-btn">继续重置</button>
     </div>
   </dialog>
+  <div id="boot-status" class="boot-status" role="status" aria-live="polite">
+    <span class="boot-dot" aria-hidden="true"></span>
+    <span class="boot-text">
+      <b id="boot-title">正在加载题库…</b>
+      <small id="boot-note">首次打开需要下载题库，请稍候</small>
+    </span>
+    <button id="boot-retry" type="button" hidden>重新加载</button>
+  </div>
   <noscript>请开启 JavaScript，和软乎乎一起研习历史。</noscript>
+  <script type="module">
+    // 启动守护：main.js 改成动态 import，才能捕获「依赖图里某个模块没下载成功」。
+    // 静态 import 失败无法被捕获，整页会永远停在静态骨架——这正是偶发「卡住」的原因。
+    (() => {
+      const status = document.getElementById('boot-status');
+      if (!status) return;
+      const titleEl = document.getElementById('boot-title');
+      const noteEl = document.getElementById('boot-note');
+      const retryBtn = document.getElementById('boot-retry');
+      const params = new URLSearchParams(location.search);
+      const alreadyRetried = params.get('boot') === 'retry';
+      const timers = [];
+
+      const setText = (title, note) => {
+        titleEl.textContent = title;
+        noteEl.textContent = note;
+      };
+      const stopTimers = () => timers.forEach(clearTimeout);
+
+      timers.push(setTimeout(() => setText('网络有点慢，还在加载…', '题库文件较多，请再等一会儿'), 7000));
+      timers.push(setTimeout(() => {
+        setText('加载时间过长', '请检查网络，或点右侧按钮重新加载');
+        retryBtn.hidden = false;
+      }, 30000));
+
+      const fail = (err) => {
+        stopTimers();
+        status.classList.add('is-error');
+        setText('题库没能加载完成', '网络中断或文件没下载完整，点右侧按钮重新加载');
+        retryBtn.hidden = false;
+        console.error('[softie] 启动失败：', err);
+      };
+
+      retryBtn.addEventListener('click', () => {
+        const url = new URL(location.href);
+        url.searchParams.delete('boot');
+        url.searchParams.set('v', String(Date.now()));
+        location.replace(url.toString());
+      });
+
+      import('./js/main.js').then(() => {
+        stopTimers();
+        status.classList.add('is-done');
+        setTimeout(() => status.remove(), 400);
+        // 成功启动后清掉重试参数，保持地址干净。
+        if (params.has('boot') || params.has('v')) {
+          const clean = new URL(location.href);
+          clean.searchParams.delete('boot');
+          clean.searchParams.delete('v');
+          history.replaceState(null, '', clean.pathname + clean.search + clean.hash);
+        }
+      }).catch((err) => {
+        // 同一页面内模块图失败后无法重新请求，首次失败先自动刷新一次重试；
+        // 仍失败就明确告诉用户，而不是让页面停在半截。
+        if (!alreadyRetried) {
+          // 先给一句可见反馈，再自动重试，避免用户只看到页面莫名刷新。
+          status.classList.add('is-error');
+          setText('连接中断，正在自动重试…', '如果一直停在这里，请检查网络');
+          const url = new URL(location.href);
+          url.searchParams.set('boot', 'retry');
+          setTimeout(() => location.replace(url.toString()), 700);
+          return;
+        }
+        fail(err);
+      });
+    })();
+  </script>
 </body>
 
 </html>
