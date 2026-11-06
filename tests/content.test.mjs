@@ -47,15 +47,15 @@ test('课程结构：四册按年级排列，每册「单元 → 课」逐级可
   assert.equal(findLesson(book('b8a').units[0], 'nope').id, book('b8a').units[0].lessons[0].id);
 });
 
-test('题库：七上第 1 课 56 题，四类题型覆盖古人类、北京人、山顶洞人与石器用途', () => {
+test('题库：七上第 1 课 64 题，四类题型覆盖古人类、北京人、山顶洞人与石器用途', () => {
   const l1 = book('b7a').units[0].lessons[0];
   assert.equal(l1.label, '第1课');
   assert.equal(l1.title, '远古时期的人类活动');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
-  assert.deepEqual(byType, { choice: 24, blank: 16, material: 10, timeline: 6 });
-  assert.equal(lessonQuestionCount(l1), 56);
-  assert.equal(bookQuestionCount(book('b7a')), 1413);
+  assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l1), 64);
+  assert.equal(bookQuestionCount(book('b7a')), 1478);
   // 本课三处子目（我国境内古人类、北京人、山顶洞人）都要有题落到。
   const stems = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['元谋人', '蓝田人', '郧县人', '北京人', '山顶洞人', '裴文中', '天然火', '人工取火', '第一手资料']) {
@@ -70,14 +70,14 @@ test('题库：七上第 1 课 56 题，四类题型覆盖古人类、北京人�
   assert.deepEqual(empty, [], '七上不该再有待补的课');
 });
 
-test('题库：七上第 2 课 54 题，覆盖农业起源、河姆渡、仰韶与大汶口', () => {
+test('题库：七上第 2 课 64 题，覆盖农业起源、河姆渡、仰韶与大汶口', () => {
   const l2 = book('b7a').units[0].lessons[1];
   assert.equal(l2.label, '第2课');
   assert.equal(l2.title, '原始农业与史前社会');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l2, typeId).length;
-  assert.deepEqual(byType, { choice: 24, blank: 14, material: 10, timeline: 6 });
-  assert.equal(lessonQuestionCount(l2), 54);
+  assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l2), 64);
   // 三个子目与本课新增的两处遗址都要有题落到。
   const text = l2.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['河姆渡', '半坡', '仰韶', '大汶口', '龙山', '贾湖', '骨耜', '干栏式', '彩陶', '贫富分化']) {
@@ -85,126 +85,126 @@ test('题库：七上第 2 课 54 题，覆盖农业起源、河姆渡、仰韶�
   }
 });
 
-test('题库：七上第 3 课 60 题，覆盖良渚、陶寺、多元一体与炎黄传说', () => {
+test('题库：七上第 3 课 64 题，覆盖良渚、陶寺、多元一体与炎黄传说', () => {
   const l3 = book('b7a').units[0].lessons[2];
   assert.equal(l3.label, '第3课');
   assert.equal(l3.title, '中华文明的起源');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l3, typeId).length;
-  assert.deepEqual(byType, { choice: 28, blank: 16, material: 11, timeline: 5 });
-  assert.equal(lessonQuestionCount(l3), 60);
+  assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l3), 64);
   const text = l3.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['良渚', '陶寺', '牛河梁', '红山文化', '多元', '一体', '禅让', '阪泉', '涿鹿', '人文初祖', '探源工程']) {
     assert.ok(text.includes(key), `第 3 课应覆盖 ${key}`);
   }
 });
 
-test('题库：七上第 4 课 56 题，覆盖夏商周更替、分封制与礼乐制度', () => {
+test('题库：七上第 4 课 64 题，覆盖夏商周更替、分封制与礼乐制度', () => {
   const l4 = book('b7a').units[1].lessons[0];
   assert.equal(l4.label, '第4课');
   assert.equal(l4.title, '夏商西周王朝的更替');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l4, typeId).length;
-  assert.deepEqual(byType, { choice: 26, blank: 15, material: 10, timeline: 5 });
-  assert.equal(lessonQuestionCount(l4), 56);
+  assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l4), 64);
   const text = l4.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['禹', '启', '二里头', '汤', '盘庚', '牧野', '镐京', '分封', '卿大夫', '礼乐', '国人暴动', '犬戎']) {
     assert.ok(text.includes(key), `第 4 课应覆盖 ${key}`);
   }
 });
 
-test('题库：七上第 5 课 54 题，覆盖王室衰微、诸侯争霸、经济发展与民族关系', () => {
+test('题库：七上第 5 课 64 题，覆盖王室衰微、诸侯争霸、经济发展与民族关系', () => {
   const l5 = book('b7a').units[1].lessons[1];
   assert.equal(l5.label, '第5课');
   assert.equal(l5.title, '动荡变化中的春秋时期');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l5, typeId).length;
-  assert.deepEqual(byType, { choice: 25, blank: 14, material: 10, timeline: 5 });
-  assert.equal(lessonQuestionCount(l5), 54);
+  assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l5), 64);
   const text = l5.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['平王东迁', '礼崩乐坏', '尊王攘夷', '齐桓公', '管仲', '弭兵', '铁制农具', '牛耕', '华夏认同', '勾践']) {
     assert.ok(text.includes(key), `第 5 课应覆盖 ${key}`);
   }
 });
 
-test('题库：七上第 6 课 63 题，覆盖战国七雄、商鞅变法与都江堰', () => {
+test('题库：七上第 6 课 64 题，覆盖战国七雄、商鞅变法与都江堰', () => {
   const l6 = book('b7a').units[1].lessons[2];
   assert.equal(l6.label, '第6课');
   assert.equal(l6.title, '战国时期的社会变革');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l6, typeId).length;
-  assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 5 });
-  assert.equal(lessonQuestionCount(l6), 63);
+  assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l6), 64);
   const text = l6.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['战国七雄', '兼并', '商鞅', '秦孝公', '县制', '度量衡', '军功', '长平', '都江堰', '李冰']) {
     assert.ok(text.includes(key), `第 6 课应覆盖 ${key}`);
   }
 });
 
-test('题库：七上第 7 课 65 题，覆盖老子、孔子与诸子百家', () => {
+test('题库：七上第 7 课 66 题，覆盖老子、孔子与诸子百家', () => {
   const l7 = book('b7a').units[1].lessons[3];
   assert.equal(l7.label, '第7课');
   assert.equal(l7.title, '百家争鸣');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l7, typeId).length;
-  assert.deepEqual(byType, { choice: 32, blank: 16, material: 12, timeline: 5 });
-  assert.equal(lessonQuestionCount(l7), 65);
+  assert.deepEqual(byType, { choice: 32, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l7), 66);
   const text = l7.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['老子', '道德经', '无为而治', '孔子', '有教无类', '论语', '孟子', '仁政', '荀子', '墨子', '兼爱', '庄子', '韩非', '孙子兵法']) {
     assert.ok(text.includes(key), `第 7 课应覆盖 ${key}`);
   }
 });
 
-test('题库：七上第 8 课 61 题，覆盖天文历法、甲骨文、青铜器与诗经楚辞', () => {
+test('题库：七上第 8 课 64 题，覆盖天文历法、甲骨文、青铜器与诗经楚辞', () => {
   const l8 = book('b7a').units[1].lessons[4];
   assert.equal(l8.label, '第8课');
   assert.equal(l8.title, '夏商周时期的科技与文化');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l8, typeId).length;
-  assert.deepEqual(byType, { choice: 29, blank: 15, material: 12, timeline: 5 });
-  assert.equal(lessonQuestionCount(l8), 61);
+  assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l8), 64);
   const text = l8.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['日食', '哈雷彗星', '二十四节气', '扁鹊', '黄帝内经', '甲骨文', '司母戊鼎', '金文', '何尊', '三星堆', '诗经', '楚辞']) {
     assert.ok(text.includes(key), `第 8 课应覆盖 ${key}`);
   }
 });
 
-test('题库：七上第 9 课 65 题，覆盖秦灭六国、中央集权与巩固统一措施', () => {
+test('题库：七上第 9 课 67 题，覆盖秦灭六国、中央集权与巩固统一措施', () => {
   const l9 = book('b7a').units[2].lessons[0];
   assert.equal(l9.label, '第9课');
   assert.equal(l9.title, '秦统一中国');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l9, typeId).length;
-  assert.deepEqual(byType, { choice: 33, blank: 15, material: 12, timeline: 5 });
-  assert.equal(lessonQuestionCount(l9), 65);
+  assert.deepEqual(byType, { choice: 33, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l9), 67);
   const text = l9.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['咸阳', '皇帝', '三公', '御史大夫', '郡县', '小篆', '半两钱', '度量衡', '灵渠', '临洮', '兵马俑']) {
     assert.ok(text.includes(key), `第 9 课应覆盖 ${key}`);
   }
 });
 
-test('题库：七上第 10 课 60 题，覆盖秦的暴政、陈胜吴广起义与秦亡', () => {
+test('题库：七上第 10 课 64 题，覆盖秦的暴政、陈胜吴广起义与秦亡', () => {
   const l10 = book('b7a').units[2].lessons[1];
   assert.equal(l10.label, '第10课');
   assert.equal(l10.title, '秦末农民大起义');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l10, typeId).length;
-  assert.deepEqual(byType, { choice: 29, blank: 15, material: 11, timeline: 5 });
-  assert.equal(lessonQuestionCount(l10), 60);
+  assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l10), 64);
   const text = l10.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['焚书坑儒', '骊山陵', '大泽乡', '渔阳', '张楚', '揭竿', '巨鹿', '破釜沉舟', '刘邦', '前 209']) {
     assert.ok(text.includes(key), `第 10 课应覆盖 ${key}`);
   }
 });
 
-test('题库：七上第 11 课 62 题，覆盖楚汉之争、休养生息与文景之治', () => {
+test('题库：七上第 11 课 65 题，覆盖楚汉之争、休养生息与文景之治', () => {
   const l11 = book('b7a').units[2].lessons[2];
   assert.equal(l11.label, '第11课');
   assert.equal(l11.title, '西汉建立和“文景之治”');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l11, typeId).length;
-  assert.deepEqual(byType, { choice: 31, blank: 15, material: 11, timeline: 5 });
-  assert.equal(lessonQuestionCount(l11), 62);
+  assert.deepEqual(byType, { choice: 31, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l11), 65);
   const text = l11.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['垓下', '西楚霸王', '长安', '约法三章', '十五税一', '休养生息', '和亲', '以农为本', '三十税一', '文景之治', '陆贾']) {
     assert.ok(text.includes(key), `第 11 课应覆盖 ${key}`);
@@ -225,28 +225,28 @@ test('题库：七上第 12 课 72 题，覆盖推恩令、经济管控、尊崇
   }
 });
 
-test('题库：七上第 13 课 62 题，覆盖光武中兴、外戚宦官专权与黄巾起义', () => {
+test('题库：七上第 13 课 65 题，覆盖光武中兴、外戚宦官专权与黄巾起义', () => {
   const l13 = book('b7a').units[2].lessons[4];
   assert.equal(l13.label, '第13课');
   assert.equal(l13.title, '东汉的兴衰');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l13, typeId).length;
-  assert.deepEqual(byType, { choice: 31, blank: 15, material: 11, timeline: 5 });
-  assert.equal(lessonQuestionCount(l13), 62);
+  assert.deepEqual(byType, { choice: 31, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l13), 65);
   const text = l13.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['王莽', '刘秀', '光武帝', '洛阳', '光武中兴', '外戚', '宦官', '梁冀', '太平道', '张角', '黄巾军', '州牧']) {
     assert.ok(text.includes(key), `第 13 课应覆盖 ${key}`);
   }
 });
 
-test('题库：七上第 14 课 68 题，覆盖张骞通西域、丝绸之路与西域管理', () => {
+test('题库：七上第 14 课 70 题，覆盖张骞通西域、丝绸之路与西域管理', () => {
   const l14 = book('b7a').units[2].lessons[5];
   assert.equal(l14.label, '第14课');
   assert.equal(l14.title, '丝绸之路的开通与经营西域');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l14, typeId).length;
-  assert.deepEqual(byType, { choice: 36, blank: 16, material: 11, timeline: 5 });
-  assert.equal(lessonQuestionCount(l14), 68);
+  assert.deepEqual(byType, { choice: 36, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l14), 70);
   const text = l14.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['西域', '大月氏', '张骞', '凿空', '长安', '河西走廊', '丝绸之路', '马六甲', '西域都护', '乌垒城', '班超', '甘英', '西域长史府']) {
     assert.ok(text.includes(key), `第 14 课应覆盖 ${key}`);
@@ -267,42 +267,42 @@ test('题库：七上第 15 课 77 题，覆盖造纸术、医学数学、史记
   }
 });
 
-test('题库：七上第 16 课 64 题，覆盖官渡之战、赤壁之战与三国建立', () => {
+test('题库：七上第 16 课 66 题，覆盖官渡之战、赤壁之战与三国建立', () => {
   const l16 = book('b7a').units[3].lessons[0];
   assert.equal(l16.label, '第16课');
   assert.equal(l16.title, '三国鼎立');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l16, typeId).length;
-  assert.deepEqual(byType, { choice: 32, blank: 16, material: 11, timeline: 5 });
-  assert.equal(lessonQuestionCount(l16), 64);
+  assert.deepEqual(byType, { choice: 32, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l16), 66);
   const text = l16.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['官渡', '袁绍', '赤壁', '黄盖', '曹丕', '洛阳', '成都', '建业', '夷洲', '卫温', '翻车', '孟获']) {
     assert.ok(text.includes(key), `第 16 课应覆盖 ${key}`);
   }
 });
 
-test('题库：七上第 17 课 62 题，覆盖西晋统一、八王之乱与北方各族内迁', () => {
+test('题库：七上第 17 课 65 题，覆盖西晋统一、八王之乱与北方各族内迁', () => {
   const l17 = book('b7a').units[3].lessons[1];
   assert.equal(l17.label, '第17课');
   assert.equal(l17.title, '西晋的短暂统一和北方各族的内迁');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l17, typeId).length;
-  assert.deepEqual(byType, { choice: 31, blank: 15, material: 11, timeline: 5 });
-  assert.equal(lessonQuestionCount(l17), 62);
+  assert.deepEqual(byType, { choice: 31, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l17), 65);
   const text = l17.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['司马炎', '洛阳', '灭吴', '八王之乱', '晋惠帝', '匈奴', '鲜卑', '羯', '氐', '羌', '关中', '汾河', '钱神论']) {
     assert.ok(text.includes(key), `第 17 课应覆盖 ${key}`);
   }
 });
 
-test('题库：七上第 18 课 65 题，覆盖东晋兴亡、南朝政治与江南开发', () => {
+test('题库：七上第 18 课 66 题，覆盖东晋兴亡、南朝政治与江南开发', () => {
   const l18 = book('b7a').units[3].lessons[2];
   assert.equal(l18.label, '第18课');
   assert.equal(l18.title, '东晋南朝政治和江南地区开发');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l18, typeId).length;
-  assert.deepEqual(byType, { choice: 32, blank: 16, material: 12, timeline: 5 });
-  assert.equal(lessonQuestionCount(l18), 65);
+  assert.deepEqual(byType, { choice: 32, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l18), 66);
   const text = l18.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['司马睿', '建康', '王导', '门阀政治', '祖逖', '南朝', '萧衍', '江南', '育秧', '灌钢法', '建康']) {
     assert.ok(text.includes(key), `第 18 课应覆盖 ${key}`);
@@ -356,14 +356,14 @@ test('题库：七下第 1 课 66 题，覆盖隋的统一、大运河、科举�
   }
 });
 
-test('题库：七下第 4 课 64 题，覆盖安史之乱、唐末变局与五代十国', () => {
+test('题库：七下第 4 课 65 题，覆盖安史之乱、唐末变局与五代十国', () => {
   const l4 = book('b7b').units[0].lessons[3];
   assert.equal(l4.label, '第4课');
   assert.equal(l4.title, '安史之乱与唐朝衰亡');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l4, typeId).length;
-  assert.deepEqual(byType, { choice: 30, blank: 15, material: 13, timeline: 6 });
-  assert.equal(lessonQuestionCount(l4), 64);
+  assert.deepEqual(byType, { choice: 30, blank: 16, material: 13, timeline: 6 });
+  assert.equal(lessonQuestionCount(l4), 65);
   const text = l4.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['节度使', '外重内轻', '安禄山', '史思明', '755', '763', '郭子仪', '回纥', '藩镇割据', '黄巢', '大齐', '朱温', '后梁', '后周', '周世宗', '北汉']) {
     assert.ok(text.includes(key), `第 4 课应覆盖 ${key}`);
@@ -753,14 +753,14 @@ test('题库：七下第 3 课 68 题，覆盖开元盛世、经济繁荣与长�
   }
 });
 
-test('题库：七下第 2 课 62 题，覆盖唐朝建立、贞观之治与武则天', () => {
+test('题库：七下第 2 课 64 题，覆盖唐朝建立、贞观之治与武则天', () => {
   const l2 = book('b7b').units[0].lessons[1];
   assert.equal(l2.label, '第2课');
   assert.equal(l2.title, '唐朝建立与“贞观之治”');
   const byType = {};
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l2, typeId).length;
-  assert.deepEqual(byType, { choice: 29, blank: 15, material: 12, timeline: 6 });
-  assert.equal(lessonQuestionCount(l2), 62);
+  assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l2), 64);
   const text = l2.questions.map((q) => q.stem + (q.material || '') + q.options.join('')).join('');
   for (const key of ['李渊', '昭陵六骏', '覆舟', '魏征', '房玄龄', '中书省', '门下省', '尚书省', '进士', '武则天', '殿试', '乾陵', '国子监', '四门学']) {
     assert.ok(text.includes(key), `第 2 课应覆盖 ${key}`);
@@ -812,8 +812,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：四册 97 课都有题，全站共 6431 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 6431);
+test('题库：四册 97 课都有题，全站共 6499 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 6499);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -912,7 +912,7 @@ test('待补的册与课：八下逐课补题，未补的课骨架在、题目�
 
   assert.deepEqual(PLAYABLE_BOOKS.map((b) => b.id), ['b7a', 'b7b', 'b8a', 'b8b']);
   assert.equal(DEFAULT_BOOK.id, 'b7a', '默认落在第一本有题的册');
-  assert.equal(bookQuestionCount(book('b7a')), 1413);
+  assert.equal(bookQuestionCount(book('b7a')), 1478);
 
   // 打开有题的册落到第 1 课；八下只有第 1 课有题，也直接落在这一课。
   const opened = firstPlayableLesson(book('b8a'));

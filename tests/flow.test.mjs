@@ -138,9 +138,9 @@ test('册次切换：四册都能浏览，没有题目的课进不了关卡并�
   for (const id of ['b7a', 'b7b', 'b8a', 'b8b']) assert.ok(tabs.includes(`data-book="${id}"`), `缺少 ${id} 的册标签`);
   assert.equal((tabs.match(/is-empty/g) || []).length, 0, '四册都已有题目');
   assert.match(tabs, /class="book-tab active"/);
-  assert.match(tabs, /1413 题/, '七上 23 课已全齐，共 1413 题');
+  assert.match(tabs, /1478 题/, '七上 23 课已全齐，共 1478 题');
   assert.match(tabs, /1750 题/, '八上 1750 题');
-  assert.match(tabs, /1567 题/, '七下 24 课全齐，共 1567 题');
+  assert.match(tabs, /1570 题/, '七下 24 课全齐，共 1570 题');
   assert.match(tabs, /1701 题/, '八下全册已录题，共 1701 题');
 
   // 七上目录本身要完整：4 个正课单元加导言与学法，共 23 课（三则学史方法合并为一课）。
@@ -459,7 +459,7 @@ test('首页进度与奖杯数量会跟着学习记录更新', async () => {
   f.app.start('lesson');
   await f.round({});
   f.app.home();
-  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 6431 道题 · 完成 1 轮/);
+  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 6499 道题 · 完成 1 轮/);
   assert.match(f.$('#trophy-badge').textContent, /^\d+ \/ \d+$/);
   // 课程卡显示「本课该题型练过几道 / 共几道」。分母直接取题库实际题量，
   // 以后往第 1 课加题不用再回来改这个断言。
