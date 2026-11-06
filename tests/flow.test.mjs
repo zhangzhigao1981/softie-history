@@ -142,7 +142,7 @@ test('册次切换：五册都能浏览，没有题目的课进不了关卡并�
   assert.match(tabs, /1750 题/, '八上 1750 题');
   assert.match(tabs, /1570 题/, '七下 24 课全齐，共 1570 题');
   assert.match(tabs, /1701 题/, '八下全册已录题，共 1701 题');
-  assert.match(tabs, /194 题/, '九上先录了第 1—3 课，共 194 题');
+  assert.match(tabs, /259 题/, '九上先录了第 1—4 课，共 259 题');
 
   // 七上目录本身要完整：4 个正课单元加导言与学法，共 23 课（三则学史方法合并为一课）。
   const unitTabs = f.$('#unit-tabs').innerHTML;
@@ -191,7 +191,7 @@ test('册次切换：五册都能浏览，没有题目的课进不了关卡并�
   assert.equal(f.$('#start-round').disabled, false, '学史方法合并课已能开局');
   assert.ok(f.$('#start-label').textContent.includes('开始闯关'));
 
-  // 切到九年级上册：第 1 课已录题能开局，第 2 课起仍是空骨架。
+  // 切到九年级上册：第一单元四课都已录题，导言分组里学史方法课仍待补。
   f.$('#book-tabs').click({ target: { closest: () => ({ dataset: { book: 'b9a' } }) } });
   assert.equal(f.app.course.bookId, 'b9a');
   assert.equal(f.app.course.unitId, 'u1');
@@ -199,7 +199,7 @@ test('册次切换：五册都能浏览，没有题目的课进不了关卡并�
   assert.equal(f.storedUi().bookId, 'b9a');
   assert.equal(f.$('#start-round').disabled, false, '九上第 1 课已能开局');
   assert.ok(f.$('#start-label').textContent.includes('开始闯关'));
-  assert.equal((f.$('#lesson-list').innerHTML.match(/lesson-todo/g) || []).length, 1, '第一单元只录了第 1—3 课');
+  assert.equal((f.$('#lesson-list').innerHTML.match(/lesson-todo/g) || []).length, 0, '第一单元四课已全部录题');
   // 学史方法合并课尚未录题，应挂待补徽章且不能开局。
   f.$('#unit-tabs').click({ target: { closest: () => ({ dataset: { unit: 'u0' } }) } });
   assert.equal(f.app.course.lessonId, 'b9a-u0-l1');
@@ -475,7 +475,7 @@ test('首页进度与奖杯数量会跟着学习记录更新', async () => {
   f.app.start('lesson');
   await f.round({});
   f.app.home();
-  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 6693 道题 · 完成 1 轮/);
+  assert.match(f.$('#home-progress').textContent, /已练过 5 \/ 6758 道题 · 完成 1 轮/);
   assert.match(f.$('#trophy-badge').textContent, /^\d+ \/ \d+$/);
   // 课程卡显示「本课该题型练过几道 / 共几道」。分母直接取题库实际题量，
   // 以后往第 1 课加题不用再回来改这个断言。

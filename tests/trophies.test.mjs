@@ -56,7 +56,7 @@ test('trophies: evaluation awards new trophies accurately without duplication', 
 
 test('奖杯门槛与留存目标一致，每条连击都够得到', () => {
   assert.equal(TROPHIES.length, 32);
-  // learned 的门槛按全站 6693 题标定：既不能超过题库总量（否则拿不到），
+  // learned 的门槛按全站 6758 题标定：既不能超过题库总量（否则拿不到），
   // 也不能定得太高——最高档只要求全站四分之一，正常跟课一学期够得着。
   for (const [series, expected] of Object.entries({ combo: [3, 4, 5], perfect: [1, 3, 10], problems: [50, 150, 300, 500], review: [1, 5, 15], learned: [50, 200, 500, 1000] })) {
     assert.deepEqual(TROPHIES.filter(t => t.series === series).map(t => t.need), expected);
