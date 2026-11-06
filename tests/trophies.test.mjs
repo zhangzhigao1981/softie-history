@@ -56,8 +56,9 @@ test('trophies: evaluation awards new trophies accurately without duplication', 
 
 test('奖杯门槛与留存目标一致，每条连击都够得到', () => {
   assert.equal(TROPHIES.length, 32);
-  // learned 的门槛不能超过题库总量（八上目前 78 题），否则「学富五车」永远拿不到。
-  for (const [series, expected] of Object.entries({ combo: [3, 4, 5], perfect: [1, 3, 10], problems: [50, 150, 300, 500], review: [1, 5, 15], learned: [10, 30, 50, 70] })) {
+  // learned 的门槛按全站 6431 题标定：既不能超过题库总量（否则拿不到），
+  // 也不能定得太高——最高档只要求全站四分之一，正常跟课一学期够得着。
+  for (const [series, expected] of Object.entries({ combo: [3, 4, 5], perfect: [1, 3, 10], problems: [50, 150, 300, 500], review: [1, 5, 15], learned: [50, 200, 500, 1000] })) {
     assert.deepEqual(TROPHIES.filter(t => t.series === series).map(t => t.need), expected);
   }
   // 一轮 5 题、错题重练一轮 10 题：最高连击要够得到最高的连击奖杯。
@@ -68,6 +69,11 @@ test('奖杯门槛与留存目标一致，每条连击都够得到', () => {
   // 累计答对的次数不受题库总量限制（同一道题可以反复练）。
   const distinctNeeds = TROPHIES.filter(t => t.metric === 'learnedCount').map(t => t.need);
   assert.ok(distinctNeeds.every(n => n <= ALL_QUESTIONS.length), `练题量门槛 ${distinctNeeds} 超出题库总量 ${ALL_QUESTIONS.length}`);
+  assert.deepEqual(distinctNeeds, [...distinctNeeds].sort((a, b) => a - b), '练题量门槛要递增');
+  const topLearned = Math.max(...distinctNeeds);
+  assert.ok(topLearned <= ALL_QUESTIONS.length / 4, `最高练题门槛 ${topLearned} 超过题库总量四分之一，太难得`);
+  // 一轮 5 题 × 四种题型 = 20 题；最高档要能在「全册跟课」的尺度上够到，而不是天文数字。
+  assert.ok(topLearned >= ALL_QUESTIONS.length / 10, `最高练题门槛 ${topLearned} 相对 ${ALL_QUESTIONS.length} 题库偏低，起不到长期目标作用`);
   // 三种全对/连击类门槛靠一轮就能推进，学习量类门槛要玩很多轮。
   assert.ok(ROUND_SIZE === 5);
 });

@@ -50,10 +50,10 @@ const SERIES_DEFS = [
     title: '知识点积累',
     metric: 'learnedCount',
     steps: [
-      { need: 10, rank: 'bronze', name: '初识史海', desc: '完成练习： 10 道题' },
-      { need: 30, rank: 'silver', name: '触类旁通', desc: '完成练习： 30 道题' },
-      { need: 50, rank: 'gold', name: '博古通今', desc: '完成练习： 50 道题' },
-      { need: 70, rank: 'rainbow', name: '学富五车', desc: '完成练习： 70 道题' },
+      { need: 50, rank: 'bronze', name: '初识史海', desc: '练过 50 道不同的题' },
+      { need: 200, rank: 'silver', name: '触类旁通', desc: '练过 200 道不同的题' },
+      { need: 500, rank: 'gold', name: '融会贯通', desc: '练过 500 道不同的题' },
+      { need: 1000, rank: 'rainbow', name: '学富五车', desc: '练过 1000 道不同的题' },
     ],
   },
   {

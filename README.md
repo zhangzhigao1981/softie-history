@@ -111,7 +111,7 @@ npm run audit b8a      # 只审八年级上册
 
 `style.css`、`show.css`、`js/audio.js`、`js/bg.js`、`js/core.js`、`js/fx.js`、`js/choreography.js`、`js/softie.js`、`icon.svg`、`LICENSE-SOFTIE` 原样保留；`setShowLevel`、`cutin`、`celebrate`、`parade`、`drawStamp`、`unitSlam`、`playFinale`、`initLogoBurst` 八个舞台函数保持原文，`tests/preservation.test.mjs` 用参考提交的 SHA-256 基线（按 LF 归一化）校验。
 
-中文题型适配全部写在独立的 `english.css`（覆盖层），不改原版样式表。签到、日历、补签金锤、每日委托、奖杯系统沿用原系统，仅替换文案与奖杯条件描述。因为一轮只有 5 题，连击奖杯门槛由英语版的 5/7/8 调整为 **3/4/5**，否则后两档永远拿不到。
+中文题型适配全部写在独立的 `english.css`（覆盖层），不改原版样式表。签到、日历、补签金锤、每日委托、奖杯系统沿用原系统，仅替换文案与奖杯条件描述。因为一轮只有 5 题，连击奖杯门槛由英语版的 5/7/8 调整为 **3/4/5**，否则后两档永远拿不到。练题量奖杯（初识史海 → 学富五车）在四册补齐后按全站 6431 题重新标定为 **50 / 200 / 500 / 1000** 道不同的题，最高档约覆盖全站 16%，跟课一学期够得着。
 
 学习记录存在 `softie-history:v1`，课程选择与题型存在 `softie-history:ui`。重置只删除 `softie-history:` 与旧版 `softie-english:` 数据，不影响成语版或其他应用。
 
