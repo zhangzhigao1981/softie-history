@@ -812,8 +812,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：八上全册 24 课都有题，全站共 6066 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 6066);
+test('题库：八上全册 24 课都有题，全站共 6132 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 6132);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -851,7 +851,7 @@ test('题库：八上全册 24 课都有题，全站共 6066 题且全部通过�
 test('待补的册与课：八下逐课补题，未补的课骨架在、题目为空', () => {
   // 八下正在逐课录题：第 1 课已有题，第 2 课以后仍是空骨架。
   const b8b = book('b8b');
-  assert.equal(bookQuestionCount(b8b), 1336, '八下第 1—20 课已录题');
+  assert.equal(bookQuestionCount(b8b), 1402, '八下前六单元 21 课已全部录题');
   assert.ok(b8b.units[0].lessons[0].questions.length > 0, '八下第 1 课要有题');
   assert.ok(b8b.units[0].lessons[1].questions.length > 0, '八下第 2 课要有题');
   assert.ok(b8b.units[0].lessons[2].questions.length > 0, '八下第 3 课要有题');
@@ -872,16 +872,17 @@ test('待补的册与课：八下逐课补题，未补的课骨架在、题目�
   assert.ok(b8b.units[5].lessons[0].questions.length > 0, '八下第 18 课要有题');
   assert.ok(b8b.units[5].lessons[1].questions.length > 0, '八下第 19 课要有题');
   assert.ok(b8b.units[5].lessons[2].questions.length > 0, '八下第 20 课要有题');
+  assert.ok(b8b.units[5].lessons[3].questions.length > 0, '八下第 21 课要有题');
   let b8bPending = 0;
   for (const unit of b8b.units) {
     assert.ok(unit.lessons.length > 0, `八下 ${unit.name} 要有课`);
     for (const lesson of unit.lessons) {
-      if (lesson.id.startsWith('b8b-u1-') || lesson.id.startsWith('b8b-u2-') || lesson.id.startsWith('b8b-u3-') || lesson.id.startsWith('b8b-u4-') || lesson.id.startsWith('b8b-u5-') || lesson.id === 'b8b-u6-l1' || lesson.id === 'b8b-u6-l2' || lesson.id === 'b8b-u6-l3') continue;
+      if (lesson.id.startsWith('b8b-u1-') || lesson.id.startsWith('b8b-u2-') || lesson.id.startsWith('b8b-u3-') || lesson.id.startsWith('b8b-u4-') || lesson.id.startsWith('b8b-u5-') || lesson.id === 'b8b-u6-l1' || lesson.id === 'b8b-u6-l2' || lesson.id.startsWith('b8b-u6-')) continue;
       assert.deepEqual(lesson.questions, [], `${lesson.label} ${lesson.title} 还没有题目`);
       b8bPending += 1;
     }
   }
-  assert.equal(b8bPending, 8, '八下其余 8 课仍待补');
+  assert.equal(b8bPending, 7, '八下其余 7 课仍待补');
 
   // 八上 24 课已全部有题，逐课确认非空。
   const FILLED = new Set(['b8a-u1-l1', 'b8a-u1-l2', 'b8a-u1-l3', 'b8a-u2-l1', 'b8a-u2-l2', 'b8a-u2-l3', 'b8a-u2-l4', 'b8a-u3-l1', 'b8a-u3-l2', 'b8a-u3-l3', 'b8a-u4-l1', 'b8a-u4-l2', 'b8a-u5-l1', 'b8a-u5-l2', 'b8a-u5-l3', 'b8a-u6-l1', 'b8a-u6-l2', 'b8a-u6-l3', 'b8a-u6-l4', 'b8a-u7-l1', 'b8a-u7-l2', 'b8a-u7-l3', 'b8a-u0-l1', 'b8a-u0-l2']);
