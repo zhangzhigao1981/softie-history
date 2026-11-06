@@ -12,22 +12,22 @@ import { validateQuestion } from '../js/quiz.js';
 
 const book = (id) => BOOKS.find((b) => b.id === id);
 
-test('课程结构：四册按年级排列，每册「单元 → 课」逐级可查', () => {
-  assert.deepEqual(BOOKS.map((b) => b.id), ['b7a', 'b7b', 'b8a', 'b8b']);
-  assert.deepEqual(BOOKS.map((b) => b.title), ['七年级上册', '七年级下册', '八年级上册', '八年级下册']);
+test('课程结构：五册按年级排列，每册「单元 → 课」逐级可查', () => {
+  assert.deepEqual(BOOKS.map((b) => b.id), ['b7a', 'b7b', 'b8a', 'b8b', 'b9a']);
+  assert.deepEqual(BOOKS.map((b) => b.title), ['七年级上册', '七年级下册', '八年级上册', '八年级下册', '九年级上册']);
   assert.deepEqual(BOOKS.map((b) => [b.grade, b.term]), [
-    ['七年级', '上册'], ['七年级', '下册'], ['八年级', '上册'], ['八年级', '下册'],
+    ['七年级', '上册'], ['七年级', '下册'], ['八年级', '上册'], ['八年级', '下册'], ['九年级', '上册'],
   ]);
 
-  // 单元数：七上 4+导言、七下 3+导言、八上 7+导言、八下 7+导言
-  assert.deepEqual(BOOKS.map((b) => b.units.length), [5, 4, 8, 8]);
+  // 单元数：七上 4+导言、七下 3+导言、八上 7+导言、八下 7+导言、九上 7+学史方法
+  assert.deepEqual(BOOKS.map((b) => b.units.length), [5, 4, 8, 8, 8]);
   for (const bk of BOOKS) {
     const numbered = bk.units.filter((u) => u.no >= 1);
     assert.deepEqual(numbered.map((u) => u.no), numbered.map((_, i) => i + 1), `${bk.title} 的单元号要连续从 1 开始`);
     assert.equal(bk.units.filter((u) => u.no < 1).length, 1, `${bk.title} 要有一个导言与学法分组`);
   }
 
-  assert.equal(TOTAL_LESSONS, 97);
+  assert.equal(TOTAL_LESSONS, 120);
   for (const bk of BOOKS) {
     for (const unit of bk.units) {
       assert.ok(unit.id && unit.name, '单元必须有 id 与名称');
@@ -812,8 +812,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：四册 97 课都有题，全站共 6499 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 6499);
+test('题库：四册 97 课都有题，九上第 1 课入库，全站共 6563 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 6563);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -846,6 +846,37 @@ test('题库：四册 97 课都有题，全站共 6499 题且全部通过自检'
       assert.ok(questionsOf(lesson, typeId).length >= ROUND_SIZE, `${lesson.label} 的 ${typeId} 不足一轮`);
     }
   }
+});
+
+test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始生活与最早的国家', () => {
+  const l1 = book('b9a').units[0].lessons[0];
+  assert.equal(l1.label, '第1课');
+  assert.equal(l1.title, '从原始社会到奴隶社会');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
+  assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l1), 64);
+  assert.equal(bookQuestionCount(book('b9a')), 64);
+
+  // 三个子目与「相关史事」「课后活动」「知识拓展」都要有题落到。
+  const text = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
+    + (q.axis ? q.axis.map((n) => n.year + n.text).join('') : '')).join('');
+  for (const key of ['直立行走', '露西', '埃塞俄比亚', '打制石器', '磨制石器', '渔猎采集',
+    '大麦', '黍', '马铃薯', '羊驼', '定居', '陶器', '社会分化', '私有财产',
+    '军队、监狱', '奴隶制国家', '14C']) {
+    assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
+  }
+  for (const key of ['猎狮碑', '绿松石', '阿尔塔米拉', '恰塔尔·休于', '剩余产品和私有财产出现']) {
+    assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
+  }
+
+  // 九上只录了第 1 课，其余 22 课仍是空骨架。
+  const pending = [];
+  for (const unit of book('b9a').units) {
+    for (const lesson of unit.lessons) if (!lesson.questions.length) pending.push(lesson.label);
+  }
+  assert.equal(pending.length, 22, '九上第 2 课起待补');
+  assert.ok(!pending.includes('第1课'));
 });
 
 test('待补的册与课：八下逐课补题，未补的课骨架在、题目为空', () => {
@@ -907,10 +938,11 @@ test('待补的册与课：八下逐课补题，未补的课骨架在、题目�
     }
   }
   assert.equal(pending, 0, '八上 24 课应全部有题');
-  // 课目录是 97 课：七上三则、七下两则、八上三则、八下三则学史方法各合并成一课。
-  assert.equal(TOTAL_LESSONS, 97);
+  // 课目录是 120 课：七上三则、七下两则、八上三则、八下三则学史方法各合并成一课，
+  // 九上两则学史方法同样合并成一课并并入附录年表（上）。
+  assert.equal(TOTAL_LESSONS, 120);
 
-  assert.deepEqual(PLAYABLE_BOOKS.map((b) => b.id), ['b7a', 'b7b', 'b8a', 'b8b']);
+  assert.deepEqual(PLAYABLE_BOOKS.map((b) => b.id), ['b7a', 'b7b', 'b8a', 'b8b', 'b9a']);
   assert.equal(DEFAULT_BOOK.id, 'b7a', '默认落在第一本有题的册');
   assert.equal(bookQuestionCount(book('b7a')), 1478);
 
@@ -1006,9 +1038,19 @@ const CATALOGUE = {
     '第18课 擘画中国梦宏伟蓝图', '第19课 决胜全面建成小康社会', '第20课 维护国家安全和推进祖国统一', '第21课 构建人类命运共同体与中国特色大国外交',
     '第22课 实现第一个百年奋斗目标', '第23课 开启全面建设社会主义现代化国家新征程', '第24课 活动课 新时代社会生活的巨大变化',
   ],
+  b9a: [
+    '第1课 从原始社会到奴隶社会', '第2课 古代两河流域', '第3课 古代埃及', '第4课 古代印度',
+    '第5课 古代希腊', '第6课 古代罗马',
+    '第7课 法兰克王国和西欧封建制度', '第8课 西欧的城市和大学', '第9课 拜占庭帝国',
+    '第10课 封建时代的日本', '第11课 阿拉伯帝国', '第12课 中古时期的非洲和美洲',
+    '第13课 西欧经济社会发展与文艺复兴运动', '第14课 探寻新航路', '第15课 早期殖民掠夺',
+    '第16课 英国资产阶级革命', '第17课 美国的独立', '第18课 法国大革命和拿破仑帝国',
+    '第19课 第一次工业革命', '第20课 马克思主义的诞生', '第21课 第一国际和巴黎公社',
+    '第22课 活动课 唱响《国际歌》',
+  ],
 };
 
-test('教材目录与统编版 2025 版一致：四册正课逐课快照', () => {
+test('教材目录与统编版 2025 版一致：五册正课逐课快照', () => {
   for (const [id, expected] of Object.entries(CATALOGUE)) {
     const titles = book(id).units.filter((u) => u.no >= 1)
       .flatMap((u) => u.lessons.map((l) => `${l.label} ${l.title}`));
@@ -1038,6 +1080,10 @@ test('导言与学史方法：各册分组位置与课名', () => {
   assert.deepEqual(extra('b8b').map((l) => `${l.label} ${l.title}`), [
     '导言课 中国现代史开篇',
     '学史方法 纵向联系、统计图表与大事年表（下）',
+  ]);
+  // 九上无导言课，只有两则学史方法合并成的一课，附录年表（上）并入该课。
+  assert.deepEqual(extra('b9a').map((l) => `${l.label} ${l.title}`), [
+    '学史方法 横向联系、经典著作与大事年表（上）',
   ]);
 });
 

@@ -1,8 +1,8 @@
 // 初中历史（统编版 2025 版）课程骨架。
 // 目录以国家出版发行信息公共服务平台登记的教材目录为准。
-// 八年级上册 26 课（7 个单元 22 课 + 导言课 + 3 则学史方法）题目已完整；
-// 七年级上册 20 课正课、导言课与合并后的「学史方法」也已补齐，第 21 课活动课待补；
-// 七年级下册、八年级下册只搭好「单元 → 课」骨架，题目待补。
+// 七年级上册、七年级下册、八年级上册、八年级下册共 97 课题目已完整；
+// 九年级上册按教材目录搭好「单元 → 课」骨架（7 个单元 22 课 + 1 则合并的学史方法），
+// 其中第 1 课《从原始社会到奴隶社会》已录题，其余课待补。
 import { TYPE_IDS } from './kit.js';
 
 import b7aU1 from './b7a/u1.js';
@@ -33,6 +33,15 @@ import b8bU5 from './b8b/u5.js';
 import b8bU6 from './b8b/u6.js';
 import b8bU7 from './b8b/u7.js';
 import b8bExtra from './b8b/extra.js';
+
+import b9aU1 from './b9a/u1.js';
+import b9aU2 from './b9a/u2.js';
+import b9aU3 from './b9a/u3.js';
+import b9aU4 from './b9a/u4.js';
+import b9aU5 from './b9a/u5.js';
+import b9aU6 from './b9a/u6.js';
+import b9aU7 from './b9a/u7.js';
+import b9aExtra from './b9a/extra.js';
 
 const RAW_BOOKS = [
   {
@@ -66,6 +75,14 @@ const RAW_BOOKS = [
     title: '八年级下册',
     edition: '统编版 2025 版',
     units: [b8bU1, b8bU2, b8bU3, b8bU4, b8bU5, b8bU6, b8bU7, b8bExtra],
+  },
+  {
+    id: 'b9a',
+    grade: '九年级',
+    term: '上册',
+    title: '九年级上册',
+    edition: '统编版 2025 版',
+    units: [b9aU1, b9aU2, b9aU3, b9aU4, b9aU5, b9aU6, b9aU7, b9aExtra],
   },
 ];
 
