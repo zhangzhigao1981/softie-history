@@ -812,8 +812,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：四册 97 课都有题，九上第 1—19 课入库，全站共 7758 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 7758);
+test('题库：四册 97 课都有题，九上第 1—20 课入库，全站共 7825 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 7825);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -856,7 +856,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
   assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
   assert.equal(lessonQuestionCount(l1), 64);
-  assert.equal(bookQuestionCount(book('b9a')), 1259);
+  assert.equal(bookQuestionCount(book('b9a')), 1326);
 
   // 三个子目与「相关史事」「课后活动」「知识拓展」都要有题落到。
   const text = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
@@ -870,12 +870,12 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
 
-  // 九上只录了第 1—19 课，其余 4 课仍是空骨架。
+  // 九上只录了第 1—20 课，其余 3 课仍是空骨架。
   const pending = [];
   for (const unit of book('b9a').units) {
     for (const lesson of unit.lessons) if (!lesson.questions.length) pending.push(lesson.label);
   }
-  assert.equal(pending.length, 4, '九上第 20 课起待补');
+  assert.equal(pending.length, 3, '九上第 21 课起待补');
   assert.ok(!pending.includes('第1课'));
   assert.ok(!pending.includes('第2课'));
   assert.ok(!pending.includes('第3课'));
@@ -895,6 +895,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   assert.ok(!pending.includes('第17课'));
   assert.ok(!pending.includes('第18课'));
   assert.ok(!pending.includes('第19课'));
+  assert.ok(!pending.includes('第20课'));
 });
 
 test('题库：九上第 2 课 65 题，覆盖两河地理、汉谟拉比法典与两河文化', () => {
@@ -1420,6 +1421,36 @@ test('题库：九上第 19 课 67 题，覆盖纺织技术革新、蒸汽机与
     '1785年', '1807年', '1825年', '19世纪30年代', '19世纪', '19世纪中期',
     '18世纪后期', '19世纪末']);
   for (const q of questionsOf(l19, 'timeline')) {
+    assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
+    for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
+  }
+});
+
+test('题库：九上第 20 课 67 题，覆盖早期工人斗争、马恩活动与《共产党宣言》', () => {
+  const l20 = book('b9a').units[6].lessons[1];
+  assert.equal(l20.label, '第20课');
+  assert.equal(l20.title, '马克思主义的诞生');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l20, typeId).length;
+  assert.deepEqual(byType, { choice: 33, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l20), 67);
+
+  const text = l20.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
+    + (q.axis ? q.axis.map((n) => n.year + n.text).join('') : '')).join('');
+  for (const key of ['空想社会主义', '卢德', '宪章运动', '里昂', '西里西亚', '马克思', '恩格斯',
+    '正义者同盟', '共产主义者同盟', '共产党宣言', '1848', '阶级斗争', '剩余价值',
+    '特里尔', '海格特', '陈望道', '科学社会主义']) {
+    assert.ok(text.includes(key), `第 20 课应覆盖 ${key}`);
+  }
+  for (const key of ['布鲁塞尔', '资本论', '世界记忆名录', '1920']) {
+    assert.ok(text.includes(key), `第 20 课应覆盖 ${key}`);
+  }
+
+  // 时间轴只用教材给出的年代，且同轴不重复。
+  const allowed = new Set(['1818—1883年', '1820—1895年', '1825年', '1831年', '1834年',
+    '1836年', '1844年', '1846年', '1847年', '1848年', '1867年', '1885年', '1894年',
+    '1920年', '2013年']);
+  for (const q of questionsOf(l20, 'timeline')) {
     assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
     for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
   }
