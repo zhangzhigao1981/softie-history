@@ -812,8 +812,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：四册 97 课都有题，九上第 1—4 课入库，全站共 6758 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 6758);
+test('题库：四册 97 课都有题，九上第 1—5 课入库，全站共 6825 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 6825);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -856,7 +856,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
   assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
   assert.equal(lessonQuestionCount(l1), 64);
-  assert.equal(bookQuestionCount(book('b9a')), 259);
+  assert.equal(bookQuestionCount(book('b9a')), 326);
 
   // 三个子目与「相关史事」「课后活动」「知识拓展」都要有题落到。
   const text = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
@@ -870,16 +870,17 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
 
-  // 九上只录了第 1—4 课，其余 19 课仍是空骨架。
+  // 九上只录了第 1—5 课，其余 18 课仍是空骨架。
   const pending = [];
   for (const unit of book('b9a').units) {
     for (const lesson of unit.lessons) if (!lesson.questions.length) pending.push(lesson.label);
   }
-  assert.equal(pending.length, 19, '九上第 5 课起待补');
+  assert.equal(pending.length, 18, '九上第 6 课起待补');
   assert.ok(!pending.includes('第1课'));
   assert.ok(!pending.includes('第2课'));
   assert.ok(!pending.includes('第3课'));
   assert.ok(!pending.includes('第4课'));
+  assert.ok(!pending.includes('第5课'));
 });
 
 test('题库：九上第 2 课 65 题，覆盖两河地理、汉谟拉比法典与两河文化', () => {
@@ -964,6 +965,35 @@ test('题库：九上第 4 课 65 题，覆盖印度河流域文明、种姓制�
   const allowed = new Set(['约公元前25世纪', '公元前18世纪', '约公元前1500年', '公元前6世纪前后',
     '约公元前324年', '公元前2世纪末', '公元前后', '公元1—3世纪', '320—540年']);
   for (const q of questionsOf(l4, 'timeline')) {
+    assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
+    for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
+  }
+});
+
+test('题库：九上第 5 课 67 题，覆盖希腊城邦、雅典与斯巴达、亚历山大东征与希腊文化', () => {
+  const l5 = book('b9a').units[1].lessons[0];
+  assert.equal(l5.label, '第5课');
+  assert.equal(l5.title, '古代希腊');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l5, typeId).length;
+  assert.deepEqual(byType, { choice: 33, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l5), 67);
+
+  const text = l5.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
+    + (q.axis ? q.axis.map((n) => n.year + n.text).join('') : '')).join('');
+  for (const key of ['克里特文明', '迈锡尼文明', '小国寡民', '公民大会', '议事会', '伯里克利',
+    '津贴', '公民法庭', '斯巴达', '寡头政治', '希洛人', '马其顿', '亚历山大', '波斯']) {
+    assert.ok(text.includes(key), `第 5 课应覆盖 ${key}`);
+  }
+  for (const key of ['神人同形同性', '荷马史诗', '希罗多德', '修昔底德', '掷铁饼者', '卫城',
+    '苏格拉底', '欧几里得', '阿基米德', '奥林匹亚', '悲剧']) {
+    assert.ok(text.includes(key), `第 5 课应覆盖 ${key}`);
+  }
+
+  // 时间轴只用教材给出的年代，且同轴不重复。
+  const allowed = new Set(['公元前8—前6世纪', '公元前776年', '公元前5世纪中期', '公元前4世纪',
+    '公元前334年', '公元前330年']);
+  for (const q of questionsOf(l5, 'timeline')) {
     assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
     for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
   }
