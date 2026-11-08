@@ -812,8 +812,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：四册 97 课都有题，九上第 1—10 课入库，全站共 7153 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 7153);
+test('题库：四册 97 课都有题，九上第 1—11 课入库，全站共 7220 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 7220);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -856,7 +856,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
   assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
   assert.equal(lessonQuestionCount(l1), 64);
-  assert.equal(bookQuestionCount(book('b9a')), 654);
+  assert.equal(bookQuestionCount(book('b9a')), 721);
 
   // 三个子目与「相关史事」「课后活动」「知识拓展」都要有题落到。
   const text = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
@@ -870,12 +870,12 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
 
-  // 九上只录了第 1—10 课，其余 13 课仍是空骨架。
+  // 九上只录了第 1—11 课，其余 12 课仍是空骨架。
   const pending = [];
   for (const unit of book('b9a').units) {
     for (const lesson of unit.lessons) if (!lesson.questions.length) pending.push(lesson.label);
   }
-  assert.equal(pending.length, 13, '九上第 11 课起待补');
+  assert.equal(pending.length, 12, '九上第 12 课起待补');
   assert.ok(!pending.includes('第1课'));
   assert.ok(!pending.includes('第2课'));
   assert.ok(!pending.includes('第3课'));
@@ -886,6 +886,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   assert.ok(!pending.includes('第8课'));
   assert.ok(!pending.includes('第9课'));
   assert.ok(!pending.includes('第10课'));
+  assert.ok(!pending.includes('第11课'));
 });
 
 test('题库：九上第 2 课 65 题，覆盖两河地理、汉谟拉比法典与两河文化', () => {
@@ -1142,6 +1143,35 @@ test('题库：九上第 10 课 66 题，覆盖 7 世纪以前的日本、大化
   const allowed = new Set(['57年', '1—3世纪', '5世纪', '608年', '623年', '646年',
     '12世纪末', '12世纪末以后', '676年', '10世纪', '14世纪末']);
   for (const q of questionsOf(l10, 'timeline')) {
+    assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
+    for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
+  }
+});
+
+test('题库：九上第 11 课 67 题，覆盖半岛统一、帝国兴衰与阿拉伯文化', () => {
+  const l11 = book('b9a').units[3].lessons[1];
+  assert.equal(l11.label, '第11课');
+  assert.equal(l11.title, '阿拉伯帝国');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l11, typeId).length;
+  assert.deepEqual(byType, { choice: 33, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l11), 67);
+
+  const text = l11.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
+    + (q.axis ? q.axis.map((n) => n.year + n.text).join('') : '')).join('');
+  for (const key of ['沙漠', '波斯湾', '红海', '游牧', '水源', '穆罕默德', '麦加', '麦地那',
+    '伊斯兰', '穆斯林', '622', '630', '哈里发', '中央集权', '大马士革', '巴格达', '开罗',
+    '团城', '智慧宫', '一千零一夜', '医典', '阿拉伯数字', '1258', '造纸术', '指南针', '火药']) {
+    assert.ok(text.includes(key), `第 11 课应覆盖 ${key}`);
+  }
+  for (const key of ['印度西北部', '阿富汗', '西班牙', '旧唐书', '天方夜谭', '长安', '广州']) {
+    assert.ok(text.includes(key), `第 11 课应覆盖 ${key}`);
+  }
+
+  // 时间轴只用教材给出的年代，且同轴不重复。
+  const allowed = new Set(['6世纪末', '7世纪初', '622年', '630年', '8世纪中期',
+    '762年', '830年', '9世纪末', '9世纪中期以后', '1258年']);
+  for (const q of questionsOf(l11, 'timeline')) {
     assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
     for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
   }
