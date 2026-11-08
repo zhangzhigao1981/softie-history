@@ -812,8 +812,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：四册 97 课都有题，九上第 1—15 课入库，全站共 7489 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 7489);
+test('题库：四册 97 课都有题，九上第 1—16 课入库，全站共 7556 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 7556);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -856,7 +856,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
   assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
   assert.equal(lessonQuestionCount(l1), 64);
-  assert.equal(bookQuestionCount(book('b9a')), 990);
+  assert.equal(bookQuestionCount(book('b9a')), 1057);
 
   // 三个子目与「相关史事」「课后活动」「知识拓展」都要有题落到。
   const text = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
@@ -870,12 +870,12 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
 
-  // 九上只录了第 1—15 课，其余 8 课仍是空骨架。
+  // 九上只录了第 1—16 课，其余 7 课仍是空骨架。
   const pending = [];
   for (const unit of book('b9a').units) {
     for (const lesson of unit.lessons) if (!lesson.questions.length) pending.push(lesson.label);
   }
-  assert.equal(pending.length, 8, '九上第 16 课起待补');
+  assert.equal(pending.length, 7, '九上第 17 课起待补');
   assert.ok(!pending.includes('第1课'));
   assert.ok(!pending.includes('第2课'));
   assert.ok(!pending.includes('第3课'));
@@ -891,6 +891,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   assert.ok(!pending.includes('第13课'));
   assert.ok(!pending.includes('第14课'));
   assert.ok(!pending.includes('第15课'));
+  assert.ok(!pending.includes('第16课'));
 });
 
 test('题库：九上第 2 课 65 题，覆盖两河地理、汉谟拉比法典与两河文化', () => {
@@ -1296,6 +1297,37 @@ test('题库：九上第 15 课 66 题，覆盖葡西掠夺、英荷法争霸与
   const allowed = new Set(['15世纪', '1532年', '16世纪', '16世纪中后期', '16世纪以后',
     '1588年', '17世纪初', '17世纪', '17世纪下半期', '18世纪中后期', '1519—1630年']);
   for (const q of questionsOf(l15, 'timeline')) {
+    assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
+    for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
+  }
+});
+
+test('题库：九上第 16 课 67 题，覆盖议会与王权斗争、内战与光荣革命、君主立宪制', () => {
+  const l16 = book('b9a').units[5].lessons[0];
+  assert.equal(l16.label, '第16课');
+  assert.equal(l16.title, '英国资产阶级革命');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l16, typeId).length;
+  assert.deepEqual(byType, { choice: 33, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l16), 67);
+
+  const text = l16.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
+    + (q.axis ? q.axis.map((n) => n.year + n.text).join('') : '')).join('');
+  for (const key of ['大宪章', '詹姆士一世', '君权神授', '权利请愿书', '1640', '1642', '内战',
+    '马斯顿荒原', '纳西比', '1649', '断头台', '共和国', '克伦威尔', '护国主', '1660',
+    '查理二世', '詹姆士二世', '1688', '光荣革命', '1689', '权利法案', '君主立宪',
+    '议会', '苏格兰', '新教']) {
+    assert.ok(text.includes(key), `第 16 课应覆盖 ${key}`);
+  }
+  for (const key of ['上下两院', '下院', '1707', '资产阶级']) {
+    assert.ok(text.includes(key), `第 16 课应覆盖 ${key}`);
+  }
+
+  // 时间轴只用教材给出的年代，且同轴不重复。
+  const allowed = new Set(['1215年', '13世纪末', '14世纪中期', '1628年', '1640年',
+    '1642年', '1643年', '1644年', '1645年', '1649年', '1653年', '1660年', '1688年',
+    '1689年', '1707年']);
+  for (const q of questionsOf(l16, 'timeline')) {
     assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
     for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
   }
