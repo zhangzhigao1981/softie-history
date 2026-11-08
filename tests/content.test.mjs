@@ -812,8 +812,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：四册 97 课都有题，九上第 1—9 课入库，全站共 7087 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 7087);
+test('题库：四册 97 课都有题，九上第 1—10 课入库，全站共 7153 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 7153);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -856,7 +856,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
   assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
   assert.equal(lessonQuestionCount(l1), 64);
-  assert.equal(bookQuestionCount(book('b9a')), 588);
+  assert.equal(bookQuestionCount(book('b9a')), 654);
 
   // 三个子目与「相关史事」「课后活动」「知识拓展」都要有题落到。
   const text = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
@@ -870,12 +870,12 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
 
-  // 九上只录了第 1—9 课，其余 14 课仍是空骨架。
+  // 九上只录了第 1—10 课，其余 13 课仍是空骨架。
   const pending = [];
   for (const unit of book('b9a').units) {
     for (const lesson of unit.lessons) if (!lesson.questions.length) pending.push(lesson.label);
   }
-  assert.equal(pending.length, 14, '九上第 10 课起待补');
+  assert.equal(pending.length, 13, '九上第 11 课起待补');
   assert.ok(!pending.includes('第1课'));
   assert.ok(!pending.includes('第2课'));
   assert.ok(!pending.includes('第3课'));
@@ -885,6 +885,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   assert.ok(!pending.includes('第7课'));
   assert.ok(!pending.includes('第8课'));
   assert.ok(!pending.includes('第9课'));
+  assert.ok(!pending.includes('第10课'));
 });
 
 test('题库：九上第 2 课 65 题，覆盖两河地理、汉谟拉比法典与两河文化', () => {
@@ -1112,6 +1113,35 @@ test('题库：九上第 9 课 65 题，覆盖拜占庭兴亡、查士丁尼法�
   const allowed = new Set(['4世纪', '395年', '6世纪', '528年', '529年', '7世纪起',
     '9世纪以后', '1054年', '14世纪初', '1453年', '16世纪']);
   for (const q of questionsOf(l9, 'timeline')) {
+    assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
+    for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
+  }
+});
+
+test('题库：九上第 10 课 66 题，覆盖 7 世纪以前的日本、大化改新与幕府统治', () => {
+  const l10 = book('b9a').units[3].lessons[0];
+  assert.equal(l10.label, '第10课');
+  assert.equal(l10.title, '封建时代的日本');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l10, typeId).length;
+  assert.deepEqual(byType, { choice: 32, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l10), 66);
+
+  const text = l10.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
+    + (q.axis ? q.axis.map((n) => n.year + n.text).join('') : '')).join('');
+  for (const key of ['北海道', '本州', '四国', '九州', '大和', '田部', '海部', '孝德天皇',
+    '646', '公地', '公民', '六年', '户籍', '不输不入', '武士', '源赖朝', '征夷大将军',
+    '镰仓', '主公']) {
+    assert.ok(text.includes(key), `第 10 课应覆盖 ${key}`);
+  }
+  for (const key of ['天皇', '东大寺', '晁卿', '李成桂', '铜镜', '倭奴国']) {
+    assert.ok(text.includes(key), `第 10 课应覆盖 ${key}`);
+  }
+
+  // 时间轴只用教材给出的年代，且同轴不重复。
+  const allowed = new Set(['57年', '1—3世纪', '5世纪', '608年', '623年', '646年',
+    '12世纪末', '12世纪末以后', '676年', '10世纪', '14世纪末']);
+  for (const q of questionsOf(l10, 'timeline')) {
     assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
     for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
   }
