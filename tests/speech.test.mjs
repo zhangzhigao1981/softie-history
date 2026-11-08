@@ -181,9 +181,11 @@ test('切到后台会中止朗读，并把隐藏期间的时间排除在计时�
 test('浏览器不响应朗读时，看门狗会放开倒计时', async () => {
   const synth = browser(); const f = createApp({ speechOptions: { synth, Utterance } });
   f.app.start('lesson'); const budget = f.app.scene.timeLeft;
-  // 每一句按自己的长度单独计时，所以放行时刻不再固定是 15 秒。
-  await f.advance(20000);
-  assert.equal(f.app.speech.busy, false, '看门狗要在 20 秒内放行');
+  // 每一句按自己的长度单独计时，而题干长短随抽题变化（材料题会很长），
+  // 所以放行时刻不固定；这里逐步推进到看门狗放行为止，上限取单句上限 90 秒再留余量。
+  let waited = 0;
+  while (f.app.speech.busy && waited < 95000) { await f.advance(1000); waited += 1000; }
+  assert.equal(f.app.speech.busy, false, '看门狗最迟在单句上限内放行');
   assert.equal(f.app.scene.timeLeft, budget, '朗读期间的时间不扣');
   await f.advance(1000); assert.equal(f.app.scene.timeLeft, budget - 1000, '放开后倒计时才开始走');
   assert.equal(f.musicGains.at(-1), 0.8);
