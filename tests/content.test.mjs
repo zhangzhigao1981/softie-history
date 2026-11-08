@@ -812,8 +812,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：四册 97 课都有题，九上第 1—21 课入库，全站共 7892 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 7892);
+test('题库：五册 120 课都有题，全站共 7999 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 7999);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -856,7 +856,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
   assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
   assert.equal(lessonQuestionCount(l1), 64);
-  assert.equal(bookQuestionCount(book('b9a')), 1393);
+  assert.equal(bookQuestionCount(book('b9a')), 1500);
 
   // 三个子目与「相关史事」「课后活动」「知识拓展」都要有题落到。
   const text = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
@@ -870,12 +870,12 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
 
-  // 九上只录了第 1—21 课，其余 2 课仍是空骨架。
+  // 九上全册 23 课已全部录题，2025 版五册至此收官。
   const pending = [];
   for (const unit of book('b9a').units) {
     for (const lesson of unit.lessons) if (!lesson.questions.length) pending.push(lesson.label);
   }
-  assert.equal(pending.length, 2, '九上第 22 课与学史方法课待补');
+  assert.equal(pending.length, 0, '九上已无待补的课');
   assert.ok(!pending.includes('第1课'));
   assert.ok(!pending.includes('第2课'));
   assert.ok(!pending.includes('第3课'));
@@ -897,6 +897,8 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   assert.ok(!pending.includes('第19课'));
   assert.ok(!pending.includes('第20课'));
   assert.ok(!pending.includes('第21课'));
+  assert.ok(!pending.includes('第22课'));
+  assert.ok(!pending.includes('学史方法'));
 });
 
 test('题库：九上第 2 课 65 题，覆盖两河地理、汉谟拉比法典与两河文化', () => {
@@ -1487,6 +1489,62 @@ test('题库：九上第 21 课 67 题，覆盖第一国际的成立与巴黎公
   for (const q of questionsOf(l21, 'timeline')) {
     assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
     for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
+  }
+});
+
+test('题库：九上第 22 课活动课 46 题，覆盖《国际歌》的诞生、传唱与活动设计', () => {
+  const l22 = book('b9a').units[6].lessons[3];
+  assert.equal(l22.label, '第22课');
+  assert.equal(l22.title, '活动课 唱响《国际歌》');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l22, typeId).length;
+  assert.deepEqual(byType, { choice: 22, blank: 10, material: 9, timeline: 5 });
+  assert.equal(lessonQuestionCount(l22), 46);
+
+  const text = l22.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
+    + (q.axis ? q.axis.map((n) => n.year + n.text).join('') : '')).join('');
+  for (const key of ['战歌', '欧仁·鲍狄埃', '皮埃尔·狄盖特', '1871', '1888', '1923',
+    '黄花岗七十二烈士陵园', '闭幕式', '共青团']) {
+    assert.ok(text.includes(key), `第 22 课应覆盖 ${key}`);
+  }
+  for (const key of ['知识图谱', '史地综合组', '歌词鉴赏组', '艺术表演组', '英特纳雄耐尔']) {
+    assert.ok(text.includes(key), `第 22 课应覆盖 ${key}`);
+  }
+
+  // 时间轴只用教材与本课涉及的年代，且同轴不重复。
+  const allowed = new Set(['1871年', '1871年3月18日', '1871年3月28日', '1871年5月21日',
+    '1871年5月28日', '1888年', '1923年', '1923年6月20日', '1949年']);
+  for (const q of questionsOf(l22, 'timeline')) {
+    assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
+    for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现范围外的年份：${node.year}`);
+  }
+});
+
+test('题库：九上学史方法 61 题，覆盖横向联系、研读经典著作与大事年表（上）', () => {
+  const u0 = book('b9a').units[book('b9a').units.length - 1];
+  assert.equal(u0.no, 0);
+  const l0 = u0.lessons[0];
+  assert.equal(l0.label, '学史方法');
+  assert.equal(l0.title, '横向联系、经典著作与大事年表（上）');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l0, typeId).length;
+  assert.deepEqual(byType, { choice: 29, blank: 14, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l0), 61);
+
+  const text = l0.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
+    + (q.axis ? q.axis.map((n) => n.year + n.text).join('') : '')).join('');
+  for (const key of ['横向联系', '时空观念', '迪亚士', '麦哲伦', '罗盘', '奥斯曼', '共产主义者同盟',
+    '唯物史观', '阶级斗争', '空想', '科学', '巴黎公社']) {
+    assert.ok(text.includes(key), `学史方法课应覆盖 ${key}`);
+  }
+
+  // 六条时间轴全部取自附录大事年表（上），年份不得重复。
+  const allowed = new Set(['约300万年前', '1万多年前起', '约公元前3100年左右', '约公元前25世纪',
+    '公元前18世纪前期', '约公元前6世纪', '约公元前509年', '公元前5世纪中期', '公元前334年',
+    '476年', '529年', '646年', '1492年', '1519—1522年', '16世纪', '1640年', '1789年', '1848年']);
+  for (const q of questionsOf(l0, 'timeline')) {
+    assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
+    for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现年表之外的年份：${node.year}`);
   }
 });
 
