@@ -812,8 +812,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：四册 97 课都有题，九上第 1—17 课入库，全站共 7624 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 7624);
+test('题库：四册 97 课都有题，九上第 1—18 课入库，全站共 7691 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 7691);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -856,7 +856,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
   assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
   assert.equal(lessonQuestionCount(l1), 64);
-  assert.equal(bookQuestionCount(book('b9a')), 1125);
+  assert.equal(bookQuestionCount(book('b9a')), 1192);
 
   // 三个子目与「相关史事」「课后活动」「知识拓展」都要有题落到。
   const text = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
@@ -870,12 +870,12 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
 
-  // 九上只录了第 1—17 课，其余 6 课仍是空骨架。
+  // 九上只录了第 1—18 课，其余 5 课仍是空骨架。
   const pending = [];
   for (const unit of book('b9a').units) {
     for (const lesson of unit.lessons) if (!lesson.questions.length) pending.push(lesson.label);
   }
-  assert.equal(pending.length, 6, '九上第 18 课起待补');
+  assert.equal(pending.length, 5, '九上第 19 课起待补');
   assert.ok(!pending.includes('第1课'));
   assert.ok(!pending.includes('第2课'));
   assert.ok(!pending.includes('第3课'));
@@ -893,6 +893,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   assert.ok(!pending.includes('第15课'));
   assert.ok(!pending.includes('第16课'));
   assert.ok(!pending.includes('第17课'));
+  assert.ok(!pending.includes('第18课'));
 });
 
 test('题库：九上第 2 课 65 题，覆盖两河地理、汉谟拉比法典与两河文化', () => {
@@ -1358,6 +1359,36 @@ test('题库：九上第 17 课 68 题，覆盖英国殖民统治、独立战争
   const allowed = new Set(['17世纪初', '1756年', '1763年', '1765年', '1773年', '1774年',
     '1775年', '1776年', '1777年', '1781年', '1783年', '1787年', '1789年', '1799年']);
   for (const q of questionsOf(l17, 'timeline')) {
+    assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
+    for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
+  }
+});
+
+test('题库：九上第 18 课 67 题，覆盖旧制度危机、法国大革命与拿破仑帝国', () => {
+  const l18 = book('b9a').units[5].lessons[2];
+  assert.equal(l18.label, '第18课');
+  assert.equal(l18.title, '法国大革命和拿破仑帝国');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l18, typeId).length;
+  assert.deepEqual(byType, { choice: 33, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l18), 67);
+
+  const text = l18.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
+    + (q.axis ? q.axis.map((n) => n.year + n.text).join('') : '')).join('');
+  for (const key of ['三个等级', '教士', '贵族', '第三等级', '伏尔泰', '孟德斯鸠', '卢梭',
+    '启蒙', '三级会议', '国民议会', '巴士底狱', '人权宣言', '1791', '法兰西第一共和国',
+    '1793', '罗伯斯庇尔', '雅各宾', '1799', '1804', '拿破仑法典', '滑铁卢', '马赛曲',
+    '私有财产', '契约自由']) {
+    assert.ok(text.includes(key), `第 18 课应覆盖 ${key}`);
+  }
+  for (const key of ['制宪议会', '叛国罪', '反法联盟', '圣赫勒拿', '积极公民']) {
+    assert.ok(text.includes(key), `第 18 课应覆盖 ${key}`);
+  }
+
+  // 时间轴只用教材给出的年代，且同轴不重复。
+  const allowed = new Set(['18世纪', '1789年', '1789年5月', '1789年7月', '1791年',
+    '1792年', '1793年', '1799年', '1804年', '1812年', '1814年', '1815年']);
+  for (const q of questionsOf(l18, 'timeline')) {
     assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
     for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
   }
