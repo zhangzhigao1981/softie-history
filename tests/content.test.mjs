@@ -812,8 +812,8 @@ test('题库：七上第 21 课活动课 42 题，落在玉钺、文明三标志
   }
 });
 
-test('题库：四册 97 课都有题，九上第 1—14 课入库，全站共 7423 题且全部通过自检', () => {
-  assert.equal(TOTAL_QUESTIONS, 7423);
+test('题库：四册 97 课都有题，九上第 1—15 课入库，全站共 7489 题且全部通过自检', () => {
+  assert.equal(TOTAL_QUESTIONS, 7489);
   assert.deepEqual(TYPE_IDS, ['choice', 'blank', 'material', 'timeline']);
 
   const counts = { choice: 0, blank: 0, material: 0, timeline: 0 };
@@ -856,7 +856,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l1, typeId).length;
   assert.deepEqual(byType, { choice: 30, blank: 16, material: 12, timeline: 6 });
   assert.equal(lessonQuestionCount(l1), 64);
-  assert.equal(bookQuestionCount(book('b9a')), 924);
+  assert.equal(bookQuestionCount(book('b9a')), 990);
 
   // 三个子目与「相关史事」「课后活动」「知识拓展」都要有题落到。
   const text = l1.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
@@ -870,12 +870,12 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
     assert.ok(text.includes(key), `第 1 课应覆盖 ${key}`);
   }
 
-  // 九上只录了第 1—14 课，其余 9 课仍是空骨架。
+  // 九上只录了第 1—15 课，其余 8 课仍是空骨架。
   const pending = [];
   for (const unit of book('b9a').units) {
     for (const lesson of unit.lessons) if (!lesson.questions.length) pending.push(lesson.label);
   }
-  assert.equal(pending.length, 9, '九上第 15 课起待补');
+  assert.equal(pending.length, 8, '九上第 16 课起待补');
   assert.ok(!pending.includes('第1课'));
   assert.ok(!pending.includes('第2课'));
   assert.ok(!pending.includes('第3课'));
@@ -890,6 +890,7 @@ test('题库：九上第 1 课 64 题，四类题型覆盖人类形成、原始�
   assert.ok(!pending.includes('第12课'));
   assert.ok(!pending.includes('第13课'));
   assert.ok(!pending.includes('第14课'));
+  assert.ok(!pending.includes('第15课'));
 });
 
 test('题库：九上第 2 课 65 题，覆盖两河地理、汉谟拉比法典与两河文化', () => {
@@ -1265,6 +1266,36 @@ test('题库：九上第 14 课 69 题，覆盖新航路背景、四条航线与
   const allowed = new Set(['13—15世纪', '14—15世纪', '15世纪', '1487年', '1488年',
     '1492年', '1497年', '1498年', '1499年', '1503年', '1519年', '1522年', '16世纪初']);
   for (const q of questionsOf(l14, 'timeline')) {
+    assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
+    for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
+  }
+});
+
+test('题库：九上第 15 课 66 题，覆盖葡西掠夺、英荷法争霸与「三角贸易」', () => {
+  const l15 = book('b9a').units[4].lessons[2];
+  assert.equal(l15.label, '第15课');
+  assert.equal(l15.title, '早期殖民掠夺');
+  const byType = {};
+  for (const typeId of TYPE_IDS) byType[typeId] = questionsOf(l15, typeId).length;
+  assert.deepEqual(byType, { choice: 32, blank: 16, material: 12, timeline: 6 });
+  assert.equal(lessonQuestionCount(l15), 66);
+
+  const text = l15.questions.map((q) => q.stem + (q.material || '') + q.options.join('') + q.explain
+    + (q.axis ? q.axis.map((n) => n.year + n.text).join('') : '')).join('');
+  for (const key of ['葡萄牙', '西班牙', '无敌舰队', '巴西', '印第安', '菲律宾', '1588',
+    '大西洋', '黄金海岸', '象牙海岸', '奴隶海岸', '德雷克', '东印度公司', '荷兰',
+    '马车夫', '马六甲', '新尼德兰', '法国', '霸权', '三角贸易', '出程', '中程', '归程',
+    '天花', '皮萨罗', '1500']) {
+    assert.ok(text.includes(key), `第 15 课应覆盖 ${key}`);
+  }
+  for (const key of ['里斯本', '卡哈马卡', '库斯科', '马克思', '锡兰']) {
+    assert.ok(text.includes(key), `第 15 课应覆盖 ${key}`);
+  }
+
+  // 时间轴只用教材给出的年代，且同轴不重复。
+  const allowed = new Set(['15世纪', '1532年', '16世纪', '16世纪中后期', '16世纪以后',
+    '1588年', '17世纪初', '17世纪', '17世纪下半期', '18世纪中后期', '1519—1630年']);
+  for (const q of questionsOf(l15, 'timeline')) {
     assert.equal(new Set(q.axis.map((n) => n.year)).size, q.axis.length, `时间轴年份重复：${q.id}`);
     for (const node of q.axis) assert.ok(allowed.has(node.year), `时间轴出现教材之外的年份：${node.year}`);
   }
